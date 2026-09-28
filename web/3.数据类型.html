@@ -1,0 +1,1310 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>3. 数据类型 - 从本质学 Rust 编程</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="从本质出发，深入理解 Rust 编程的核心概念与实现机制">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./assets/github.css">
+        <link rel="stylesheet" href="./assets/ads.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "searchindex-8e82da5b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-a8c2f258.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">从本质学 Rust 编程</h1>
+
+                    <div class="right-buttons">
+                        <a href="https://github.com/Ken4096/The-Essence-of-Rust-Programming" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="3-数据类型"><a class="header" href="#3-数据类型">3. 数据类型</a></h2>
+<h3 id="31-简介"><a class="header" href="#31-简介">3.1 简介</a></h3>
+<p>　　Rust 支持多种数据类型，用于处理不同形式的数据，包括整数、浮点数、布尔值、字符，以及数组、枚举、结构体、元组等复合类型。Rust 是一门强类型、静态类型语言，其核心语义与安全机制以类型系统为中心设计，要求程序中的所有数据在<strong>编译期就具有明确且一致的类型</strong>，编译时不允许类型不匹配或类型不确定的情况。</p>
+<p>　　数据类型决定了变量能够存放的数据种类、容器的大小（即位宽）、数据的取值范围，以及对应的解析规则。下面会从这四个角度来分析各种数据类型。</p>
+<h3 id="32-无符号整数"><a class="header" href="#32-无符号整数">3.2 无符号整数</a></h3>
+<p>　　无符号整数用于表示不带符号的整数，即大于或等于 0 的整数。Rust 提供了多种位宽的无符号整数类型（<code>u8</code>、<code>u16</code>、<code>u32</code>、<code>u64</code> 和 <code>u128</code>），不同的位宽决定了不同的取值范围；在解析时，每一位二进制位都用于表示数值大小。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>数据类型</th><th>位宽</th><th>取值范围</th></tr>
+</thead>
+<tbody>
+<tr><td>u8</td><td>1 字节</td><td>0 ~ 255</td></tr>
+<tr><td>u16</td><td>2 字节</td><td>0 ~ 65_535</td></tr>
+<tr><td>u32</td><td>4 字节</td><td>0 ~ 4_294_967_295</td></tr>
+<tr><td>u64</td><td>8 字节</td><td>0 ~ 18_446_744_073_709_551_615</td></tr>
+<tr><td>u128</td><td>16 字节</td><td>0 ~ 340_282_366_920_938_463_463_374_607_431_768_211_455</td></tr>
+<tr><td>usize</td><td>取决于平台</td><td>在 32 位系统中，<code>usize</code> 的大小为 32 位，与 <code>u32</code> 等价；在 64 位系统中，<code>usize</code> 的大小为 64 位，与 <code>u64</code> 等价。</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">fn main() {
+    // u8：8 位无符号整数，取值范围为 0 ~ 255
+    let u8_min: u8 = u8::MIN;
+    let u8_max: u8 = u8::MAX;
+    println!("u8_min: {}, u8_max: {}", u8_min, u8_max);
+
+    // u16：16 位无符号整数，取值范围为 0 ~ 65_535
+    let u16_min: u16 = u16::MIN;
+    let u16_max: u16 = u16::MAX;
+    println!("u16_min: {}, u16_max: {}", u16_min, u16_max);
+
+    // u32：32 位无符号整数，取值范围为 0 ~ 4_294_967_295
+    let u32_min: u32 = u32::MIN;
+    let u32_max: u32 = u32::MAX;
+    println!("u32_min: {}, u32_max: {}", u32_min, u32_max);
+
+    // u64：64 位无符号整数，取值范围为 0 ~ 18_446_744_073_709_551_615
+    let u64_min: u64 = u64::MIN;
+    let u64_max: u64 = u64::MAX;
+    println!("u64_min: {}, u64_max: {}", u64_min, u64_max);
+
+    // u128：128 位无符号整数，取值范围为 0 ~ 340_282_366_920_938_463_463_374_607_431_768_211_455
+    let u128_min: u128 = u128::MIN;
+    let u128_max: u128 = u128::MAX;
+    println!("u128_min: {}, u128_max: {}", u128_min, u128_max);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+u8_min: 0, u8_max: 255
+u16_min: 0, u16_max: 65535
+u32_min: 0, u32_max: 4294967295
+u64_min: 0, u64_max: 18446744073709551615
+u128_min: 0, u128_max: 340282366920938463463374607431768211455
+</code></pre>
+<p>　　此外，Rust 允许在数值字面量后使用类型后缀来明确指定类型。具体选择哪种类型取决于需求和应用场景，例如，如果需要存放非常大的整数，可以选择 64 位或 128 位的无符号整数类型。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let a = 1_u8;     // 等同于 let a: u8 = 1;
+    let b = 2_u16; 
+    let c = 3_u32;
+    let d = 4_u64;
+    let e = 5_u128;
+    println!("{} {} {} {} {}", a, b, c, d, e);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+1 2 3 4 5
+</code></pre>
+<p>　　Rust 是一门强类型、静态类型语言，不允许类型不匹配或类型不确定的情况。数值类型之间，可以使用 <code>as</code> 关键字进行转换。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let x: i8 = 10;
+    let y: u16 = 10;
+    let sum: u16 = y + x as u16;   // 需要将 x 转为 u16 类型
+
+    println!("sum: {}", sum);
+}</code></pre>
+<h3 id="33-有符号整数"><a class="header" href="#33-有符号整数">3.3 有符号整数</a></h3>
+<p>　　有符号整数用于表示带符号的整数，既可以表示正数，也可以表示负数和 0。Rust 提供了多种位宽的有符号整数类型（<code>i8</code>、<code>i16</code>、<code>i32</code>、<code>i64</code> 和 <code>i128</code>），不同的位宽决定了不同的取值范围；在解析时，最高位用于表示符号，符号位为 <code>0</code> 表示正数或 0，符号位为 <code>1</code> 表示负数，其余二进制位用于表示数值大小。</p>
+<pre><code class="language-shell">┌─────────────────────────────────────────────────────────┐
+│  符号位（1位）  │              数值部分（7位）              │
+└─────────────────────────────────────────────────────────┘
+
+# 例如，i8 类型的数值 1：符号位为 0表示正数，其他的为数值部分
+┌──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐
+│   0  │   0  │   0  │   0  │   0  │   0  │   0  │   1  │
+└──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+
+# 例如，i8 类型的数值 -1：符号位为 1 表示负数，数值部分全部为 1（二进制补码）
+┌──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐
+│   1  │   1  │   1  │   1  │   1  │   1  │   1  │   1  │
+└──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>数据类型</th><th>位宽</th><th>取值范围</th></tr>
+</thead>
+<tbody>
+<tr><td>i8</td><td>1 字节</td><td>−128 <strong>~</strong> 127</td></tr>
+<tr><td>i16</td><td>2 字节</td><td>−32_768 <strong>~</strong> 32_767</td></tr>
+<tr><td>i32</td><td>4 字节</td><td>−2_147_483_648 <strong>~</strong> 2_147_483_647</td></tr>
+<tr><td>i64</td><td>8 字节</td><td>−9_223_372_036_854_775_808 <strong>~</strong> 9_223_372_036_854_775_807</td></tr>
+<tr><td>i128</td><td>16 字节</td><td>−170_141_183_460_469_231_731_687_303_715_884_105_728 <strong>~</strong> <br />170_141_183_460_469_231_731_687_303_715_884_105_727</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">fn main() {
+    // i8：8 位有符号整数，取值范围为 -128 ~ 127
+    let i8_min: i8 = i8::MIN;
+    let i8_max: i8 = i8::MAX;
+    println!("i8_min: {}, i8_max: {}", i8_min, i8_max);
+
+    // i16：16 位有符号整数，取值范围为 -32_768 ~ 32_767
+    let i16_min: i16 = i16::MIN;
+    let i16_max: i16 = i16::MAX;
+    println!("i16_min: {}, i16_max: {}", i16_min, i16_max);
+
+    // i32：32 位有符号整数，取值范围为 -2_147_483_648 ~ 2_147_483_647
+    let i32_min: i32 = i32::MIN;
+    let i32_max: i32 = i32::MAX;
+    println!("i32_min: {}, i32_max: {}", i32_min, i32_max);
+
+    // i64：64 位有符号整数，取值范围为 -9_223_372_036_854_775_808 ~ 9_223_372_036_854_775_807
+    let i64_min: i64 = i64::MIN;
+    let i64_max: i64 = i64::MAX;
+    println!("i64_min: {}, i64_max: {}", i64_min, i64_max);
+
+    // i128：128 位有符号整数，取值范围为
+    // -170_141_183_460_469_231_731_687_303_715_884_105_728 ~ 
+    // 170_141_183_460_469_231_731_687_303_715_884_105_727
+    let i128_min: i128 = i128::MIN;
+    let i128_max: i128 = i128::MAX;
+    println!("i128_min: {}, i128_max: {}", i128_min, i128_max);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+i8_min: -128, i8_max: 127
+i16_min: -32768, i16_max: 32767
+i32_min: -2147483648, i32_max: 2147483647
+i64_min: -9223372036854775808, i64_max: 9223372036854775807
+i128_min: -170141183460469231731687303715884105728, i128_max: 170141183460469231731687303715884105727
+</code></pre>
+<p>　　加法器是处理器中最基础的运算单元，其结构简单、成本低且运算效率高。为了简化 CPU 的整体设计、提高运算效率、降低硬件复杂度和制造成本，处理器将整数的加法和带符号整数运算统一交由加法器完成。为了让负数也能直接参与加法运算，需要将负数编码为一种可直接参与加法运算的二进制形式。</p>
+<p>　　因此，计算机中负数通常使用<strong>补码</strong>表示：先将负数对应正数的二进制按位取反（得到反码），然后在此基础上加 1，即得到负数的补码表示。例如，对于 -5，先将 +5 的二进制 <code>00000101</code> 按位取反得到 <code>11111010</code>，再加 1，最终得到补码 <code>11111011</code>。经过这种处理后，负数就可以像正数一样直接参与加法运算，如果加法产生的进位超出了最高位，这部分进位会被丢弃。</p>
+<pre><code class="language-text"># 示例（注： 进位超出了最高位，进位会被丢弃）
+  00000111 (7)          11111011 (-5)         11111100 (-4)
++ 11111011 (-5)       + 00000100 (4)        + 11111101 (-3)
+----------            ----------            ----------
+  00000010 (2)          11111111 (-1)         11111001 (-7)
+</code></pre>
+<h3 id="34-浮点数类型"><a class="header" href="#34-浮点数类型">3.4 浮点数类型</a></h3>
+<p>　　浮点数用于表示带小数的数值，包括正数、负数和零。Rust 支持两种浮点数类型：32 位单精度浮点数 <code>f32</code> 和 64 位双精度浮点数 <code>f64</code>，不同位宽决定了数值的精度和表示范围。Rust 的浮点数遵循 IEEE 754 标准（即 IEEE 二进制浮点数算术标准），规定浮点数由符号位、指数部分和尾数部分组成，用于表示数值的符号、数量级和精确值。浮点数的详细解析规则比较复杂，在日常工作中通常不需要深入掌握。有兴趣的朋友可以自行查阅相关资料进一步学习。</p>
+<pre><code class="language-text">┌───────────────┬─────────────────┬─────────────────────────────────────┐
+|   符号位（1位） |  指数部分（8位）  |              尾数部分（23位）          |
+└───────────────┴─────────────────┴─────────────────────────────────────┘
+                       32 位单精度浮点数（4 字节）
+
+┌───────────────┬─────────────────┬─────────────────────────────────────┐
+|  符号位（1位）  |  指数部分（11位） |             尾数部分（52位）          |
+└───────────────┴─────────────────┴─────────────────────────────────────┘
+                        64 位双精度浮点数（8 字节）
+</code></pre>
+<p>　　在 Rust 中，浮点数支持使用科学计数法形式进行表示，通过 <code>e</code> 或 <code>E</code> 表示“乘以 10 的幂”，以便简洁地书写浮点数字面量。例如，<code>1.23e3</code> 表示 1.23 × 10³（即 1230.0），<code>4.5e-2</code> 表示 4.5 × 10⁻²（即 0.045）。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>数据类型</th><th>位宽</th><th>取值范围</th></tr>
+</thead>
+<tbody>
+<tr><td>f32</td><td>4 字节</td><td>-3.4028235e38 <strong>~</strong> 3.4028235e38<br />-3.4028235e38：-340282350000000000000000000000000000000<br />3.4028235e38 ：340282350000000000000000000000000000000</td></tr>
+<tr><td>f64</td><td>8 字节</td><td>-1.7976931348623157e308 ~ 1.7976931348623157e308</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 默认为 f64 类型，大小为 8 字节
+    let value = 1.23e3;
+    println!("value: {}，默认类型大小: {}", value, size_of_val(&amp;value));
+
+    // 单精度浮点数范围
+    let f32_min: f32 = f32::MIN;
+    let f32_max: f32 = f32::MAX;
+    println!("f32_min: {}", f32_min);
+    println!("f32_max: {}", f32_max);
+
+    // 双精度浮点数范围，由于数值比较大，使用科学计数法表示
+    let f64_min: f64 = f64::MIN;
+    let f64_max: f64 = f64::MAX;
+    println!("f64_min: {:.e}", f64_min);  // .e 表示使用科学计数法打印
+    println!("f64_max: {:.e}", f64_max);
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>shell&gt; cargo run
+value: 1230，默认类型大小: 8
+f32_min: -340282350000000000000000000000000000000
+f32_max: 340282350000000000000000000000000000000
+f64_min: -1.7976931348623157e308
+f64_max: 1.7976931348623157e308
+<span class="boring">}</span></code></pre>
+<h3 id="35-算术运算符"><a class="header" href="#35-算术运算符">3.5 算术运算符</a></h3>
+<p>　　Rust 支持常见的数学运算，包括加法、减法、乘法、除法以及取模运算。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>描述</th><th>算术运算符</th></tr>
+</thead>
+<tbody>
+<tr><td>加法运算符</td><td><strong>+</strong></td></tr>
+<tr><td>减法运算符</td><td><strong>-</strong></td></tr>
+<tr><td>乘法运算符</td><td>*****</td></tr>
+<tr><td>除法运算符</td><td><strong>/</strong></td></tr>
+<tr><td>取模运算符</td><td><strong>%</strong></td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 加法
+    let result = 3 + 2;
+    println!("加法: {}", result, );
+
+    // 减法
+    let result = 3 - 2;
+    println!("减法: {}", result);
+
+    // 乘法
+    let result = 3 * 2;
+    println!("乘法: {}", result);
+
+    // 除法
+    let result = 3.0 / 2.0;
+    println!("除法: {}", result);
+
+    // 取模
+    let result = 3 % 2;
+    println!("取模: {}", result);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+加法: 5
+减法: 1
+乘法: 6
+除法: 1.5
+取模: 1
+</code></pre>
+<h3 id="36-布尔类型"><a class="header" href="#36-布尔类型">3.6 布尔类型</a></h3>
+<p>　　除了算术运算符之外，Rust 还支持比较运算符：<code>&gt;</code>、<code>&lt;</code>、<code>&gt;=</code>、<code>&lt;=</code>、<code>==</code> 和 <code>!=</code>，用于判断某个条件是否成立。比较运算的结果由布尔类型（<code>bool</code>）表示，其位宽为 1 字节，其取值范围只有两种：<code>true</code> 表示条件成立，<code>false</code> 表示条件不成立。在底层实现中，<code>true</code> 对应数值 <code>1</code>，<code>false</code> 对应数值 <code>0</code>。C 语言中可以直接使用 <code>1</code> 和 <code>0</code> 表示条件成立与否，而 Rust 引入布尔类型，正是为了让真假语义更加清晰、明确，避免将逻辑判断与数值类型混淆。</p>
+<pre class="playground"><code class="language-rust">use std::mem::size_of;
+
+fn main() {
+
+    // 直接定义布尔类型变量
+    let _condition: bool = true;
+    println!("bool size: {}", size_of::&lt;bool&gt;());
+
+    // true 和 false 本质是数值 1 和 0
+    let true_value = true as u8;
+    let false_value = false as u8;
+    println!("true_value: {}, false_value: {}", true_value, false_value);
+
+    let a = 10;
+    let b = 20;
+
+    // `&gt;` 运算符
+    let result = a &gt; b;
+    println!("a &gt; b 的结果是 {}", result);  // 输出：false
+
+    // `&lt;` 运算符
+    let result = a &lt; b;
+    println!("a &lt; b 的结果是 {}", result);  // 输出：true
+
+    // `&gt;=` 运算符
+    let result = a &gt;= b;
+    println!("a &gt;= b 的结果是 {}", result);  // 输出：false
+
+    // `&lt;=` 运算符
+    let result = a &lt;= b;
+    println!("a &lt;= b 的结果是 {}", result);  // 输出：true
+
+    // `==` 运算符
+    let result = a == b;
+    println!("a == b 的结果是 {}", result);  // 输出：false
+
+    // `!=` 运算符
+    let result = a != b;
+    println!("a != b 的结果是 {}", result);  // 输出：true
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+bool size: 1
+true_value: 1, false_value: 0
+a &gt; b 的结果是 false
+a &lt; b 的结果是 true
+a &gt;= b 的结果是 false
+a &lt;= b 的结果是 true
+a == b 的结果是 false
+a != b 的结果是 true
+</code></pre>
+<p>　　此外，Rust 语言还支持三种逻辑运算符，可以对布尔表达式进行组合或取反，实现更复杂的条件判断和逻辑运算。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>逻辑运算符</th><th>作用</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>&amp;&amp;</strong></td><td>逻辑与，用于连接两个布尔表达式，只有当二者都为 <code>true</code> 时，结果才为 <code>true</code>。</td></tr>
+<tr><td>**||**</td><td>逻辑或，只要其中任意一个表达式为 <code>true</code>，整个表达式的结果就为 <code>true</code>。</td></tr>
+<tr><td>**! **</td><td>逻辑非，用于对布尔表达式的结果取反，即将 <code>true</code> 变为 <code>false</code>，或将 <code>false</code> 变为 <code>true</code>。</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    let age = 20;
+
+    // &amp;&amp; 与：两个条件都成立，结果才为 true
+    let is_adult = age &gt;= 18 &amp;&amp; age &lt;= 60;
+    println!("是否是成年人: {}", is_adult);
+
+    // || 或：只要任意一个成立，即成立
+    let is_baby = age == 0 || age == 1 || age == 2;
+    println!("是否是婴儿: {}", is_baby);
+
+    // ! 非：对布尔结果取反，true 变为 false，false 变为 true
+    let not_adult = !is_adult;
+    println!("是否不是成年人: {}", not_adult);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+是否是成年人: true
+是否是婴儿: false
+是否不是成年人: false
+</code></pre>
+<h3 id="37-字符类型"><a class="header" href="#37-字符类型">3.7 字符类型</a></h3>
+<p>　　字符类型用于表示单个字符，即一个文字，其位宽为 4 字节（32 位），理论上可以表示超过 40 亿种不同的取值，因此能够覆盖全球各种语言的文字、标点符号和特殊符号，以及表情字符等。计算机底层只能处理二进制数据，字符是如何被表示和处理的呢？答案是引入一部字典，为每个字符分配一个唯一的数字编号，例如，数字编号 1 对应字典中的第一个字符，数字编号 2 对应第二个字符，以此类推，建立字符与数字编号之间的映射关系。字符类型实际存储的就是这些数字编号，在显示或处理字符时，计算机会按照对应的编码规则，将数字编号转换为人类可读的字符。</p>
+<p>　　引入的字符字典称为<strong>字符集</strong>，为每个字符分配的数字编号称为<strong>码点</strong>。ASCII 码是早期最常用的字符集之一，涵盖英文字母、数字、标点符号以及部分控制字符（如换行、回车等），总共 128 个字符。码位范围为 0～127，用 7 位二进制就能全部表示。但因为字节是计算机最基本的存储单元，实际存储时通常仍占 1 个字节，剩余的最高位以 0 填充。</p>
+<p>　　随着计算机在全球普及，世界各国陆续制定了各自的字符集，以支持本国语言。然而，这些字符集与 ASCII 类似，只能覆盖部分国家的语言，且彼此之间缺乏统一标准——同一个码位，使用不同的字符集可能会解析为不同的字符。为了解决各国字符集相互割裂、无法统一表示多语言字符的问题，<strong>Unicode</strong> 标准应运而生。</p>
+<p>　　Unicode 为世界上几乎所有文字、标点符号、特殊符号和表情符号分配了<strong>统一且唯一的编号（码点）</strong>，确保不同语言和不同平台能够以一致的方式表示和处理字符。另外，Unicode 完全兼容 ASCII，其前 <strong>128 个码点</strong>与 ASCII 字符的编码保持一致，使得原有基于 ASCII 的系统可以平滑过渡并继续使用。在 Rust 中，字符类型采用 Unicode 编码表示，每个字符都对应一个唯一的 Unicode 码点。通过 <code>as</code> 关键字，可以在字符与其对应的 Unicode 码点之间进行相互转换。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 定义一个字符，使用单引号包裹，只能有一个字符
+    let character = '我';
+    println!("字符类型大小: {}, {}=0x{:X}", size_of::&lt;char&gt;(), 
+        character, character as u32);
+
+    // 字符转 Unicode
+    let char_to_unicode = 'A' as u32;
+    println!("字符转 Unicode: {}", char_to_unicode);
+
+    // Unicode 转字符
+    let unicode_to_char = 66 as char;
+    println!("Unicode 转字符: {}", unicode_to_char);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+字符类型大小: 4, 我=0x6211
+字符转 Unicode: 65
+Unicode 转字符: B
+</code></pre>
+<h3 id="38-数组类型"><a class="header" href="#38-数组类型">3.8 数组类型</a></h3>
+<p>　　数组类型可以让一个变量名关联一组数据，这些数据的类型必须相同。数组的位宽由元素类型和元素数量共同决定，其中元素数量即为数组的长度，且长度在定义后无法修改。数组中的各个元素存放在一块连续的内存空间中，程序可以通过索引（从 0 开始）访问任意位置的元素。在 Rust 中，定义数组的语法格式为：<code>let 数组名: [数据类型; 元素数量] = [元素1, 元素2, ...];</code>。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 定义一个包含 7 个元素的数组，表示一周每天的温度
+    let weekly_temps: [i32; 7] = [28, 30, 29, 31, 32, 30, 27];
+    println!("数组大小 [i32; 7]：{} 字节", size_of_val(&amp;weekly_temps));
+
+    // 数组长度可以通过 len() 方法获取
+    println!("数组长度：{}", weekly_temps.len());
+
+    // 数组中的元素可以通过索引访问，索引从 0 开始
+    let monday_temp = weekly_temps[0];
+    let tuesday_temp = weekly_temps[1];
+    let sunday_temp = weekly_temps[6];
+    println!("周一的温度是：{}°C", monday_temp);
+    println!("周二的温度是：{}°C", tuesday_temp);
+    println!("周日的温度是：{}°C", sunday_temp);
+
+    // 数组中的元素存放在一块连续的内存空间，间隔为元素的类型大小，
+    // weekly_temps 元素 i32 类型为 4 字节大小，所以每个元素地址间隔 4
+    println!("数组地址[0]：{:p}", &amp;weekly_temps[0]);
+    println!("数组地址[1]：{:p}", &amp;weekly_temps[1]);
+    println!("数组地址[2]：{:p}", &amp;weekly_temps[2]);
+    println!("数组地址[3]：{:p}", &amp;weekly_temps[3]);
+    println!("数组地址[4]：{:p}", &amp;weekly_temps[4]);
+    println!("数组地址[5]：{:p}", &amp;weekly_temps[5]);
+    println!("数组地址[6]：{:p}", &amp;weekly_temps[6]);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+数组大小 [i32; 7]：28 字节
+数组长度：7
+周一的温度是：28°C
+周二的温度是：30°C
+周日的温度是：27°C
+数组地址[0]：0x7fffe6802094   # 由于元素是 i32 类型，大小为 4 字节，所以每个元素地址会递增 4
+数组地址[1]：0x7fffe6802098
+数组地址[2]：0x7fffe680209c
+数组地址[3]：0x7fffe68020a0
+数组地址[4]：0x7fffe68020a4
+数组地址[5]：0x7fffe68020a8
+数组地址[6]：0x7fffe68020ac
+</code></pre>
+<p>　　另外，Rust 还提供了一种简洁的数组初始化语法：<code>[值; 长度]</code>。例如，<code>[1; 100]</code> 表示创建一个长度为 <code>100</code> 的数组，并将所有元素初始化为 <code>1</code>。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 定义一个长度为 100 的数组，并将所有元素初始化为 1
+    let arr = [1; 100];
+
+    // 访问数组元素
+    println!("{}", arr[0]);   // 输出第 1 个元素
+    println!("{}", arr[99]);  // 输出最后一个元素
+}</code></pre>
+<p>　　数组本质上是一组具有相同数据类型的变量，从计算机的角度来看，它与直接定义一组连续变量没有本质区别。数组只是提供了一种更加方便的数据组织方式，程序仍然通过内存地址访问其中的每个元素。下述示例中，两种写法不同，但对计算机而言完全一样（最终生成的汇编相同）。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 写法一
+    let array = [0, 1, 2];
+    let array_len = array.len();
+
+    // 写法二
+    let element_0 = 0;
+    let element_1 = 1;
+    let element_2 = 2;
+    let element_len = 3;
+}</code></pre>
+<pre><code class="language-assembly"># 反汇编后，可以看到两种方式生成的汇编指令完全一样
+hello::main:
+    // 方式一
+    mov    DWORD PTR [rsp-0x18],0x0 
+    mov    DWORD PTR [rsp-0x14],0x1 
+    mov    DWORD PTR [rsp-0x10],0x2 
+    mov    DWORD PTR [rsp-0xc],0x3
+    // 方式二
+    mov    DWORD PTR [rsp-0x24],0x0 
+    mov    DWORD PTR [rsp-0x20],0x1 
+    mov    DWORD PTR [rsp-0x1c],0x2 
+    mov    QWORD PTR [rsp-0x8],0x3  
+    ret
+</code></pre>
+<h3 id="39-引用类型"><a class="header" href="#39-引用类型">3.9 引用类型</a></h3>
+<p>　　引用类型用于存放某个变量的内存地址，当访问引用时，会自动解析内存地址中存放的数据，就像直接访问原变量一样。引用类型位宽与 <code>usize</code> 类型一样，取决于当前平台：在 32 位平台上为 4 字节，在 64 位平台上为 8 字节。由于引用类型的仅存储内存地址，其大小固定，不受引用对象大小的影响，因此在传递数据时，只需复制一个固定大小的内存地址即可，无需复制整个对象。对于包含大量数据的大对象而言，使用引用传递可以显著减少数据复制带来的性能开销，提高程序运行效率。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    let foo: i32 = 100;
+    let bar: i128 = 200;
+
+    // 定义引用类型变量，变量值为其他变量存放的内存地址，访问时会自动解析为内存地址对应的值
+    let foo_ref: &amp;i32 = &amp;foo;
+    let bar_ref: &amp;i128 = &amp;bar;
+    println!("foo: {}, addr: {:p}", foo, &amp;foo);
+    println!("foo_ref: {:p}, addr: {:p}", foo_ref, foo_ref);
+
+    // 引用类型大小与被引用的数据类型大小无关
+    println!("i32 引用类型大小: {}", size_of_val(&amp;foo_ref));
+    println!("i128 引用类型大小: {}", size_of_val(&amp;bar_ref));
+
+    // 可以使用星号手动解引用，获取内存地址中存放的数据
+    let value = *foo_ref;
+    println!("手动解引用: value={}", value);
+
+    // 查看引用对应的内存地址，需要将引用转为原始指针(避免自动解析为值)，再转成整形
+    let ref_addr = foo_ref as *const i32 as usize;
+    println!("foo addr: {:p}, ref_addr: 0x{:x}", &amp;foo, ref_addr);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+foo: 100, addr: 0x7ffe5b0ab53c
+foo_ref: 0x7ffe5b0ab53c, addr: 0x7ffe5b0ab53c
+i32 引用类型大小: 8
+i128 引用类型大小: 8
+手动解引用: value=100
+foo addr: 0x7ffe5b0ab53c, ref_addr: 0x7ffe5b0ab53c
+</code></pre>
+<p>　　在 Rust 中，引用默认是不可变的，如果需要修改引用指向的数据，首先要求原始变量本身是可变的，并通过 <code>&amp;mut</code> 运算符创建可变引用，这一过程称为可变借用。为了保证并发安全和内存安全，Rust 的引用遵循 <strong>“共享不可变，可变独占”</strong> 的规则：在任意时刻，对同一资源要么存在多个不可变引用，要么仅存在一个可变引用。因此，当数据被可变借用时，原始变量在借用期间会失去对数据的访问权，只有待借用结束，原始变量才能重新访问该数据。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let mut num: i32 = 100;
+
+    // 不可变的引用可以有多个（共享不可变）
+    let ptr1: &amp;i32 = &amp;num;
+    let ptr2: &amp;i32 = &amp;num;
+    let ptr3: &amp;i32 = &amp;num;
+    println!("num_ptr1: {}, num_ptr2: {}, num_ptr3: {}", ptr1, ptr2, ptr3);
+
+    // 借用同一时间只能有一个（可变不共享），多个后面的会覆盖前面的，只有最后一个有效
+    let mut mut_ptr1: &amp;mut i32 = &amp;mut num;
+    let mut mut_ptr2: &amp;mut i32 = &amp;mut num;
+    let mut mut_ptr3: &amp;mut i32 = &amp;mut num;
+    // println!("mut_ptr1: {}", mut_ptr1); // 无法访问，同一时间只能有一个可变借用
+    // println!("mut_ptr2: {}", mut_ptr2); // 无法访问，同一时间只能有一个可变借用
+
+    // 数据被可变借用期间，原始数据无法访问
+    // println!("num: {}", num);
+    // let ptr4 = &amp;num;
+    // println!("ptr1: {}", ptr1);
+
+    // 借用可以修改数据
+    *mut_ptr3 = 200;
+    println!("mut_ptr3: {}", mut_ptr3);
+
+    // 借用者不再使用之后，原始变量才能再次访问
+    println!("num: {}", num);
+    // println!("mut_ptr3: {}", mut_ptr3); // 如果继续使用，上一行会报错
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+num_ptr1: 100, num_ptr2: 100, num_ptr3: 100
+mut_ptr3: 200
+num: 200
+</code></pre>
+<h3 id="310-切片类型"><a class="header" href="#310-切片类型">3.10 切片类型</a></h3>
+<p>　　切片类型由一个引用和一个长度组成（见下图），用于引用一段连续的内存区域，例如数组中的部分元素或全部元素。其中，引用用于保存数据起始位置的内存地址，长度用于表示该内存区域包含的元素数量，类型为 <code>usize</code>。因此，切片类型本质上由两个 <code>usize</code> 组成，其大小等于两个 <code>usize</code> 的大小之和。当访问切片时，程序会根据引用定位数据的起始位置，并结合长度确定可访问的数据范围，就像直接访问原始数组中的对应元素一样。由于切片类型仅保存数据的起始地址和长度信息，因此在传递切片时，只需复制固定大小的引用和长度即可，无需复制整个数据区域。</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="E:&#92;BD&#92;learn-rust&#92;book&#92;images&#92;1.8.Slice.svg" alt=""><span class="img-wrapper"><img src="E:&#92;BD&#92;learn-rust&#92;book&#92;images&#92;1.8.Slice.svg" alt=""></span></label></p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let mut array: [u8; 6] = [10, 20, 30, 40, 50, 60];
+    println!("array: ptr={:p}, len={}", &amp;array, array.len());
+
+    // 创建引用
+    // &amp;array[..]              // 引用整个数组
+    // &amp;array[start..]         // 从 start 到数组末尾
+    // &amp;array[..end]           // 从 0 到 end，不包含 end
+    // &amp;array[..=end]          // 从 0 到 end, 包含 end
+    // &amp;array[start..end]      // 从 start 到 end，不包含 end
+    // &amp;array[start..=end]     // 从 start 到 end，包含 end
+
+    // 引用整个数组：切片指向数组起始地址，长度也与数组一样
+    let slice: &amp;[u8] = &amp;array[..];
+    println!("[..]: ptr={:p}, len={}", slice.as_ptr(), slice.len());
+
+    // 从 start 到数组末尾，切片会指向数组第一个元素的内存地址
+    let slice: &amp;[u8] = &amp;array[1..];
+    println!("[start..]: ptr={:p}, len={}", slice.as_ptr(), slice.len());
+
+    // 从 0 到 end，不包含 end
+    let slice: &amp;[u8] = &amp;array[..3]; // 包含索引 0、1、2，但不包含 3
+    println!("[..3]: slice={:?}, len={}", slice, slice.len());
+
+    // 从 0 到 end，包含 end
+    let slice: &amp;[u8] = &amp;array[..=3]; // 包含索引 0、1、2、3
+    println!("[..=3]: slice={:?}, len={}", slice, slice.len());
+
+    // 从 start 到 end，不包含 end
+    let slice: &amp;[u8] = &amp;array[1..4]; // 包含索引 1、2、3，但不包含 4
+    println!("[1..4]: slice={:?}, len={}", slice, slice.len());
+
+    // 从 start 到 end，包含 end
+    let slice: &amp;[u8] = &amp;array[1..=4]; // 包含索引 1、2、3、4
+    println!("[1..=4]: slice={:?}, len={}", slice, slice.len());
+
+
+    // 通过借用修改切片中的数据，由于共享内存，array 中数据也会被修改
+    let slice: &amp;mut [u8] = &amp;mut array[..];
+    slice[0] = 100;
+    println!("slice={:?}, len={}", slice, slice.len());
+    println!("array={:?}, len={}", array, array.len());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+array: ptr=0x7ffc3b72bb0a, len=6
+
+[..]: ptr=0x7ffc3b72bb0a, len=6          // 0x7ffc3b72bb0a 是数组的内存地址
+[start..]: ptr=0x7ffc3b72bb0b, len=5     // 0x7ffc3b72bb0b 是数组第一个元素内存地址
+[..3]: slice=[10, 20, 30], len=3
+[..=3]: slice=[10, 20, 30, 40], len=4
+[1..4]: slice=[20, 30, 40], len=3
+[1..=4]: slice=[20, 30, 40, 50], len=4
+
+slice=[100, 20, 30, 40, 50, 60], len=6
+array=[100, 20, 30, 40, 50, 60], len=6
+</code></pre>
+<h3 id="311-字符串类型"><a class="header" href="#311-字符串类型">3.11 字符串类型</a></h3>
+<p>　　字符串用于表示由多个字符组成的文本数据，其内部使用一块连续的内存空间存储字符数据（本质上是 <code>u8</code> 类型的动态数组），其大小可以根据实际存储的字符数量动态调整。为了提高内存管理效率，字符串通常会预先分配比当前需求更大的内存空间，以减少因频繁扩容和重新分配带来的开销，并通过三个字段对该内存区域进行管理：</p>
+<ul>
+<li><strong>ptr：</strong> 指向内存空间起始位置的指针。</li>
+<li><strong>cap：</strong> 已分配内存空间的容量，即当前内存区域最多可以存储的字节数量，该值会随着字符串扩容动态调整。</li>
+<li><strong>len：</strong> 表示当前已使用的内存长度，即字符串实际存储的字节数量。</li>
+</ul>
+<p>　　在 Rust 中，字符串使用 <code>String</code> 表示，它支持多种创建方式，并且可以在运行时对内容进行动态修改，例如追加、插入、删除和替换等操作。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 创建字符串，支持多种创建方式
+    let _str = String::new();                  // 创建一个空字符串，没有任何字符
+    let _str = String::with_capacity(10);      // 创建一个指定容量的字符串
+    let _str = "Hello, world!".to_string();    // 基于指定字符串创建
+    let mut str = String::from("0123456789");  // 创建一个包含指定字符的字符串
+
+    // 查看分配的内存空间大小和已使用的长度
+    println!("原始字符串： cap={}, len={}", str.capacity(), str.len());
+
+    // 追加字符串，若当前内存容量不足，会自动扩展容量（扩展策略可能因 Rust 版本而异）
+    str.push_str("12345");
+    println!("追加字符串： cap={}, len={}", str.capacity(), str.len());
+
+    // 预留额外空间，按所需大小分配容量，避免自动扩容时分配过多内存空间
+    str.reserve_exact(10);         // 预留10字节的空间
+    str.push_str("1234567890");    // 再追加10个字符，此时容量足够，不会触发自动扩容
+    println!("预留再追加： cap={}, len={}", str.capacity(), str.len());
+
+    // 缩小容量，使 capacity 尽量接近 len
+    str.push_str("abc");           // 追加3个字符，此时容量不足，会触发自动扩容
+    println!("缩小容量前： cap={}, len={}", str.capacity(), str.len());
+    str.shrink_to_fit();
+    println!("缩小容量后： cap={}, len={}", str.capacity(), str.len());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+原始字符串： cap=10, len=10
+追加字符串： cap=20, len=15
+预留再追加： cap=25, len=25
+缩小容量前： cap=50, len=28
+缩小容量后： cap=28, len=28
+</code></pre>
+<p>　　为了节省存储空间，字符串并不会像字符类型一样，固定使用 4 个字节表示一个字符，而是会按照 UTF-8 编码规则对 Unicode 码点进行编码后，再以字节序列的形式存储。UTF-8 采用可变长度编码方式（遵循 RFC 3629 标准），会根据字符对应的 Unicode 码点数值范围确定编码长度，使用 1～4 个字节表示一个字符。对于 Unicode 码点编号较小的字符（如 ASCII 字符），UTF-8 仅需使用 1 个字节即可表示，而对于 Unicode 码点编号较大的字符，则需要使用 2～4 个字节进行编码。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>UTF-8 字节数</th><th>Unicode 码点范围</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>1 字节</td><td>0 ~ 127</td><td>ASCII 字符（英文、数字、标点等）</td></tr>
+<tr><td>2 字节</td><td>128 ~ 2047</td><td>拉丁扩展字符、希腊字母、部分符号等</td></tr>
+<tr><td>3 字节</td><td>2048 ~ 65535</td><td>大部分常用汉字、日文、韩文等</td></tr>
+<tr><td>4 字节</td><td>65536 ~ 1114111</td><td>冷僻字、表情符号（Emoji）等</td></tr>
+</tbody>
+</table>
+</div>
+<p>　　UTF-8 会根据字符对应的 Unicode 码点范围，选择不同长度的编码方式。对于 1 字节编码，最高位固定为 <code>0</code>，剩余 7 位直接存储 Unicode 码点；对于多字节编码，第一个字节的开头使用连续的 <code>1</code> 表示整个字符占用的字节数量，例如 <code>110</code> 表示 2 字节编码，<code>1110</code> 表示 3 字节编码，<code>11110</code> 表示 4 字节编码。后续字节统一以 <code>10</code> 开头，用于标识这是编码的延续部分。Unicode 码点会按照 UTF-8 规则拆分后，依次填入每个字节中剩余的有效位。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>UTF-8 字节数</th><th>UTF-8 编码二进制格式</th></tr>
+</thead>
+<tbody>
+<tr><td>1 字节</td><td>0xxxxxxx</td></tr>
+<tr><td>2 字节</td><td>110xxxxx  10xxxxxx</td></tr>
+<tr><td>3 字节</td><td>1110xxxx  10xxxxxx  10xxxxxx</td></tr>
+<tr><td>4 字节</td><td>11110xxx  10xxxxxx  10xxxxxx  10xxxxxx</td></tr>
+</tbody>
+</table>
+</div>
+<p>　　下述示例通过 <code>String.as_bytes()</code> 函数将字符串转换为 UTF-8 字节序列，展示了分别占用 1、2、3 和 4 个字节的字符对应的 UTF-8 编码形式。其中，单字节字符的最高位固定为 <code>0</code>，多字节字符的首字节使用连续的 <code>1</code> 标识编码长度，后续字节均以 <code>10</code> 开头，用于表示续接字节。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 1 字节：A
+    let a = String::from("A");
+    let slice: &amp;[u8] = a.as_bytes();
+    println!("1 字节： A len={}, binary={:08b}", slice.len(), slice[0]);
+
+    // 2 字节：é
+    let e = String::from("é");
+    let slice: &amp;[u8] = e.as_bytes();
+    println!("2 字节： é len={}, binary={:08b} {:08b}", slice.len(), slice[0], slice[1]);
+
+    // 3 字节：你
+    let you = String::from("你");
+    let slice: &amp;[u8] = you.as_bytes();
+    println!("3 字节： 你 len={}, binary={:08b} {:08b} {:08b}", slice.len(), 
+        slice[0], slice[1], slice[2]);
+
+    // 4 字节：😀
+    let smile = String::from("😀");
+    let slice: &amp;[u8] = smile.as_bytes();
+    println!("4 字节： 😀 len={}, binary={:08b} {:08b} {:08b} {:08b}", 
+        slice.len(), slice[0], slice[1], slice[2], slice[3]);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+1 字节： A len=1, binary=01000001
+2 字节： é len=2, binary=11000011 10101001
+3 字节： 你 len=3, binary=11100100 10111101 10100000
+4 字节： 😀 len=4, binary=11110000 10011111 10011000 10000000
+</code></pre>
+<p>　　字符串类型提供了一系列操作函数，例如追加、插入、删除、截断和替换等。对于包含非 ASCII 字符的字符串，需要特别注意这些操作函数是以字符为单位，还是以字节为单位。例如，<code>String::len()</code> 返回的是字符串经过 UTF-8 编码后占用的字节数量，而不是字符数量。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 创建字符串
+    let mut str = String::from("1234567890你好");
+
+    // 查看占用的字节数量和字符数量，对于包含非 ASCII 字符串，字节数量和字符数量不一致
+    println!("str: {}, 字节数量：{}, 字符数量：{}", str, str.len(), str.chars().count());
+
+
+    // 在末尾追加
+    str.push_str("abc");
+    println!("push_str: {}", str);
+
+    // 在指定位置插入，位置以字节为单位，必须在字符边界
+    str.insert_str(13, "xyz");
+    println!("insert_str: {}", str);
+
+
+    // 删除最后一个字符
+    str.pop();
+    println!("pop: {}", str);
+
+    // 删除指定位置的字符，位置以字节为单位，必须在字符边界
+    str.remove(10);
+    println!("remove: {}", str);
+
+    // 删除指定位置之后的所有字符，位置以字节为单位，必须在字符边界
+    str.truncate(10);
+    println!("truncate: {}", str);
+
+    // 删除指定区间的字符，位置以字节为单位，必须在字符边界
+    str.drain(3..6);
+    println!("drain: {}", str);
+
+    // 清空字符串
+    str.clear();
+    println!("clear: {}, cap: {}, len: {}", str, str.capacity(), str.len());
+
+
+    str.push_str("1234567890你好###Hello");
+    // 替换指定区间的字符，位置以字节为单位，必须在字符边界
+    str.replace_range(3..=9, "###");
+    println!("replace_range：{}", str);
+
+    // 分割字符串，按指定字符分割
+    let array: Vec&lt;_&gt; = str.split("###").collect();
+    println!("split： {:?}", array);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+str: 1234567890你好, 字节数量：16, 字符数量：12
+
+push_str: 1234567890你好abc
+insert_str: 1234567890你xyz好abc
+
+pop: 1234567890你xyz好ab
+remove: 1234567890xyz好ab
+truncate: 1234567890
+drain: 1237890
+clear: , cap: 32, len: 0
+
+replace_range：123###你好###Hello
+split： ["123", "你好", "Hello"]
+</code></pre>
+<p>　　对于包含多字节编码字符的字符串，如果需要更方便地处理字符边界，可以将 UTF-8 的可变长度编码转换为 UTF-16 或 UTF-32 编码。其中，UTF-16 以 2 字节为基本编码单元，大部分字符占用 2 个字节，部分扩展字符需要使用 4 个字节表示；UTF-32 则始终使用 4 个字节表示一个 Unicode 码点。虽然这些编码方式更容易进行字符定位，但会增加存储空间占用。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // UTF-8，可变长度编码
+    let text = "你好Rust";
+    println!("UTF-8 bytes = {}, chars = {} ", text.len(), text.chars().count());
+
+
+    // 转换为 UTF-32（每个字符固定 4 字节，本质是 Unicode 码点），然后可以按“字符索引”直接访问
+    let utf32: Vec&lt;u32&gt; = text.chars().map(|c| c as u32).collect();
+    println!("UTF-32 length = {}, utf32 = {:?}", utf32.len(), utf32);
+    println!("第 1 个字符 (UTF-32) = {:?}", char::from_u32(utf32[0]));
+    println!("第 2 个字符 (UTF-32) = {:?}", char::from_u32(utf32[1]));
+
+    // 从 UTF-32 创建字符串
+    let str_from_utf32: String = utf32.into_iter()
+        .map(|codepoint| char::from_u32(codepoint).unwrap()).collect();
+    println!("从 UTF-32 构建的字符串 = {}", str_from_utf32);
+
+
+    // 转换为 UTF-16，大部分字符占用 2 个字节，部分扩展字符需要使用 4 个字节
+    let utf16: Vec&lt;u16&gt; = text.encode_utf16().collect();
+    println!("UTF-16 length = {}, utf16 = {:?}", utf16.len(), utf16);
+    println!("第 1 个字符 (UTF-16) = {:?}", char::from_u32(utf16[0] as u32));
+    println!("第 2 个字符 (UTF-16) = {:?}", char::from_u32(utf16[1] as u32));
+
+    // 从 UTF-16 创建字符串
+    let str_from_utf16 = String::from_utf16(&amp;utf16);
+    println!("从 UTF-16 构建的字符串 = {:?}", str_from_utf16);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+UTF-8 bytes = 10, chars = 6 
+UTF-32 length = 6, utf32 = [20320, 22909, 82, 117, 115, 116]
+第 1 个字符 (UTF-32) = Some('你')
+第 2 个字符 (UTF-32) = Some('好')
+从 UTF-32 构建的字符串 = 你好Rust
+UTF-16 length = 6, utf16 = [20320, 22909, 82, 117, 115, 116]
+第 1 个字符 (UTF-16) = Some('你')
+第 2 个字符 (UTF-16) = Some('好')
+从 UTF-16 构建的字符串 = Ok("你好Rust")
+</code></pre>
+<p>　　由于字符串内部使用一块连续的内存空间存储 UTF-8 编码后的字节数据，因此可以通过切片引用其中的部分内容。Rust 提供了专门的字符串切片类型 <code>&amp;str</code>，用于表示对字符串某一部分的引用。需要注意的是，字符串切片的边界是按照字节位置划分的，而不是按照字符数量划分的，因此切片必须位于合法的 UTF-8 字符边界上。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 创建一个字符串，包含 ASCII 和中文
+    let text = String::from("0123456789你好");
+
+    // 将整个字符串转为切片
+    let slice: &amp;str = &amp;text;
+    println!("all: {}", slice);
+
+    // 将字符串的一部分转换为切片
+    // 注意：字符串切片是以“字节”为单位进行索引的，
+    // 如果切片边界没有落在合法的 UTF-8 字符边界上，会导致运行时 panic。
+    let range: &amp;str = &amp;text[..=9];  // 如果 &amp;text[0..10] 会编译错误
+    println!("range: {}", range);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+all: 0123456789你好
+range: 0123456789
+</code></pre>
+<p>　　对于直接写在代码中的固定文本（字符串字面量），Rust 编译器会将其存储在一块只读内存区域中，该内存区域中的字符串同样可以通过字符串切片 <code>&amp;str</code> 进行访问。为了节省内存空间，相同内容的字符串字面量通常只会保留一份，多个位置可以共享该数据。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 定义一个字符串字面量
+    let text: &amp;str = "Hello, Rust!";
+
+    // 相同的文本只会保存一份，会引用同一个内存地址
+    let some_text: &amp;str = "Hello, Rust!";
+    println!("text: {:p}, some_text: {:p}", text.as_ptr(), some_text.as_ptr());
+
+    // 字符串切片转 String
+    let string = text.to_string();
+
+    // String 转字符串切片
+    let str: &amp;str = &amp;string;
+    println!("string: {}", str);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+text: 0x7ff65ab90000, some_text: 0x7ff65ab90000
+string: Hello, Rust!
+</code></pre>
+<h3 id="312-元组类型"><a class="header" href="#312-元组类型">3.12 元组类型</a></h3>
+<p>　　元组类型与数组类似，都能让一个变量关联一组数据，但元组中的各个元素类型可以互不相同，其位宽由元素类型及内存布局规则共同决定。元组的长度和各元素类型在定义时即已确定，之后无法更改，程序可通过索引访问其中的各个元素。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 元组可以存放任意数量、任意类型的元素，也可以为空
+    let _tuple = ();
+    let _tuple = (1, 2);
+    let tuple = (1_u8, 2_u32, 'A');
+    println!("tuple: {:?}", tuple);
+
+    // 通过索引访问元组的元素（索引从 0 开始）
+    let v1 = tuple.0;
+    let v2 = tuple.1;
+    let v3 = tuple.2;
+    println!("{}, {}, {}", v1, v2, v3);
+
+    // 将元组中的元素解构为变量
+    let (r, g, b) = (10, 20, 30);
+    println!("{} {} {}", r, g, b);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+tuple: (1, 2, 'A')
+1, 2, A
+10 20 30
+</code></pre>
+<p>　　CPU 访问内存时通常以字长为单位读取数据，例如 32 位 CPU 一次读取 4 字节，64 位 CPU 一次读取 8 字节。若数据按该宽度对齐（如 <code>u32</code> 位于 4 的倍数地址），一次访问即可完成；若跨越对齐边界，则可能需要多次访存并将结果拼接。在某些体系结构或对对齐要求严格的 SIMD/向量指令中，未对齐访问甚至会直接触发异常。此外，对齐后的数据更有利于 CPU 缓存行的高效利用，可减少访存次数并提升整体访问效率。</p>
+<p>　　为满足内存对齐要求，编译器可能会在元组元素之间插入填充字节（padding）。元组的整体对齐方式由其中对齐要求最高的元素决定，每个元素的起始地址必须是其类型对齐值的整数倍，不足部分由编译器自动填充字节补齐。例如，<code>u32</code> 类型的对齐要求为 4 字节，其起始地址必须是 4 的倍数，若前一元素导致当前地址未对齐，编译器会插入填充字节以满足要求。为节省内存，Rust 编译器可能会重排元素顺序以减少填充，因此无法直接通过声明顺序推断元组的实际内存布局。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 定义一个元组，包含四个不同类型的元素，元素总大小为 15 字节
+    let tuple = (1_u8, 2_u16, 8_u64, 4_u32);
+
+    // 元组总大小为 16 字节，编译器为满足内存对齐要求插入了 1 个填充字节
+    println!("size: {}", size_of_val(&amp;tuple));
+
+    // 元组的对齐方式由对齐要求最高的元素决定，最高为 u64，按 8 字节对齐
+    println!("align: {}", align_of_val(&amp;tuple));
+
+    // 编译器可能重排元素顺序以减少填充字节，内存中顺序可能是：u64, u16, u8, u32
+    println!("{}, {:p}", tuple.0, &amp;tuple.0);
+    println!("{}, {:p}", tuple.1, &amp;tuple.1);
+    println!("{}, {:p}", tuple.2, &amp;tuple.2);
+    println!("{}, {:p}", tuple.3, &amp;tuple.3);
+}</code></pre>
+<pre><code>shell&gt; cargo run
+size: 16
+align: 8
+# 根据内存地址值大小，可以看到在内存实际顺序为：u64, u16, u8, u32，
+# 另外，每个元素的起始地址都是其类型大小的整数倍
+1, 0x7fff5b6dfd62
+2, 0x7fff5b6dfd60
+8, 0x7fff5b6dfd58  
+4, 0x7fff5b6dfd64
+</code></pre>
+<h3 id="313-结构体类型"><a class="header" href="#313-结构体类型">3.13 结构体类型</a></h3>
+<p>　　结构体可将多个变量组合为一种新类型，以便统一管理一组相关数据，其位宽与元组相同，由字段类型及内存布局规则共同决定。访问结构体时，可通过成员名直接读取或修改字段值，如同操作普通变量。在 Rust 中，使用 <code>struct</code> 关键字定义结构体，主要有三种形式：命名字段结构体、元组结构体和空结构体，以满足不同场景的需求。</p>
+<pre class="playground"><code class="language-rust">// 字段结构体
+struct User {
+    id: u32,
+    age: u8,
+}
+
+// 元组结构体
+struct Point(i32, i32, i32);
+
+// 空结构体
+struct Foo;
+
+
+fn main() {
+
+    // 字段结构体：通过字段名访问结构体中的数据
+    let user = User { id: 1, age: 30 };
+    println!("字段结构体：id={}, age={}", user.id, user.age);
+
+    // 元组结构体：通过索引访问结构体中的数据
+    let point = Point(10, 20, 30);
+    println!("元组结构体：x={}, y={}, z={}", point.0, point.1, point.2);
+
+
+    // 空结构体：大小为 0, 一般用于标记类型或作为关联函数的载体
+    let _foo = Foo;
+    println!("空结构体大小：{}", size_of::&lt;Foo&gt;());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+字段结构体：id=1, age=30
+元组结构体：x=10, y=20, z=30
+空结构体大小：0
+</code></pre>
+<p>　　与元组类似，为满足对齐要求并减少内存开销，编译器可能在结构体字段之间插入填充字节，并重排字段顺序。但与元组不同的是，结构体可通过 <code>#[repr(XXX)]</code> 属性显式指定数据布局方式，从而控制字段顺序与填充行为。常见的布局方式包括：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>数据布局方式</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td><code>#[repr(Rust)]</code></td><td>默认布局方式，编译器可能会插入填充字节和和重排字段。</td></tr>
+<tr><td><code>#[repr(C)]</code></td><td>按 C 语言结构体的布局规则排列字段，编译器可能会插入填充字节，但不会重排字段，字段顺序与声明顺序一致，常用于与 C 代码进行 FFI 交互。</td></tr>
+<tr><td><code>#[repr(packed)]</code></td><td>紧凑布局，整个结构体按 1 字节对齐，字段紧密排列，不插入填充字节，也不重排字段顺序。由于字段可能处于未对齐地址，访问时可能产生未对齐访问，从而影响性能，甚至在某些平台上引发未定义行为。常用于网络/文件二进制协议等。</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">use std::ptr::addr_of;
+
+#[repr(Rust)]
+struct FooA {
+    a: u8,
+    b: u16,
+    c: u64,
+    d: u32,
+}
+
+#[repr(C)]
+struct FooB {
+    a: u8,
+    b: u16,
+    c: u64,
+    d: u32,
+}
+
+#[repr(packed)]
+struct FooC {
+    a: u8,
+    b: u16,
+    c: u64,
+    d: u32,
+}
+
+fn main() {
+    // 默认布局，可能会插入填充字节和重排序字段
+    let foo_a = FooA { a: 1, b: 2, c: 8, d: 4 };
+    println!("FooA size: {}", size_of_val(&amp;foo_a));
+    println!("FooA align: {}", align_of_val(&amp;foo_a));
+
+    println!("{}, {:p}", foo_a.a, &amp;foo_a.a);
+    println!("{}, {:p}", foo_a.b, &amp;foo_a.b);
+    println!("{}, {:p}", foo_a.c, &amp;foo_a.c);
+    println!("{}, {:p}", foo_a.d, &amp;foo_a.d);
+
+    // C 语言结构体布局，可能会插入填充字节，但不会重排序字段
+    let foo_b = FooB { a: 1, b: 2, c: 8, d: 4 };
+    println!("FooB size: {}", size_of_val(&amp;foo_b));
+    println!("FooB align: {}", align_of_val(&amp;foo_b));
+
+    println!("{}, {:p}", foo_b.a, &amp;foo_b.a);
+    println!("{}, {:p}", foo_b.b, &amp;foo_b.b);
+    println!("{}, {:p}", foo_b.c, &amp;foo_b.c);
+    println!("{}, {:p}", foo_b.d, &amp;foo_b.d);
+
+    // 紧凑布局，整个结构体按 1 字节对齐，字段紧密排列，不插入填充字节，也不重排字段顺序
+    let foo_c = FooC { a: 1, b: 2, c: 8, d: 4 };
+    println!("FooC size: {}", size_of_val(&amp;foo_c));
+    println!("FooC align: {}", align_of_val(&amp;foo_c));
+
+    // 为了避免未对齐访问导致异常，所有非 1 字节对齐的字段，需要先复制到内存对齐的局部变量才能访问
+    let val_b = foo_c.b;
+    let val_c = foo_c.c;
+    let val_d = foo_c.d;
+
+    // 对于可能未对齐的字段，不能直接通过引用获取内存地址；
+    // 可以使用 `addr_of!` 获取原始指针，修改字段时必须在 `unsafe` 块中进行，
+    // 并且程序员需自行保证内存访问的安全性。
+    let addr_b = addr_of!(foo_c.b);
+    let addr_c = addr_of!(foo_c.c);
+    let addr_d = addr_of!(foo_c.d);
+
+    println!("{}, {:p}", foo_c.a, &amp;foo_c.a);
+    println!("{}, {:p}", val_b, addr_b);
+    println!("{}, {:p}", val_c, addr_c);
+    println!("{}, {:p}", val_d, addr_d);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+FooA size: 16
+FooA align: 8
+1, 0x7fff8bbfcf26
+2, 0x7fff8bbfcf24
+8, 0x7fff8bbfcf18
+4, 0x7fff8bbfcf20
+
+FooB size: 24
+FooB align: 8
+1, 0x7fff8bbfd1b8
+2, 0x7fff8bbfd1ba
+8, 0x7fff8bbfd1c0
+4, 0x7fff8bbfd1c8
+
+FooC size: 15
+FooC align: 1
+1, 0x7fff8bbfd461
+2, 0x7fff8bbfd462
+8, 0x7fff8bbfd464
+4, 0x7fff8bbfd46c
+</code></pre>
+<h3 id="314-枚举类型"><a class="header" href="#314-枚举类型">3.14 枚举类型</a></h3>
+<p>　　枚举可以将多个可能的值组合成一种类型，其位宽通常由占用空间最大的成员决定，常用于限制变量可取值的范围。例如，可以通过枚举表示季节，将变量值取值范围限制为春、夏、秋、冬四种合法状态。在 Rust 中，可以使用 <code>enum</code> 关键字定义枚举类型。</p>
+<pre class="playground"><code class="language-rust">// 1. 普通枚举，不包含任何数据，枚举值默认从 0 开始累加
+enum Sex {
+    Man,           // Man = 0
+    Woman,         // Woman = 1
+    Other,         // Other = 2
+}
+
+// 指定枚举值, 各成员值不能相同
+#[allow(dead_code)]
+enum Season {
+    Spring = 1,
+    Summer = 2,
+    Autumn = 3,
+    Winter,        // 可以省略, 值会自动累加
+}
+
+// 2. 复合类型枚举，支持类型不同的成员
+#[allow(dead_code)]
+enum Error {
+    Code(i32),             // 元组
+    Message(String),
+    Color { r: u8, g: u8, b: u8 }, // 结构体
+}
+
+fn main() {
+
+    // 定义枚举变量，值只能是枚举成员
+    let sex: Sex = Sex::Man;
+    println!("Man:   {}", sex as usize);
+    println!("Woman: {}", Sex::Woman as usize);
+    println!("Other: {}", Sex::Other as usize);
+
+    // 复合类型枚举，位宽取决于最大的成员
+    let code = Error::Code(404);
+    println!("Error size: {}", size_of_val(&amp;code));
+    let _message = Error::Message("网络异常".to_string());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+Man:   0
+Woman: 1
+Other: 2
+Error size: 24
+</code></pre>
+<h3 id="315-修改数据解析规则"><a class="header" href="#315-修改数据解析规则">3.15 修改数据解析规则</a></h3>
+<p>　　数据类型决定了数据的解析方式，<code>transmute()</code> 函数可以直接改变数据的解析类型，将一段内存中的字节按另一种类型进行重新解释。该函数不会执行数据转换或类型检查，若两种类型的大小不一致，将导致编译错误或产生未定义行为。由于 <code>transmute()</code> 会绕过 Rust 的类型安全检查，属于不安全（<code>unsafe</code>）操作，必须在 <code>unsafe</code> 代码块中使用。</p>
+<pre class="playground"><code class="language-rust">#[allow(dead_code)]
+struct Point {
+    x: i32,
+    y: i32,
+    z: i32,
+}
+
+fn main() {
+    // 使用 transmute 将 u32 转换为大小相同的 [u8; 4]
+    let number: u32 = 0x01_02_03_04;
+    let bytes: [u8; 4] = unsafe { std::mem::transmute(number) };
+    println!("Bytes: {:?}", bytes);
+
+    // 使用 transmute 将 [u8; 4] 转换为 u32
+    let number: u32 = unsafe { std::mem::transmute(bytes) };
+    println!("Number: {:x}", number);
+
+    // 使用 transmute 将 Point 结构体转换为大小相同的 [i32; 3]
+    let point = Point { x: 10, y: 20, z: 30 };
+    let array: [i32; 3] = unsafe { std::mem::transmute(point) };
+    println!("Array: {:?}", array);
+
+    // 如果两种类型大小不同，则会导致未定义行为
+    let _number: u32 = 0x01_02_03_04;
+    // let bytes: f64 = unsafe { std::mem::transmute(_number) }; // 错误：大小不匹配
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+Bytes: [4, 3, 2, 1]
+Number: 1020304
+Array: [10, 20, 30]
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="2.变量.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="4.流程控制.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="2.变量.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="4.流程控制.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="assets/mermaid-35374ef1.min.js"></script>
+        <script src="assets/mermaid-init-f2077b1f.js"></script>
+        <script src="assets/theme-names-6877598e.js"></script>
+        <script src="assets/ads-cfdc9b51.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,84 @@
+/* ===== 顶部广告横幅 =====
+   位置：.page 的第一个子元素，在 sticky 菜单栏之上。
+   DOM 由 assets/ads.js 运行时注入，本文件只负责布局与配色。
+
+   必须理解 mdBook 0.5.x 的三条内部约定，否则横幅要么整个不可见、要么点不动：
+   1) .page 有 margin-block-start: -var(--menu-bar-height)（general.css），
+      用来抵消第一个子元素 #mdbook-menu-bar-hover-placeholder 占掉的槽位。
+      横幅插在该占位元素之前，会连带被上提 50px（停在 y = -50，完全移出视口），
+      故用 margin-block-start: var(--menu-bar-height) 把它拉回来。
+   2) 拉回后占位元素会变成横幅与菜单栏之间的 50px 空白，
+      故用 margin-block-end: calc(0px - var(--menu-bar-height)) 把它顶回原位，
+      让横幅恰好接管原槽位。
+   3) 占位元素是 position: sticky + z-index: 101，会被顶到与横幅重叠的位置。
+      横幅必须 position: relative + z-index: 102 才能盖住它，
+      否则广告区域的点击会被这层透明的占位元素吃掉。 */
+#mdbook-ad-banner {
+    --ad-banner-height: 50px;
+
+    /* 约定 1：抵消 .page 的负 margin，否则整条横幅停在 y = -50，完全不可见 */
+    margin-block-start: var(--menu-bar-height);
+    /* 约定 2：抵消占位元素的 50px 占位，避免菜单栏上方多出一条空白 */
+    margin-block-end: calc(0px - var(--menu-bar-height));
+    /* 通栏：与菜单栏用的是同一条负 margin（chrome.css 中菜单栏的写法） */
+    margin-inline: calc(0px - var(--page-padding));
+
+    position: relative;   /* 约定 3：必须，否则广告区域点不动 */
+    z-index: 102;
+
+    display: flex;
+    flex-wrap: nowrap;            /* 两张图必须同一行 */
+    align-items: stretch;         /* 链接撑满 50px 高 */
+    gap: 0;                       /* 两张图无缝相接，平分整行 */
+
+    height: var(--ad-banner-height);
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;             /* 兜底：任何情况下都不横向溢出 */
+
+    background-color: var(--github-bg-muted);
+    /* 分隔线用 inset 阴影：不占布局，不会把 50px 内容高度挤成 49px */
+    box-shadow: inset 0 -1px 0 var(--github-border);
+}
+
+/* 每张图一个链接：同一行，各占一半宽度、各高 50px */
+#mdbook-ad-banner a {
+    display: block;
+    flex: 1 1 0;                                  /* flex-basis 为 0 且等分增长：两张严格平分整行 */
+    min-width: 0;                                 /* 允许收缩到内容宽度以下，窄屏不溢出 */
+    height: var(--ad-banner-height);
+    line-height: 0;                               /* 去掉行内图片下方的基线空隙 */
+}
+
+/* 图片铺满各自的半边：cover 保证不留白，代价是宽高比不符时裁掉超出部分。
+   若要改成"完整显示不裁剪"，把 object-fit 换成 contain（两侧会留白）。 */
+#mdbook-ad-banner img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 悬停提示：跟着鼠标走，由 assets/ads.js 创建并定位。
+   不用原生 title —— 它的提示框约 1 秒后才出现，且延迟无法调节。 */
+#mdbook-ad-tip {
+    position: fixed;
+    z-index: 1000;
+    display: none;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+    pointer-events: none;                         /* 提示不拦截点击 */
+}
+
+/* 打印（含"打印成 PDF"）时隐藏，避免污染纸质/PDF 输出。
+   注意：print.html 在屏幕上浏览时仍然显示横幅，只有真正打印才隐藏。 */
+@media print {
+    #mdbook-ad-banner {
+        display: none !important;
+    }
+}

@@ -1,0 +1,738 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>11. 集合 - 从本质学 Rust 编程</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="从本质出发，深入理解 Rust 编程的核心概念与实现机制">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./assets/github.css">
+        <link rel="stylesheet" href="./assets/ads.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "searchindex-8e82da5b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-a8c2f258.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">从本质学 Rust 编程</h1>
+
+                    <div class="right-buttons">
+                        <a href="https://github.com/Ken4096/The-Essence-of-Rust-Programming" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="11-集合"><a class="header" href="#11-集合">11. 集合</a></h2>
+<h3 id="111-简介"><a class="header" href="#111-简介">11.1 简介</a></h3>
+<p>　　在实际开发中，程序往往需要处理大量数据，并对这些数据执行查找、排序、新增、修改、删除等操作。为了高效地<strong>存储和管理</strong>数据，Rust 提供了多种集合类型（Collections）。这些集合采用<strong>不同的数据组织方式和底层实现</strong>，以适应不同应用场景的需求：有的集合侧重于提高数据查询效率，有的则更关注新增和删除操作的性能。</p>
+<h3 id="112-动态数组vec"><a class="header" href="#112-动态数组vec">11.2 动态数组（Vec）</a></h3>
+<p>　　动态数组的数据组织方式与普通数组类似，都是采用线性结构组织数据，其元素存储在一块连续的内存空间中。通过数组索引，动态数组可以快速访问每个元素，因此在查询和访问操作上具有显著的性能优势。动态数组内部维护三个字段来管理内存空间：内存区域指针（<code>ptr</code>）、长度（<code>len</code>）和容量（<code>cap</code>）。其中，<code>ptr</code>指向实际存储元素的内存区域，<code>len</code>表示当前存储的元素数量，而<code>cap</code>则表示当前分配的内存容量。</p>
+<p>　　当现有容量不足以容纳新增元素时，动态数组会自动扩容以容纳更多数据，通常采用容量翻倍的策略，以减少频繁的内存重新分配。动态数组在查询和随机访问方面表现优异，能够通过索引快速定位元素。但在插入或删除元素时，尤其不是在数组末尾进行操作时，需要移动大量数据，从而带来较大的性能开销。因此，动态数组虽然在访问性能上具有明显优势，但在需要频繁插入和删除的场景下，效率往往不如其他数据结构。</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="img/vec.svg" alt=""><span class="img-wrapper"><img src="img/vec.svg" alt=""></span></label></p>
+<p>　　Rust 提供了多种创建动态数组的方式：使用 <code>Vec::new()</code> 创建空数组；使用 <code>Vec::with_capacity()</code> 创建具有指定初始容量的数组，适用于已知容量的场景；使用 <code>Vec::from()</code> 基于已有数组生成动态数组；而 <code>vec![]</code> 宏则提供了一种更简洁的方式，可以直接初始化并使用指定值填充动态数组。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 创建一个空的动态数组
+    let vec1: Vec&lt;i32&gt; = Vec::new();
+    println!("new: 数组容量={}, 元素数量={}", vec1.capacity(), vec1.len());
+
+    // 基于数组创建动态数组，创建后容量和数组长度（元素数量）相等
+    let array = [10, 20, 30, 40, 50];
+    let vec2 = Vec::from(array);
+    println!("from: 数组容量={}, 元素数量={}", vec2.capacity(), vec2.len());
+
+    // 创建并使用指定值填充动态数组，创建后容量和数组长度相等
+    let vec3 = vec![10, 20, 30, 40, 50];
+    println!("vec!: 数组容量={}, 元素数量={}", vec3.capacity(), vec3.len());
+
+    // 创建一个指定大小的动态数组，容量大小为 100，
+    let vec4: Vec&lt;i32&gt; = Vec::with_capacity(100);
+    println!("with_capacity: 数组容量={}, 元素数量={}", vec4.capacity(), vec4.len());
+
+    // 在 64 位平台上，动态数组大小为 24 字节（ptr 指针类型、len 和 cap usize 类型）
+    println!("动态数组大小: {}", size_of_val(&amp;vec1));
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+new: 数组容量=0, 元素数量=0
+from: 数组容量=5, 元素数量=5
+vec!: 数组容量=5, 元素数量=5
+with_capacity: 数组容量=100, 元素数量=0
+动态数组大小: 24
+</code></pre>
+<p>　　集合类型通常提供一系列用于管理数据的操作接口，包括新增、删除、修改、查询和遍历等，<code>Vec</code> 也同样支持这些常用操作。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 创建并使用指定值填充动态数组
+    let mut vec = vec![10, 20, 30, 40];
+
+    // 插入数据
+    vec.push(50);         // 插入到末尾
+    vec.insert(0, 100);    // 插入到指定索引位置
+    println!("插入数据: {:?}", vec);
+
+    // 删除数据
+    vec.remove(0);          // 删除指定索引的值
+    vec.drain(1..=3);       // 批量删除，索引 1～3
+    println!("删除数据: {:?}", vec);
+
+    // 修改数据，修改指定索引的值
+    vec[0] = 10;
+    println!("修改数据: {:?}", vec);
+
+    // 读取数据，获取指定索引的值
+    let value1 = vec[0];
+    let value2 = vec.get(0);    // 返回值是 Option，如果索引超出范围动态数组，返回 None
+    println!("获取指定索引的值: {}, {}", value1, value2.unwrap());
+
+    // 通过索引遍历数据
+    for index in 0..vec.len() {
+        println!("通过索引遍历数据: index={}, {:?}", index, vec.get(index));
+    }
+
+    // 通过不可变引用迭代器遍历数据
+    for element in vec.iter() {
+        println!("通过引用遍历数据: {}", element);
+    }
+
+    // 通过可变引用迭代器遍历数据
+    for element in vec.iter_mut() {
+        *element += 100;     // 修改数据，将元素加 1.0
+        println!("通过可变引用遍历数据: {}", element);
+    }
+
+    // 通过获取所有权迭代器遍历数据
+    for element in vec.into_iter() {
+        println!("通过获取所有权遍历数据: {}", element);
+    }
+
+    // 所有权被转移，原始数组无法再访问
+    // println!("{:?}", vec);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+插入数据: [100, 10, 20, 30, 40, 50]
+删除数据: [10, 50]
+修改数据: [10, 50]
+获取指定索引的值: 10, 10
+通过索引遍历数据: index=0, Some(10)
+通过索引遍历数据: index=1, Some(50)
+通过引用遍历数据: 10
+通过引用遍历数据: 50
+通过可变引用遍历数据: 110
+通过可变引用遍历数据: 150
+通过获取所有权遍历数据: 110
+通过获取所有权遍历数据: 150
+</code></pre>
+<p>　　动态数组在扩容时可能会带来较大的性能开销：当现有容量不足以容纳新增元素时，<code>Vec</code> 会按倍数增长容量（Rust v1.92.0）。如果当前内存空间后方没有足够的空闲连续区域，<code>Vec</code> 需要在其他位置重新分配内存，并将已有元素复制过去。当元素数量较多时，复制过程会带来较大的性能开销。因此，在已知所需容量的情况下，建议使用 <code>Vec::with_capacity()</code> 预先分配空间，以避免扩容导致的性能损失。</p>
+<pre class="playground"><code class="language-rust">use std::time;
+
+fn main() {
+
+    // 创建一个空的动态数组，初始容量为 0
+    let mut vec = Vec::new();
+    println!("初始容量={}, 元素数量={}", vec.capacity(), vec.len());
+
+    // 第一次添加元素，容量扩充为 4
+    vec.push(1);
+    println!("第一次扩容容量={}, 元素数量={}", vec.capacity(), vec.len());
+
+    // 连续添加元素，超过容量时，容量翻倍扩充为 8
+    vec.push(1);
+    vec.push(1);
+    vec.push(1);
+    vec.push(1);
+    println!("再次扩容容量={}, 元素数量={}", vec.capacity(), vec.len());
+
+
+    // 使用 Vec::with_capacity() 预先分配空间，可以避免扩容导致的性能开销
+    let count = 10_000_000;
+    {
+        // 未预分配容量，需要多次扩容
+        let start = time::Instant::now();
+        let mut vec1 = Vec::new();
+        for i in 0..count {
+            vec1.push(i);
+        }
+        println!("Vec::new() 耗时: {:?}", start.elapsed());
+    }
+
+    {
+        // 预先分配容量（避免频繁扩容）
+        let start = time::Instant::now();
+        let mut vec = Vec::with_capacity(count);
+        for i in 0..count {
+            vec.push(i);
+        }
+        println!("Vec::with_capacity() 耗时: {:?}", start.elapsed());
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+初始容量=0, 元素数量=0
+第一次扩容容量=4, 元素数量=1
+再次扩容容量=8, 元素数量=5
+Vec::new() 耗时: 209.692176ms
+Vec::with_capacity() 耗时: 186.665145ms
+</code></pre>
+<p>　　另外，在动态数组中间新增或删除数据时，也会导致较大的性能开销。这是因为插入或删除元素后，<code>Vec</code> 需要移动其他元素以保持顺序，尤其是在数组较大时，性能损耗更加明显。</p>
+<pre class="playground"><code class="language-rust">use std::time;
+
+fn main() {
+    // 创建一个大小为 1 亿的动态数组
+    let capacity = 100000000;
+    let mut vec = Vec::with_capacity(capacity);
+    vec.extend(0..capacity);   // 批量插入
+
+    // 删除第一个元素
+    let start = time::Instant::now();
+    vec.remove(0);
+    let end = time::Instant::now();
+    println!("删除第一个元素耗时 {:?}", end - start);
+
+    // 删除最后一个元素
+    let start = time::Instant::now();
+    vec.remove(vec.len() - 1);
+    let end = time::Instant::now();
+    println!("删除最后一个元素耗时 {:?}", end - start);
+
+    // 删除中间元素
+    let start = time::Instant::now();
+    vec.remove(vec.len() / 2);
+    let end = time::Instant::now();
+    println!("删除中间元素耗时 {:?}", end - start);
+
+    // 在开头插入一个元素
+    let start = time::Instant::now();
+    vec.insert(0, 100);
+    let end = time::Instant::now();
+    println!("在第一个位置插入元素耗时 {:?}", end - start);
+
+    // 在末尾插入一个元素
+    let start = time::Instant::now();
+    vec.push(100);
+    let end = time::Instant::now();
+    println!("在最后位置插入元素耗时 {:?}", end - start);
+
+    // 在中间插入一个元素
+    let start = time::Instant::now();
+    vec.insert(vec.len() / 2, 100);
+    let end = time::Instant::now();
+    println!("在中间位置插入元素耗时 {:?}", end - start);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+删除第一个元素耗时 80.90129ms
+删除最后一个元素耗时 821ns
+删除中间元素耗时 46.291873ms
+在第一个位置插入元素耗时 98.852552ms
+在最后位置插入元素耗时 104ns
+在中间位置插入元素耗时 56.636787ms
+</code></pre>
+<p>　　动态数组 <code>Vec</code> 会根据需要自动扩容，但<strong>不会自动缩容</strong>。如果删除大量元素后需要释放空闲的内存空间，可以手动调用 <code>shrink_to_fit()</code> 函数，将容量收缩至当前元素数量，或使用 <code>shrink_to()</code> 函数将容量收缩至指定大小，但不会小于当前元素数量，即 <code>容量 = max(n, 元素数量)</code>。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 创建一个容量大小为 100 的动态数组，添加元素后，使用 shrink_to_fit() 将容量收缩到当前元素数量
+    let mut vec = Vec::with_capacity(100);
+    vec.push(1);
+    vec.shrink_to_fit();
+    println!("调用 shrink_to_fit() 后容量: {}", vec.capacity());
+
+    // 创建一个容量大小为 100 的动态数组添加元素后，使用 shrink_to() 将容量收缩至指定大小
+    let mut vec = Vec::with_capacity(100);
+    vec.extend(1..=10);             // 插入 10 个元素
+    vec.shrink_to(vec.len() + 2);   // 如果未来还需要插入，可以预留一些余量
+    println!("调用 shrink_to() 后容量: {}", vec.capacity());
+
+    // 指定大小小于当前元素数量，最终容量等于元素数量
+    vec.shrink_to(6);
+    println!("调用 shrink_to(6) 后容量: {}", vec.capacity());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+调用 shrink_to_fit() 后容量: 1
+调用 shrink_to() 后容量: 12
+调用 shrink_to(6) 后容量: 10
+</code></pre>
+<h3 id="113-哈希表hashmap"><a class="header" href="#113-哈希表hashmap">11.3 哈希表（HashMap）</a></h3>
+<p>　　哈希表（<code>HashMap</code>）同样采用线性结构来组织数据，将元素存储在一块连续的内存空间中，但访问方式并不依赖数组索引。其存储的元素由键值对（<code>key-value</code>）组成，<code>HashMap</code> 会通过哈希函数将键（<code>key</code>）转换为哈希值，并根据该哈希值计算存储位置，实现数据的快速查询与访问。</p>
+<p>　　由于元素的存储位置由哈希值决定，其排列顺序取决于哈希值的分布，而非插入顺序，因此哈希表并不像数组那样具备有序性。但也正因如此，哈希表在任意位置进行插入或删除操作时，无需像数组那样大规模移动后续元素，随机插入和删除效率较高。</p>
+<p>　　使用 <code>HashMap::new()</code> 函数可以创建一个空哈希表，或使用 <code>HashMap::with_capacity()</code>函数创建一个具有指定初始容量的哈希表。</p>
+<pre class="playground"><code class="language-rust">use std::collections::HashMap;
+
+fn main() {
+    // 创建一个空的哈希表
+    let map: HashMap&lt;String, i32&gt; = HashMap::new();
+    println!("new: 初始容量={}, 元素数量={}", map.capacity(), map.len());
+
+    // 创建具有预设容量的哈希表，可以减少后续插入时的扩容开销
+    // 注意：HashMap 的实际分配容量通常是 2 的幂次方，且受负载因子限制
+    let map: HashMap&lt;String, String&gt; = HashMap::with_capacity(10);
+    println!("with_capacity: 初始容量={}, 元素数量={}", map.capacity(), map.len());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+new: 初始容量=0, 元素数量=0
+with_capacity: 初始容量=14, 元素数量=0
+</code></pre>
+<p>　　<code>HashMap</code> 提供一系列用于管理数据的操作接口，包括新增、删除、查询和遍历等。需要注意的是，当向哈希表中插入已存在的键时，旧的值会被新值覆盖。</p>
+<pre class="playground"><code class="language-rust">use std::collections::HashMap;
+
+fn main() {
+    let mut map: HashMap&lt;u32, &amp;str&gt; = HashMap::new();
+
+    // 插入键值对，不保证元素的按插入顺序存放
+    map.insert(3, "张三");
+    map.insert(4, "李四");
+    map.insert(5, "王五");
+    println!("insert: {:?}", map);
+
+    // 如果键已存在，insert 会更新并返回旧值
+    let old_value = map.insert(3, "赵六");   // 旧值: Some("张三")
+    println!("insert: {:?}, 旧值={:?}", map, old_value);
+
+    // 条件插入，键不存在才插入
+    map.entry(7).or_insert("钱七");
+    println!("or_insert: {:?}", map);
+
+    // 删除数据
+    let removed_value = map.remove(&amp;3);
+    println!("remove: {:?}, 删除的数据={:?}", map, removed_value);
+
+    // 清空数据
+    // map.clear();
+    // println!("clear: {:?}", map);
+
+    // 判断数据是否存在
+    let contains_key = map.contains_key(&amp;4);
+    println!("contains_key: {}", contains_key);
+
+    // 获取数据
+    let value = map.get(&amp;4);
+    println!("get: {:?}", value);
+
+    // 获取所有 key
+    let keys = map.keys();
+    println!("keys: {:?}", keys);
+
+    // 获取所有 value
+    let values = map.values();
+    println!("values: {:?}", values);
+
+    // 遍历数据
+    for (key, value) in map.iter() {
+        println!("iter: key={}, value={}", key, value);
+    }
+
+    for (key, value) in map.iter_mut() {
+        println!("iter_mut: key={}, value={}", key, value);
+    }
+
+    for (key, value) in map.into_iter() {
+        println!("into_iter: key={}, value={}", key, value);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+insert: {4: "李四", 5: "王五", 3: "张三"}
+insert: {4: "李四", 5: "王五", 3: "赵六"}, 旧值=Some("张三")
+or_insert: {4: "李四", 7: "钱七", 5: "王五", 3: "赵六"}
+remove: {4: "李四", 7: "钱七", 5: "王五"}, 删除的数据=Some("赵六")
+contains_key: true
+get: Some("李四")
+keys: [4, 7, 5]
+values: ["李四", "钱七", "王五"]
+iter: key=4, value=李四
+iter: key=7, value=钱七
+iter: key=5, value=王五
+iter_mut: key=4, value=李四
+iter_mut: key=7, value=钱七
+iter_mut: key=5, value=王五
+into_iter: key=4, value=李四
+into_iter: key=7, value=钱七
+into_iter: key=5, value=王五
+</code></pre>
+<p>　　<code>HashMap</code> 的键（Key）必须实现 <code>Hash</code> 和 <code>Eq</code> trait。其中，<code>Hash</code> trait 用于计算键的哈希值，<code>Eq</code> trait 用于判断键之间的相等性。当插入新数据时，如果两个键的哈希值相同且经过相等性比较后判定为同一个键，新值会覆盖旧值，避免重复键的出现，即<strong>键不会重复</strong>。</p>
+<pre class="playground"><code class="language-rust">use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+
+// 自定义结构体
+#[derive(Debug)]
+struct User {
+    id: u32,
+    name: String,
+}
+
+// 为 User 实现 Hash trait
+impl Hash for User {
+    fn hash&lt;H: Hasher&gt;(&amp;self, state: &amp;mut H) {
+        // 计算哈希值时，使用 id 和 name 字段
+        self.id.hash(state);
+        self.name.hash(state);
+    }
+}
+
+// 为 User 实现 PartialEq 和 Eq trait
+impl PartialEq for User {
+    fn eq(&amp;self, other: &amp;Self) -&gt; bool {
+        // 判断字段必须与 hash() 函数统一
+        self.id == other.id &amp;&amp; self.name == other.name
+    }
+}
+
+impl Eq for User {}
+
+fn main() {
+    // 创建一个 HashMap，键是 User，值是 u32
+    let mut map: HashMap&lt;User, u32&gt; = HashMap::new();
+
+    // 创建两个 User 实例
+    let user1 = User { id: 1, name: String::from("张三") };
+    let user2 = User { id: 2, name: String::from("李四") };
+    let user3 = User { id: 1, name: String::from("张三") }; // 与 user1 相同
+
+    // 插入元素
+    map.insert(user1, 10);
+    map.insert(user2, 20);
+    map.insert(user3, 30); // 由于 user3 与 user1 相同，不会插入新值
+
+    for (key, value) in &amp;map {
+        println!("User ID: {}, Name: {}, Value: {}", key.id, key.name, value);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+User ID: 1, Name: 张三, Value: 30
+User ID: 2, Name: 李四, Value: 20
+</code></pre>
+<p>　　<code>HashMap</code> 在扩容时会产生一定的性能开销。当容量不足以容纳新增元素时，它会自动扩容：重新计算哈希值、复制已有元素并插入新位置。为了避免频繁扩容带来的性能损失，在已知所需容量的情况下，可以通过 <code>with_capacity()</code> 预先分配空间。需要注意的是，<code>HashMap</code> 不会自动缩容，若希望释放多余的内存空间，则需手动调用 <code>shrink_to()</code> 或 <code>shrink_to_fit()</code>。</p>
+<h3 id="114-哈希集合hashset"><a class="header" href="#114-哈希集合hashset">11.4 哈希集合（HashSet）</a></h3>
+<p>　　<code>HashSet</code> 基于哈希表实现，其底层结构是 <code>HashMap&lt;K, ()&gt;</code>，但仅使用键（<code>key</code>）来存储数据，值固定为没有实际值的单元类型 <code>()</code>。其特性与 <code>HashMap</code> 基本一致：查询效率高、不具备有序性、插入与删除操作也较为高效。同时，<code>HashSet</code> 会自动保证元素的唯一性，即不允许存在重复元素。此外，集合中的元素类型必须实现 <code>Hash</code> 和 <code>Eq</code> trait，以支持哈希计算与相等性比较。<code>HashSet</code> 也提供了一系列用于管理数据的操作接口，且接口与 <code>HashMap</code> 类似。</p>
+<pre class="playground"><code class="language-rust">use std::collections::HashSet;
+
+fn main() {
+    let mut set: HashSet&lt;&amp;str&gt; = HashSet::new();
+
+    // 插入元素，不保证元素的按插入顺序存放
+    set.insert("张三");             // 单条插入
+    set.extend(["李四", "王五"]);    // 批量插入
+    println!("insert: {:?}", set);
+
+    // 如何元素已存在，无法插入
+    let is_inserted = set.insert("张三");   // 返回值: false
+    println!("insert: {:?}, 是否插入成功={}", set, is_inserted);
+
+    // 替换指定值，不存在则插入，存在则返回被替换的值
+    let replaced = set.replace("张三");
+    println!("replace: {:?}, 被替换的值={:?}", set, replaced);
+
+    // 删除元素
+    let removed = set.remove("李四");
+    println!("remove: {:?}, 是否删除成功={}", set, removed);
+
+    // 清空数据
+    // set.clear();
+    // println!("clear: {:?}", set);
+
+    // 判断元素是否存在
+    let contains = set.contains("王五");
+    println!("contains: {}", contains);
+
+    // 获取数据
+    let value = set.get("张三");
+    println!("get: {:?}", value);
+
+    // 遍历集合
+    for value in &amp;set {
+        println!("iter: {}", value);
+    }
+
+    for value in set.into_iter() {
+        println!("into_iter: {}", value);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+insert: {"王五", "张三", "李四"}
+insert: {"张三", "王五", "李四"}, 是否插入成功=false
+replace: {"张三", "王五", "李四"}, 被替换的值=Some("张三")
+remove: {"张三", "王五"}, 是否删除成功=true
+contains: true
+get: Some("张三")
+iter: 张三
+iter: 王五
+into_iter: 张三
+into_iter: 王五
+</code></pre>
+<h3 id="115-双向链表linkedlist"><a class="header" href="#115-双向链表linkedlist">11.5 双向链表（LinkedList）</a></h3>
+<p>　　双向链表的数据组织方式与动态数组和哈希表截然不同，链表的元素并不存储在一块连续的内存空间中，而是由多个分散的节点（<code>Node</code>）组成。每个节点包含三个部分：元素值（<code>elem</code>）、前一个节点指针（<code>prev</code>）和后一个节点指针（<code>next</code>）。通过这两个指针，链表可以高效地在任意位置插入或删除元素，而无需像动态数组那样移动大量数据，也不存在扩容性能开销问题。</p>
+<p>　　虽然双向链表的数据组织方式在插入和删除操作上具有显著优势，但在查询（如查找某个特定元素）时的性能却不如动态数组或哈希表。这是因为链表不支持通过索引或哈希直接访问元素，查询操作需要从头或尾开始遍历，直到找到目标元素。</p>
+<p>　　<code>LinkedList</code> 同样提供一系列用于管理数据的操作接口，包括新增、删除、查询和遍历等。由于不依赖连续内存且不存在扩容问题，因此未提供 <code>with_capacity</code> 等预分配相关接口。</p>
+<pre class="playground"><code class="language-rust">use std::collections::LinkedList;
+
+fn main() {
+    let mut list: LinkedList&lt;i32&gt; = LinkedList::new();
+    println!("链表元素数量：{}", list.len());
+
+    // 从头部/尾部插入
+    list.push_front(1);
+    list.push_back(2);
+    list.push_back(3);
+    list.push_front(0);
+    println!("push: {:?}", list);
+
+    // 弹出头部/尾部元素
+    let front = list.pop_front();
+    let back = list.pop_back();
+    println!("pop: {:?}, pop_front={:?}, pop_back={:?}", list, front, back);
+
+    // 获取头尾/尾部元素
+    let front = list.front();
+    let back = list.back();
+    println!("front: {:?}, back: {:?}", front, back);
+
+    let front_mut = list.front_mut();
+    println!("front_mut: {:?}", front_mut);
+
+    let back_mut = list.back_mut();
+    println!("back_mut: {:?}", back_mut);
+
+    // 从头开始遍历
+    for v in list.iter() {
+        println!("iter: {}", v);
+    }
+    // 从尾开始遍历（反向迭代）
+    for v in list.iter().rev() {
+        println!("rev iter: {}", v);
+    }
+
+    for v in list.iter_mut().rev() {
+        println!("rev iter_mut: {}", v);
+    }
+
+    for v in list.into_iter().rev() {
+        println!("rev into_iter: {}", v);
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>shell&gt; cargo run
+链表元素数量：0
+push: [0, 1, 2, 3]
+pop: [1, 2], pop_front=Some(0), pop_back=Some(3)
+front: Some(1), back: Some(2)
+front_mut: Some(1)
+back_mut: Some(2)
+iter: 1
+iter: 2
+rev iter: 2
+rev iter: 1
+rev iter_mut: 2
+rev iter_mut: 1
+rev into_iter: 2
+rev into_iter: 1
+<span class="boring">}</span></code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="10.错误处理.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="12.内存管理.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="10.错误处理.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="12.内存管理.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="assets/mermaid-35374ef1.min.js"></script>
+        <script src="assets/mermaid-init-f2077b1f.js"></script>
+        <script src="assets/theme-names-6877598e.js"></script>
+        <script src="assets/ads-cfdc9b51.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

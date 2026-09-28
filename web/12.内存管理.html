@@ -1,0 +1,1675 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>12. 内存管理 - 从本质学 Rust 编程</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="从本质出发，深入理解 Rust 编程的核心概念与实现机制">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./assets/github.css">
+        <link rel="stylesheet" href="./assets/ads.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "searchindex-8e82da5b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-a8c2f258.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">从本质学 Rust 编程</h1>
+
+                    <div class="right-buttons">
+                        <a href="https://github.com/Ken4096/The-Essence-of-Rust-Programming" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="12-内存管理"><a class="header" href="#12-内存管理">12. 内存管理</a></h2>
+<h3 id="121-简介"><a class="header" href="#121-简介">12.1 简介</a></h3>
+<p>　　内存是一种用于存储数据的电子设备，程序运行过程中的数据都存储于其中，其容量有限且成本较高。为了更高效、合理地利用内存资源，Rust 会根据<strong>变量的存活时长、大小以及是否可变对其进行分类管理</strong>，将不同类型的数据分配到不同的内存区域，并采用<strong>不同的策略进行管理</strong>。</p>
+<p>　　与变量相关的内存区域主要包括：只读数据区、可写数据区、BSS 区、栈（Stack）和堆（Heap）。其中，栈和堆属于动态存储区，在程序运行过程中根据实际需求进行内存分配和释放；而只读数据区、可写数据区和 BSS 区属于静态存储区，存放于静态存储区的数据，在编译阶段会被写入可执行文件，并在程序启动时由操作系统加载到内存中。下图以 Linux x86_64 系统下的进程内存布局为例：</p>
+<p>　　Rust 编程语言中的核心概念：变量所有权和生命周期，与内存管理机制？？</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="img/memory.png" alt=""><span class="img-wrapper"><img src="img/memory.png" alt=""></span></label></p>
+<p>　　Rust 编程语言中的核心概念——变量所有权和生命周期，与内存管理机制密切相关。所有权决定了数据由谁负责管理，生命周期则决定了数据在程序中的有效范围。Rust 通过所有权、借用和生命周期等机制，对数据的使用和内存资源的释放进行约束，从而在编译阶段发现潜在的内存安全问题，并在不依赖垃圾回收机制的情况下实现自动内存管理。</p>
+<h3 id="122-只读数据区"><a class="header" href="#122-只读数据区">12.2 只读数据区</a></h3>
+<p>　　只读数据区用于存放程序运行期间不可修改的数据，该区域的数据内容及所需存储空间大小在编译阶段确定，编译器会将其写入可执行文件中。程序启动时，操作系统会将该区域加载到内存中，并在整个程序运行期间都不会释放回收，直到进程结束后由操作系统统一释放，因此，该区域的数据无需在程序运行过程中进行动态内存分配和释放，避免了相应的管理开销。只读数据区的大小会影响可执行文件体积以及运行时的内存占用，对于体积或内存敏感的应用（如嵌入式系统、移动端应用等），需要关注该区域的大小。Rust 中的不可变静态变量、非简单类型常量和字符串字面量均存放在此区域。</p>
+<h4 id="1221-不可变静态变量"><a class="header" href="#1221-不可变静态变量">12.2.1 不可变静态变量</a></h4>
+<p>　　不可变静态变量使用 <code>static</code> 关键字定义，在定义时必须初始化，其值在程序运行过程中不可被修改，编译器会将其存放在只读数据区。下述示例代码中，分别定义了一个不可变的全局静态变量和一个不可变的局部静态变量，大小分别为 100MB 和 200MB。</p>
+<pre class="playground"><code class="language-rust">// 不可变全局静态变量，大小 100MB
+static GLOBAL_DATA: [u8; 1024 * 1024 * 100] = [0x00; 1024 * 1024 * 100];
+
+fn main() {
+
+    // 不可变局部静态变量，大小 200MB
+    static LOCAL_DATA: [u8; 1024 * 1024 * 200] = [0x00; 1024 * 1024 * 200];
+
+    // 引用一下，避免被编译器当成未使用的变量优化掉了
+    let _global_data = &amp;GLOBAL_DATA;
+    let _local_data = &amp;LOCAL_DATA;
+
+    // 无限循环，用于保持程序运行以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　使用 <code>cargo build</code> 命令编译后，可以看到生成的可执行文件大小为 304MB，其中有 300MB 是不可变静态变量。</p>
+<pre><code class="language-shell"># 编译
+shell&gt; cargo build
+......
+
+# 查看可执行文件大小，大小为 304MB（Windows 系统需要在 git-bash 下执行）
+shell&gt; ls -lh target/debug/app
+-rwxrwxr-x 2 root root 304M target/debug/app
+</code></pre>
+<p>　　编译生成的可执行文件通常遵循特定的文件格式规范，其中包含多个区域（通常被称为段），用于存放不同类型的数据。程序加载时，操作系统会将可执行文件的段按需映射到进程地址空间的对应内存区域，供程序运行时访问。不同操作系统和平台采用不同的可执行文件格式：Windows 系统使用 PE（Portable Executable）格式，Linux 系统使用 ELF（Executable and Linkable Format）格式，而 macOS 系统则使用 Mach-O（Mach Object）格式。以 ELF 可执行文件格式为例：用于存放只读数据的段称为 <code>.rodata</code>，用于存放已初始化可写数据的段称为 <code>.data</code>，用于存放未初始化数据的段称为 <code>.bss</code>。</p>
+<p>　　使用 <code>objdump</code> 命令可以查看可执行文件各个段的详细信息，从执行结果中可以看到，编译生成的可执行文件中，只读数据段大小约为 <code>0x12c052b8</code>（300MB 多一点），其中 Rust 运行时本身也会占用一小部分空间。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">查看可执行文件各个段的详细信息，Linux 系统下执行结果如下
+</span>shell&gt; cargo-objdump -- --section-headers
+app:    file format elf64-x86-64
+
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000
+  1 .interp            0000001c 00000000000002e0 DATA
+ ......
+ 13 .rodata            12c052b8 0000000000007700 DATA   # 只读数据段，有些系统可能叫 .rdata                                              
+ 30 .data              000009c0 0000000012c549e0 DATA
+ 31 .bss               000000ca 0000000012c553a0 BSS
+ ......
+<span class="boring">}</span></code></pre>
+<p>　　当程序加载时，操作系统会根据可执行文件的格式信息，将可执行文件中只读数据段 <code>.rodata</code> 的内容映射到进程内存空间的只读数据区，直至进程结束由操作系统回收释放。在 Linux 系统下，可以使用 <code>pmap</code> 命令查看进程各内存区域的大小。</p>
+<pre><code class="language-shell"># 在后面运行进程
+shell&gt; target/debug/app &amp;
+[1] 758952                              # 进程号 758952
+
+# 查看指定进程的内存布局
+shell&gt; pmap -p 758952
+758952:   target/debug/app
+0000564c4ed96000 307276K r---- app      # 只读数据区所在内存地址和大小，大小 300.074 MB
+0000564c619a9000    248K r-x-- app
+0000564c619e7000     12K r---- app
+0000564c619ea000      8K rw--- app
+0000564c926ce000    132K rw---   [ anon ]
+00007faee8d8c000     12K rw---   [ anon ]
+......
+00007ffd619ff000    136K rw---   [ stack ]
+00007ffd61b9f000     16K r----   [ anon ]
+00007ffd61ba3000      8K r-x--   [ anon ]
+ffffffffff600000      4K --x--   [ anon ]
+ total           310300K
+</code></pre>
+<h4 id="1222-常量"><a class="header" href="#1222-常量">12.2.2 常量</a></h4>
+<p>　　基本类型的常量，在编译时通常会被内联到使用位置，直接替换为对应的数值，编译后相应的常量就不存在了。而对于非基本类型的常量（如数组等体积较大的数据），由于内联会导致代码体积膨胀，编译器通常会将其存放在只读数据区中，而不是进行内联。下述示例代码中，分别定义了一个大小为 100MB 的全局常量，以及一个大小为 200MB 的局部常量。</p>
+<pre class="playground"><code class="language-rust">// 全局常量，100MB 内存
+const GLOBAL_DATA: [u8; 1024 * 1024 * 100] = [0x00; 1024 * 1024 * 100];
+
+fn main() {
+
+    // 局部常量，大小 200MB
+    const LOCAL_DATA: [u8; 1024 * 1024 * 200] = [0x00; 1024 * 1024 * 200];
+
+    // 引用一下，避免被编译器当成未使用的变量优化掉了
+    let _global_data = &amp;GLOBAL_DATA;
+    let _local_data = &amp;LOCAL_DATA;
+
+    // 无限循环，用于保持程序运行以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　使用 <code>cargo build</code> 命令编译后，生成的可执行文件大小约为 304 MB。进一步通过 <code>objdump</code> 查看各段信息可知，只读数据段 <code>.rodata</code> 的大小为 <code>0x12c052b8</code>（300 MB 以上），其中包含 Rust 运行时占用的一小部分空间。</p>
+<pre><code class="language-shell"># 编译
+shell&gt; cargo build
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+
+# 查看可执行文件大小，大小为 304MB（Windows 系统需要在 git-bash 下执行）
+shell&gt; ls -lh target/debug/app
+-rwxrwxr-x 2 root root 304M target/debug/app
+
+# 查看可执行文件各个段的详细信息，以 Linux 系统为例
+shell&gt; cargo-objdump -- --section-headers
+app:    file format elf64-x86-64
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000
+  1 .interp            0000001c 00000000000002e0 DATA
+......
+ 13 .rodata            12c052b8 0000000000007700 DATA   # 只读数据段，大小 300MB 多一点
+ 14 .eh_frame_hdr      00001004 0000000012c0c9b8 DATA
+ 15 .eh_frame          00004f38 0000000012c0d9c0 DATA
+ 16 .text              0003ca13 0000000012c13900 TEXT
+ 17 .init              0000001b 0000000012c50314 TEXT
+ 18 .fini              0000000d 0000000012c50330 TEXT
+ 19 .plt               00000050 0000000012c50340 TEXT
+ 20 .tdata             00000020 0000000012c51390 DATA
+ 21 .tbss              00000030 0000000012c513b0 BSS
+ 22 .fini_array        00000008 0000000012c513b0 DATA
+ 23 .init_array        00000010 0000000012c513b8 DATA
+ ......
+</code></pre>
+<h4 id="1223-静态字符串"><a class="header" href="#1223-静态字符串">12.2.3 静态字符串</a></h4>
+<p>　　静态字符串（也称字符串字面量）是指直接在代码中定义的字符串常量，例如 <code>let text = "Hello";</code> 中的 <code>"Hello"</code>，其内容存放在只读数据区。需要注意的是，<code>String</code> 类型的字符串并不会存放在只读数据区，而是在运行时分配于堆内存中。下述示例代码中，定义了一个大小为 100MB 的静态字符串，以及一个大小为 200MB 的动态字符串。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+
+    // 定义一个静态字符串，大小 100MB，使用宏导入一个 100MB 文件实现
+    let large_str: &amp;str = include_str!("../100mb.txt"); // 等同于 "...100MB..."
+
+    // 定义一个字符串, 大小 200MB
+    let large_string : String = "a".repeat(200 * 1024 * 1024);
+
+    // 引用一下，避免被编译器当成未使用的变量优化掉了
+    let _large_str = &amp;large_str;
+    let _large_string = &amp;large_string;
+
+    // 无限循环，用于保持程序运行以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　使用命令生成一个 100MB 的文件并进行编译后，可以看到生成的可执行文件大小约为 105MB，其中只读数据段 <code>.rodata</code> 的大小为 <code>0x06405b10</code>（100MB 多一点），<code>String</code> 类型的 200MB 数据并不会存放在只读数据区中。</p>
+<pre><code class="language-shell"># 生成一个 100MB 的文本文件，用于生成一个 100MB 的静态字符串
+# 注：windows 系统下使用 `fsutil file createnew 100mb.txt 104857600` 命令生成
+shell&gt; head -c 100M &lt; /dev/zero | tr '\0' 'a' &gt; 100mb.txt
+
+# 编译
+shell&gt; cargo build
+Compiling app v0.1.0 (/file/rust/project/app)
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.32
+
+# 查看生成的可执行文件大小为 105MB
+shell&gt; ls -lh target/debug/app
+-rwxrwxr-x 2 root root 105M target/debug/app
+
+# 查看可执行文件各个段的详细信息，以 Linux 系统为例
+shell&gt; cargo-objdump -- --section-headers
+app:    file format elf64-x86-64
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000 
+  1 .interp            0000001c 00000000000002e0 DATA
+ ......
+ 12 .rodata            06405b10 0000000000007870 DATA  # 只读数据段，大小 100MB 多一点
+ 13 .debug_gdb_scripts 00000022 000000000640d380 DATA
+ 14 .eh_frame_hdr      0000108c 000000000640d3a4 DATA
+ 15 .eh_frame          00005124 000000000640e430 DATA
+ 16 .text              0003d7e3 0000000006414560 TEXT
+ 17 .init              0000001b 0000000006451d44 TEXT
+ 18 .fini              0000000d 0000000006451d60 TEXT
+ 19 .plt               00000060 0000000006451d70 TEXT
+ 20 .tdata             00000020 0000000006452dd0 DATA
+ 21 .tbss              00000030 0000000006452df0 BSS
+ 22 .fini_array        00000008 0000000006452df0 DATA
+ 23 .init_array        00000010 0000000006452df8 DATA
+ ......
+</code></pre>
+<h3 id="123--可写数据区"><a class="header" href="#123--可写数据区">12.3  可写数据区</a></h3>
+<p>　　可写数据区用于存放程序运行期间可以修改的数据，该区域的数据内容和所需空间大小在编译期确定，编译器会将数据内容直接嵌入到可执行文件中。程序启动时，操作系统会将该区域加载到内存中，且在整个程序运行期间也不会释放回收，直到进程结束操作系统才会释放回收，因此，该区域的数据无需在程序运行过程中进行动态内存分配和释放，避免了相应的管理开销。可写数据区的大小会影响可执行文件体积以及运行时的内存占用，对于体积或内存敏感的应用（如嵌入式系统、移动端应用等），需要关注该区域的大小。</p>
+<p>　　Rust 中的<strong>初始化为非零值的可变静态变量</strong>存放在该区域，而初始化为值零的可变静态变量则存放在 BSS 区，以避免可执行文件体积膨胀。下述示例代码中，定义了一个可变的全局静态变量和一个可变的局部静态变量，大小分别为 100MB 和 200MB。</p>
+<pre class="playground"><code class="language-rust">// 可变全局静态变量，数组大小为 100MB，值初始化为 2；
+// 如果值为默认值 0，则会被放入 BSS 区
+static mut GLOBAL_DATA: [u8; 1024 * 1024 * 100] = [1; 1024 * 1024 * 100];
+
+fn main() {
+    // 可变局部静态变量，大小 200MB，值初始化为 2
+    static mut LOCAL_DATA: [u8; 1024 * 1024 * 200] = [2; 1024 * 1024 * 200];
+
+    // 引用变量，避免被编译器优化掉
+    let _global_data = &amp;raw const GLOBAL_DATA;
+    let _local_data = &amp;raw const LOCAL_DATA;
+
+    // 无限循环，保持程序运行，以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　使用 <code>cargo build</code> 命令编译后，可以看到生成的可执行文件大小约为 305MB。进一步通过 <code>objdump</code> 查看可执行文件的各个段信息，可以发现，可写数据段 <code>.data</code> 的大小为 <code>0x12c009c0</code>（300 MB 以上），其中包含 Rust 运行时占用的一小部分空间。</p>
+<pre><code class="language-shell"># 编译
+shell&gt; cargo build
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+
+# 查看可执行文件大小，大小为 304MB（Windows 系统需要在 git-bash 下执行）
+shell&gt; ls -lh target/debug/app
+-rwxrwxr-x 2 root root 305M target/debug/app
+
+# 查看可执行文件各个段的详细信息，以 Linux 系统为例
+shell&gt; cargo-objdump -- --section-headers
+app:    file format elf64-x86-64
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000 
+  1 .interp            0000001c 00000000000002e0 DATA
+ ......
+ 13 .rodata            000052b8 0000000000007700 DATA
+ 14 .eh_frame_hdr      00001004 000000000000c9b8 DATA
+ 15 .eh_frame          00004f38 000000000000d9c0 DATA
+ 16 .text              0003ca13 0000000000013900 TEXT
+ 17 .init              0000001b 0000000000050314 TEXT
+ 18 .fini              0000000d 0000000000050330 TEXT
+ 19 .plt               00000050 0000000000050340 TEXT
+ 20 .tdata             00000020 0000000000051390 DATA
+ 21 .tbss              00000030 00000000000513b0 BSS
+ 22 .fini_array        00000008 00000000000513b0 DATA
+ 23 .init_array        00000010 00000000000513b8 DATA
+ ......
+ 30 .data              12c009c0 00000000000549e0 DATA   # 可写数据段 300MB 多一点
+ 31 .bss               000000ca 0000000012c553a0 BSS
+ ......
+</code></pre>
+<p>　　当程序加载时，操作系统会根据可执行文件的格式信息，将可执行文件中可写数据段 <code>.data</code> 的内容映射到进程内存空间的可写数据区，直至进程结束才由操作系统回收释放。在 Linux 系统下，可以使用 <code>pmap</code> 命令查看程序运行过程中进程可写数据区的大小。</p>
+<pre><code class="language-shell"># 运行示例程序
+shell&gt; target/debug/app &amp;
+[1] 769931                           
+
+# 分析进程内存空间
+shell&gt; pmap -p 769931
+pmap -p 769931
+769931:   target/debug/app
+000055ab0baac000     76K r---- app
+000055ab0babf000    248K r-x-- app
+000055ab0bafd000     12K r---- app
+000055ab0bb00000 307208K rw--- app           # 可写数据区，大小 300MB 多一点
+......
+ total           310300K
+</code></pre>
+<h3 id="124-bss-区"><a class="header" href="#124-bss-区">12.4 BSS 区</a></h3>
+<p>　　BSS 区（Block Started by Symbol）用于存放<strong>初始化为零值且在程序运行期间可以修改</strong>的数据。与可写数据区不同，BSS 区中的数据在编译阶段<strong>只记录大小信息</strong>，不会将具体内容写入可执行文件，因此，其大小不会影响可执行文件大小。当程序加载运行时，操作系统会为 BSS 段大小分配相应的内存空间，并将其<strong>统一初始化为零值</strong>。这些内存同样在程序整个运行期间都不会释放回收，直到进程结束后操作系统才会回收释放。</p>
+<pre class="playground"><code class="language-rust">// 可变全局静态变量，大小 100MB，初始化为默认值 0
+static mut GLOBAL_DATA: [u8; 1024 * 1024 * 100] = [0; 1024 * 1024 * 100];
+
+fn main() {
+
+    // 可变局部静态变量，大小 200MB，初始化为默认值 0
+    static mut LOCAL_DATA: [u8; 1024 * 1024 * 200] = [0x00; 1024 * 1024 * 200];
+
+    // 引用变量，避免被编译器优化掉
+    let _global_data = &amp;raw const GLOBAL_DATA;
+    let _local_data = &amp;raw const LOCAL_DATA;
+
+    // 无限循环，保持程序运行，以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　使用 <code>cargo build</code> 命令编译后，生成的可执行文件大小只有约 4.2MB。但通过 <code>objdump</code> 查看可执行文件各段信息时，可以发现 <code>.bss</code> 段的大小为 <code>0x12c000ca</code>（300 MB 以上），其中包含 Rust 运行时占用的一小部分空间。</p>
+<pre><code class="language-shell"># 编译
+shell&gt; cargo build
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+
+# 查看可执行文件大小，大小为 304MB（Windows 系统需要在 git-bash 下执行）
+shell&gt; ls -lh target/debug/app
+-rwxrwxr-x 2 root root 4.2M target/debug/app
+
+# 查看可执行文件各个段的详细信息，以 Linux 系统为例
+shell&gt; cargo-objdump -- --section-headers
+app:    file format elf64-x86-64
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000 
+  1 .interp            0000001c 00000000000002e0 DATA
+ ......
+ 13 .rodata            000052b8 0000000000007700 DATA
+ 14 .eh_frame_hdr      00001004 000000000000c9b8 DATA
+ 15 .eh_frame          00004f38 000000000000d9c0 DATA
+ 16 .text              0003ca13 0000000000013900 TEXT
+ 17 .init              0000001b 0000000000050314 TEXT
+ 18 .fini              0000000d 0000000000050330 TEXT
+ 19 .plt               00000050 0000000000050340 TEXT
+ 20 .tdata             00000020 0000000000051390 DATA
+ 21 .tbss              00000030 00000000000513b0 BSS
+ 22 .fini_array        00000008 00000000000513b0 DATA
+ 23 .init_array        00000010 00000000000513b8 DATA
+ 24 .data.rel.ro       00001bb0 00000000000513c8 DATA
+ 25 .dynamic           000001e0 0000000000052f78 DATA
+ 26 .got               00000850 0000000000053158 DATA
+ 27 .got.plt           00000038 00000000000539a8 DATA
+ 28 .relro_padding     00000620 00000000000539e0 BSS
+ 29 .tm_clone_table    00000000 00000000000549e0 DATA
+ 30 .data              000009c0 00000000000549e0 DATA
+ 31 .bss               12c000ca 00000000000553a0 BSS    # BSS 段，大小 300 MB 以上
+</code></pre>
+<p>　　在 Linux 系统下，使用 <code>pmap</code> 命令查看进程各个内存区域的占用情况，可以发现 BSS 区域的大小约为 300MB 多一点。</p>
+<pre><code class="language-shell"># 在 Linux 系统中，使用 pmap 命令，分析运行时进程内存空间
+shell&gt; target/debug/app &amp;
+[1] 770310
+shell&gt; pmap -p 770310
+770310:   target/debug/app
+0000562f347cb000     76K r---- app
+0000562f347de000    248K r-x-- app
+0000562f3481c000     12K r---- app
+0000562f3481f000      8K rw--- app
+0000562f34821000 307200K rw---   [ anon ]     # BSS 段，大小 300MB 多一点
+......
+ total           310300K
+</code></pre>
+<h3 id="125-栈stack"><a class="header" href="#125-栈stack">12.5 栈（Stack）</a></h3>
+<p>　　当函数执行时，通常会为其分配一块连续的内存区域，用于存放局部变量、函数参数、返回地址以及其他调用相关信息，该区域被称为<strong>栈帧（Stack Frame）</strong>。当函数执行结束后，对应的栈帧会被立即释放，其中存储的数据也随之失效，仅在函数调用期间有效。下述示例代码中，尝试返回一个指向函数局部变量的引用，但该变量会随着函数执行结束、对应栈帧释放而失效，导致引用指向无效内存。为了保证内存安全，避免产生悬垂引用（Dangling Reference），Rust 编译器会在编译阶段检测到这一问题，并拒绝这种不安全的操作。</p>
+<pre class="playground"><code class="language-rust">fn add(a: i32, b: i32) -&gt; &amp;i32 {
+    let sum = a + b;
+
+    // 局部变量在函数执行结束后随栈帧释放，该引用将指向无效内存（即“悬垂引用”）
+    return ∑   // 编译报错
+}
+
+fn main() {
+    let sum = add(5, 6);
+    println!("{sum}");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+ fn add(a: i32, b: i32) -&gt; &amp;i32 {
+  |                           ^ expected named lifetime parameter
+  |
+  = help: this function's return type contains a borrowed value, but there is no value for it to be borrowed from
+help: consider using the `'static` lifetime, but this is uncommon unless you're returning a borrowed value from a `const` or a `static`
+......
+</code></pre>
+<p>　　所有函数的栈帧都存储在栈（Stack）内存区域中，栈帧的创建与释放通过调整栈区域大小实现：每次函数调用时，增加栈区域的大小创建栈帧，函数执行完毕返回时，减少栈区域大小释放对应的栈帧，整个过程仅需简单的加减运算即可完成，因此栈内存的分配和释放效率极高。由于函数必须等待被其调用的其他函数执行完毕并返回后，才能释放自身的栈帧，所以先存储在栈中的栈帧会后被释放，即先进后出（First In, Last Out, FILO）。</p>
+<p>　　Rust 的堆栈回溯（Backtrace）机制基于栈帧实现——通过回溯当前线程栈中的所有栈帧，记录并呈现完整的函数调用链，帮助开发者精准定位错误源头。我们可以借助堆栈回溯，查看当前线程栈中的所有栈帧。</p>
+<pre class="playground"><code class="language-rust">use std::backtrace::Backtrace;
+
+fn div(a: i32, b: i32)-&gt;Result&lt;i32, &amp;'static str&gt; {
+
+    if b == 0 {
+        // 除数为 0 时，捕获调用堆栈，用于查看函数调用路径
+        let backtrace = Backtrace::capture();
+
+        // frames() 函数可以获取所有栈帧，不过 API 还没有稳定（Rust v1.94）
+        // let frames = backtrace.frames();
+
+        eprintln!("{:?}", backtrace);
+        return Err("除数不能为 0");
+    }
+
+    return Ok(a / b);
+
+}
+
+fn main() {
+    let _ = div(6, 0);
+}</code></pre>
+<pre><code class="language-shell"># 启用堆栈回溯并运行
+shell&gt; RUST_BACKTRACE=1 cargo run
+Backtrace [
+    { fn: "app::div", file: "./src/main.rs", line: 7 },
+    { fn: "app::main", file: "./src/main.rs", line: 21 },
+    ......
+    { fn: "main" },  # Rust 标准库中的 main 函数，会调用 Rust 程序的 main 函数
+    { fn: "__libc_start_main", file: "glibc-2.31/csu/../csu/libc-start.c", line: 308 }, 
+    { fn: "_start" }
+]
+</code></pre>
+<p>　　栈区域的容量是有限的，其大小受到操作系统的限制，Linux 系统栈区域大小默认为 8MB。如果栈帧数量过多或栈帧过大，超出这一限制可能导致栈溢出异常。例如，在函数中声明过大的局部变量，或函数的嵌套层次过深（尤其是在递归调用的情况下），都可能引发栈溢出问题。</p>
+<pre class="playground"><code class="language-rust">fn sum_recursive(n: u32) -&gt; u32 {
+    if n == 0 {
+        return 0; // 计算完毕
+    }
+    // 递归调用自身，每次调用都会创建一个新的栈帧，放在栈区域
+    return n + sum_recursive(n - 1);
+}
+
+fn large_stack_allocation() -&gt; usize {
+    // 定义一个大小为 7MB 局部变量，该变量存放在栈区域
+    let large_array = [0_u8; 7 * 1024 * 1024];
+    return large_array.len();
+}
+
+fn main() {
+    // 如果栈帧数量过多，超出栈内存区域，会导致栈溢出异常
+    let sum = sum_recursive(90000);
+    println!("sum_recursive={sum}");
+
+    // 如果栈帧过大，超出栈内存区域，会导致栈溢出异常
+    let len = large_stack_allocation();
+    println!("large_stack_allocation={len}");
+}</code></pre>
+<pre><code class="language-shell"># 查看栈大小（Linux x64系统），Linux/MacOS 默认栈大小为 8MB
+shell&gt; ulimit -s
+8192                        # 单位是 KB 
+
+# 栈大小 8MB 运行代码，可以正常执行
+shell&gt; cargo run
+sum_recursive=4050045000
+large_stack_allocation=7340032
+
+# 修改栈大小为 2MB，运行出现栈溢出异常
+shell&gt; ulimit -s 2048
+shell&gt; cargo run
+thread 'main' (873385) has overflowed its stack
+fatal runtime error: stack overflow, aborting
+Aborted (core dumped)
+</code></pre>
+<h3 id="126-堆heap"><a class="header" href="#126-堆heap">12.6 堆（Heap）</a></h3>
+<p>　　只读数据区、可写数据区和 BSS 区的数据，在程序运行期间无法释放或回收，其大小必须在编译阶段确定，无法根据运行时需求动态调整（例如用户输入），而栈区域中的函数栈帧数据仅在函数执行期间有效，且无法跨函数共享，栈帧的大小也是在编译时确定，同样无法动态调整大小。堆是一块动态大小的内存区域，程序可以在运行时根据实际需求申请和释放任意大小的内存空间，其容量通常只受系统可用内存限制。</p>
+<p>　　在 C/C++ 等语言中，堆内存的分配与释放通常由程序员手动管理，需要显式调用 <code>malloc</code>/<code>free</code> 或 <code>new</code>/<code>delete</code> 等函数来控制内存生命周期。一旦操作不当，就可能引发野指针、悬垂指针、内存泄漏、双重释放等问题（见下方表格）。为了避免内存安全隐患并降低手动管理的复杂度，Python、JavaScript、Java、Go、C# 等语言引入了垃圾回收（GC, Garbage Collection）机制，由运行时自动追踪和回收不再使用的内存，但该机制会带来一定的性能开销，以及不可预测的垃圾回收 GC 停顿。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>常见内存安全问题</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>野指针</strong></td><td>未初始化或指向非法地址的指针。</td></tr>
+<tr><td><strong>悬垂指针</strong></td><td>指向已被释放的内存的指针。</td></tr>
+<tr><td><strong>内存泄漏</strong></td><td>已分配的内存未及时释放。</td></tr>
+<tr><td><strong>双重释放</strong></td><td>对同一块内存释放两次。</td></tr>
+<tr><td><strong>缓冲区溢出</strong></td><td>写入的数据超出分配的内存边界。</td></tr>
+</tbody>
+</table>
+</div>
+<p>　　Rust 语言采用了不同于传统语言的堆内存管理设计思路：通过<strong>所有权（Ownership）和生命周期（Lifetime）机制</strong>在编译阶段对内存使用进行严格检查，在无需垃圾回收器（Garbage Collector，GC）的情况下实现内存安全，从而兼顾程序性能与安全性。<code>String</code>、<code>Vec</code>、<code>HashMap</code>、<code>HashSet</code> 和 <code>LinkedList</code> 等需要动态扩展容量的数据结构，其实际存储的数据位于堆内存中，而栈上仅保存指向堆内存的指针，以及长度、容量等描述信息。</p>
+<h4 id="1261-box-指针类型"><a class="header" href="#1261-box-指针类型">12.6.1 Box 指针类型</a></h4>
+<p>　　<code>Box</code> 指针类型用于在堆上分配内存存储数据，通过调用 <code>Box::new()</code> 分配内存，成功后将堆内存地址封装在 <code>Box</code> 结构体中返回。<code>Box</code> 的大小与 <code>usize</code> 相同，在 32 位平台上为 4 字节，在 64 位平台上为 8 字节。<code>Box</code> 实现了 <code>Deref</code> trait，访问时会自动解引用为堆中存储的数据，同时实现了 <code>DerefMut</code> trait，支持对数据的可变访问。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 将数据 100 存放在堆上，成功后返回的 Box 结构体存放在栈上的普通局部变量中
+    let mut number: Box&lt;i32&gt; = Box::new(100);
+
+    // 查看数据内存地址
+    println!("存放数据的堆内存地址：{:p}", number);
+    println!("存放Box的栈内存地址：{:p}", &amp;number);
+
+    // Box 类型大小取决于系统架构：在 64 位系统下为 8 字节，在 32 位系统下为 4 字节
+    // 由于存放的是 堆内存地址，无论数据大小，Box 大小是固定的
+    println!("Box&lt;i32&gt; 指针大小：{} bytes", size_of::&lt;Box&lt;i32&gt;&gt;());
+    println!("Box&lt;i64&gt; 指针大小：{} bytes", size_of::&lt;Box&lt;i64&gt;&gt;());
+
+    // Box 实现了 Deref trait，访问时会自动解引用 ，返回堆内存中存储的数据
+    println!("Deref trait：{}", number);
+
+    // Box 实现了 DerefMut trait，解引用修改存储在堆上的数据
+    *number = 200;
+    println!("DerefMut trait：{}", number);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+数据在堆区域的内存地址：0x55b173364b90
+Box&lt;i32&gt; 指针大小：8 bytes
+Box&lt;i64&gt; 指针大小：8 bytes
+Deref trait：100
+DerefMut trait：20
+</code></pre>
+<p>　　另外，<code>Box</code> 类型还实现了资源释放 <code>Drop</code> trait，用于释放其持有的堆内存资源。当 <code>Box</code> 变量离开作用域时，Rust 会自动调用其 <code>drop()</code> 方法，释放对应的堆内存；如果需要提前释放资源，也可以通过 <code>std::mem::drop()</code> 函数主动触发清理过程。此外，可以使用 <code>Box::leak()</code> 函数绕过释放机制，使其在整个程序运行期间都不释放。</p>
+<pre class="playground"><code class="language-rust">use std::ops::Deref;
+
+#[derive(Debug)]
+struct UserID(i32);
+
+impl Drop for UserID {
+    fn drop(&amp;mut self) {
+        println!("drop called：{:?}", self);
+    }
+}
+
+impl Deref for UserID {
+    type Target = i32;
+
+    // 实现自定义解引用行为，解引用将 UserID 转为 i32
+    fn deref(&amp;self) -&gt; &amp;Self::Target {
+        &amp;self.0
+    }
+}
+
+fn main() {
+    {
+        // 将数据 100 存放在堆上，成功后返回的 Box 结构体存放在栈上的普通局部变量中，当
+        // 局部变量离开作用域时，会自动调用 drop 函数释放堆内存，Box 局部变量则随栈帧释放
+        let number = Box::new(UserID(100));
+        println!("自动释放：{:?}", number);
+    }
+
+    {
+        // 手动调用 drop() 释放内存
+        let number = Box::new(UserID(200));
+        drop(number);
+        println!("手动释放完毕");
+    }
+
+    {
+        // 使用 leak() 函数绕过释放机制，使其内存在整个程序运行期间都不会被释放
+        let number = Box::new(UserID(300));
+        let leaked_number = Box::leak(number);
+        println!("使用 leak() 函数绕过释放机制：{:?}", leaked_number);
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>shell&gt; cargo run
+自动释放：UserID(100)
+drop called：UserID(100)
+drop called：UserID(200)
+手动释放完毕
+使用 leak() 函数绕过释放机制：UserID(300)
+<span class="boring">}</span></code></pre>
+<p>　　需要注意的是，如果直接使用 <code>Box::new()</code> 将一个数组保存到堆上，实际上会先在栈上创建该数组，再将其拷贝到堆内存中，这个过程会引入额外的开销。另外，如果数组的大小超出栈的容量限制，还可能导致栈溢出（如下方示例代码所示）。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 将一个 100MB 大小的数组保存到堆上，实际上会先在栈上创建，再复制到堆上
+    let array = Box::new([0x01_u8; 100 * 1024 * 1024]);
+    println!("{}", array.len());
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+thread 'main' (928293) has overflowed its stack     # 栈内存溢出异常
+fatal runtime error: stack overflow, aborting
+Aborted (core dumped)
+</code></pre>
+<p>　　针对这一问题，可以使用 <code>Box::new_uninit_slice()</code> 在堆上直接分配一块未初始化的内存区域，用于存放较大的数组，避免在栈上创建数组并将其复制到堆上所带来的额外开销，同时也能避免栈溢出的问题。由于分配的是未初始化的内存区域，使用时需初始化内存中的数据。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 在堆上分配一块未初始化的内存，大小为 100MB
+    let mut buffers = Box::&lt;[u8]&gt;::new_uninit_slice(100 * 1024 * 1024);
+
+    // 逐个初始化数组每个元素
+    for i in 0..buffers.len() {
+        buffers[i].write(0_u8);
+    }
+
+    // 批量初始化，比逐个初始化效率更高
+    unsafe {
+        buffers.as_mut_ptr().write_bytes(1_u8, buffers.len());
+    };
+
+    // 初始化完成后，转换为已初始化的切片
+    let slice = unsafe { buffers.assume_init() };
+
+    // 使用已初始化的切片
+    println!("第一个元素: {}", slice[0]);
+    println!("最后一个元素: {}", slice[slice.len() - 1]);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+第一个元素: 1
+最后一个元素: 1
+</code></pre>
+<p>　　<code>Box</code> 还实现了 <code>Clone</code> trait，但前提是它所存储的元素类型也实现了 <code>Clone</code> trait。当调用 <code>clone()</code> 方法时，<code>Box</code> 会调用元素类型的 <code>clone()</code> 方法创建一份数据副本，并为这份副本重新分配一块堆内存，返回一个新的 <code>Box</code>。因此，克隆得到的新 <code>Box</code> 与原 <code>Box</code> 分别拥有各自的数据副本，二者相互独立。</p>
+<pre class="playground"><code class="language-rust">// 定义 Foo 结构体，不实现 Clone trait
+struct Foo;
+
+// 定义 Bar 结构体，并实现 Clone trait
+#[derive(Debug)]
+struct Bar(usize);
+
+impl Clone for Bar {
+    fn clone(&amp;self) -&gt; Self {
+        println!("Bar: clone called");
+        Self(self.0)
+    }
+}
+
+fn main() {
+    // 如果元素没有实现 Clone trait，无法调用 Box 的 clone()
+    let _foo = Box::new(Foo);
+    // _foo.clone(); // 编译报错：Foo 没有实现 Clone
+
+    // 如果元素实现 Clone trait，调用 clone() 克隆数据并存放到新 Box
+    let bar1 = Box::new(Bar(1));
+    let bar2 = bar1.clone();
+
+    // bar1 和 bar2 是独立的 Box，指向的数据各自独立，bar1 释放回收不影响 bar2
+    drop(bar1);
+    println!("bar2: {:?}", bar2);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+Bar: clone called
+bar2: Bar(1)
+</code></pre>
+<h4 id="1262-rc-指针类型"><a class="header" href="#1262-rc-指针类型">12.6.2 Rc 指针类型</a></h4>
+<p>　　<code>Rc</code> 指针类型也可以在堆上分配内存来存储数据，但可以让多个所有者共享同一份数据。通过调用 <code>Rc::new()</code> 函数来分配内存，成功后会将堆内存的地址存放在一个 <code>Rc</code> 结构体中并返回。<code>Rc</code> 结构体的大小与 <code>usize</code> 类型相同，在 32 位平台上为 4 字节，在 64 位平台上为 8 字节。<code>Rc</code> 结构体同样实现了 <code>Deref</code> trait，当访问该结构体时，会自动解引用为堆内存中存储的数据，但 <code>Rc</code> 指针并未像 <code>Box</code> 指针那样实现 <code>DerefMut trait</code>，因此无法通过解引用来修改数据。</p>
+<pre class="playground"><code class="language-rust">use std::rc::Rc;
+
+fn main() {
+    // 将数据 100 存放在堆上，成功后返回的 Rc 结构体存放在栈上的普通局部变量中
+    let number: Rc&lt;i32&gt; = Rc::new(100);
+
+    // 查看数据内存地址
+    println!("存放数据的堆内存地址：{:p}", number);
+    println!("存放Rc的栈内存地址：{:p}", &amp;number);
+
+    // Rc 类型大小取决于系统架构：在 64 位系统下为 8 字节，在 32 位系统下为 4 字节
+    // 由于存放的是 堆内存地址，无论数据大小，Rc 大小是固定的
+    println!("Rc&lt;i32&gt; 指针大小：{} bytes", size_of::&lt;Rc&lt;i32&gt;&gt;());
+    println!("Rc&lt;i64&gt; 指针大小：{} bytes", size_of::&lt;Rc&lt;i64&gt;&gt;());
+
+    // Rc 实现了 Deref trait，访问时会自动解引用，返回堆内存中存储的数据
+    println!("Deref trait：{}", number);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+存放数据的堆内存地址：0x55a956196ba0
+存放Rc的栈内存地址：0x7ffdbe156168
+Rc&lt;i32&gt; 指针大小：8 bytes
+Rc&lt;i64&gt; 指针大小：8 bytes
+Deref trait：100
+</code></pre>
+<p>　　<code>Rc</code> 基于引用计数实现多个所有者共享同一份数据，当使用 <code>Rc</code> 指针进行堆内存分配时，除了为存储数据分配内存空间外，<code>Rc</code> 还会在堆上额外分配一部分内存用于存储<strong>强引用计数（strong count）和弱引用计数（weak count）</strong>，每个计数值各占用一个 <code>usize</code> 大小的空间。强引用计数用来跟踪当前所有者的数量；弱引用计数则主要用于解决循环引用问题，避免因循环引用导致的内存泄漏。</p>
+<p>　　<code>Rc</code> 通过实现 <code>Clone</code> 和 <code>Drop</code> trait 实现强引用计数的增减，每次调用 <code>clone()</code> 时，并不会复制底层的数据结构，而是将强引用计数加一；当某个所有者离开作用域时或手动调用 drop() 函数时，强引用计数会减一。当强引用计数归零时，<code>Rc</code> 所指向的数据会被自动释放，确保内存得到正确回收。引用计数机制非常高效，尤其在处理大数据时，它能有效减少不必要的内存分配和数据复制开销。</p>
+<pre class="playground"><code class="language-rust">use std::rc::Rc;
+
+#[allow(dead_code)]
+#[derive(Debug)]
+struct Number(i32);
+
+impl Drop for Number {
+    fn drop(&amp;mut self) {
+        println!("强引用计数等于 0，释放内存!");
+    }
+}
+
+fn main() {
+    // 使用 Rc 指针在堆上分配内存存放数据，还会同时分配
+    let number = Rc::new(Number(100));
+    println!("堆内存地址（new）: {:p}", number);
+    println!("强引用计数（new）: {}", Rc::strong_count(&amp;number));
+    println!("弱引用计数（new）: {}", Rc::weak_count(&amp;number));
+
+    // 克隆共享堆数据，内存地址相同，仅增加强引用计数
+    let cloned_number = number.clone();
+    println!("堆内存地址（cloned）: {:p}, {:p}", number, cloned_number);
+    println!("强引用计数（cloned）: {}, {}",
+             Rc::strong_count(&amp;number), Rc::strong_count(&amp;cloned_number));
+
+    // 手动调用 drop() 函数时，强引用计数会减一
+    drop(cloned_number);
+    println!("强引用计数（drop）: {}", Rc::strong_count(&amp;number));
+
+    {
+        // 作用域结束后，强引用计数会减一
+        let cloned = number.clone();
+        println!("强引用计数（within scope）: {}, {}",
+                 Rc::strong_count(&amp;number), Rc::strong_count(&amp;cloned));
+    }
+    println!("强引用计数（final）: {}", Rc::strong_count(&amp;number));
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+堆内存地址（new）: 0x18caf9b1a30
+强引用计数（new）: 1
+弱引用计数（new）: 0
+堆内存地址（cloned）: 0x18caf9b1a30, 0x18caf9b1a30
+强引用计数（cloned）: 2, 2
+强引用计数（drop）: 1
+强引用计数（within scope）: 2, 2
+强引用计数（final）: 1
+强引用计数等于 0，释放内存!
+</code></pre>
+<p>　　Rust 的引用遵循 <strong>“共享不可变、可变独占”</strong> 原则，即同一时刻可以存在多个不可变引用，但最多只能存在一个可变引用，并且可变引用存在时不能同时存在其他引用。<code>Rc</code> 类型允许多个所有者共享同一份数据，但其共享数据本身不能直接修改，如果需要在多个所有者共享数据的同时修改数据，则需要借助内部可变性机制。<code>Cell</code> 和 <code>RefCell</code> 都提供了内部可变性，允许通过共享引用修改其内部数据，同时仍需遵循 Rust 的借用规则。</p>
+<ul>
+<li><code>Cell</code> 不使用引用，通过值复制或替换访问和修改数据，要求类型实现 <code>Copy</code>，适合小型数据。</li>
+<li><code>RefCell</code> 通过引用直接修改数据，无需复制，但同一时刻仍只能有一个可变引用或多个不可变引用。</li>
+</ul>
+<pre class="playground"><code class="language-rust">use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
+#[allow(dead_code)]
+#[derive(Clone, Copy, Debug)]
+struct Number(i32);
+
+fn main() {
+
+    // Cell
+    let number = Rc::new(Cell::new(Number(100)));
+
+    // 获取时会复制数据，修改不影响原数据
+    let copied = number.get();      // 值复制
+    number.set(Number(200));        // 值替换
+    println!("Cell 值={:?}, 复制值={:?}", number, copied);
+
+
+    // RefCell
+    let number = Rc::new(RefCell::new(Number(200)));
+
+    // 通过不可变引用访问数据
+    let value = *number.borrow();
+    println!("RefCell 值={:?}", value);
+
+    // 通过可变引用修改数据
+    let mut mutable_ref = number.borrow_mut();
+    *mutable_ref = Number(300);
+    println!("RefCell 修改后={:?}", mutable_ref);
+
+    // 不能存在多个可变借用
+    // let mut another = shared_refcell.borrow_mut();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+Cell 值=Cell { value: Number(200) }, 复制值=Number(100)
+RefCell 值=Number(200)
+RefCell 修改后=Number(300)
+</code></pre>
+<p>　　需要注意是，如果多个 <code>Rc</code> 指针相互引用，形成循环引用，其强引用计数将无法归零，将导致内存无法释放，造成内存泄漏。下述示例中 Teacher 与 Student 之间的循环引用，会导致强引用计数无法归零，从而造成内存泄漏。这种情况需要手动破坏循环引用，才能释放堆内存。</p>
+<pre class="playground"><code class="language-rust">use std::cell::Cell;
+use std::rc::Rc;
+
+struct Teacher {
+    name: String,
+    student: Cell&lt;Option&lt;Rc&lt;Student&gt;&gt;&gt;,
+}
+
+struct Student {
+    name: String,
+    teacher: Cell&lt;Option&lt;Rc&lt;Teacher&gt;&gt;&gt;,
+}
+
+impl Drop for Teacher {
+    fn drop(&amp;mut self) {
+        println!("Teacher drop: {}", self.name);
+    }
+}
+
+impl Drop for Student {
+    fn drop(&amp;mut self) {
+        println!("Student drop: {}", self.name);
+    }
+}
+
+
+fn main() {
+    let teacher = Rc::new(Teacher {
+        name: "Teacher A".to_string(),
+        student: Cell::new(None),
+    });
+
+    let student = Rc::new(Student {
+        name: "Student B".to_string(),
+        teacher: Cell::new(None),
+    });
+
+    // 相互引用，形成循环引用，强引用计数将无法归零，会导致内存无法释放，出现内存泄漏
+    teacher.student.set(Some(Rc::clone(&amp;student)));
+    student.teacher.set(Some(Rc::clone(&amp;teacher)));
+    println!("强引用数量：{} {}", Rc::strong_count(&amp;teacher), Rc::strong_count(&amp;student));
+
+    // 手动将一方的引用置为 None，就可以切断循环引用，使双方的引用计数都降为 0，让内存正常释放
+    // teacher.student.set(None);
+    // student.teacher.set(None);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+强引用数量：2 2
+</code></pre>
+<p>　　除了手动解除循环引用外，更安全的方式是通过 <code>Weak</code> 弱引用避免循环引用导致的内存泄漏。<code>weak()</code> 函数不会增加强引用计数，仅增加弱引用计数，因此不会阻止 <code>Rc</code> 的值被释放，可以通过 <code>upgrade</code> 方法将 <code>Weak</code> 转换为 <code>Rc</code>，如果原值已经被释放，则返回 <code>None</code>。</p>
+<pre class="playground"><code class="language-rust">use std::cell::Cell;
+use std::rc::{Rc, Weak};
+
+struct Teacher {
+    name: String,
+    student: Cell&lt;Weak&lt;Student&gt;&gt;,
+}
+
+struct Student {
+    name: String,
+    teacher: Cell&lt;Option&lt;Rc&lt;Teacher&gt;&gt;&gt;,
+}
+
+impl Drop for Teacher {
+    fn drop(&amp;mut self) {
+        println!("Teacher drop: {}", self.name);
+    }
+}
+
+impl Drop for Student {
+    fn drop(&amp;mut self) {
+        println!("Student drop: {}", self.name);
+    }
+}
+
+fn main() {
+
+    let teacher_rc = Rc::new(Teacher {
+        name: "Teacher A".to_string(),
+        student: Cell::new(Weak::new()),
+    });
+
+    let student_rc = Rc::new(Student {
+        name: "Student B".to_string(),
+        teacher: Cell::new(None),
+    });
+
+    // 使用弱引用避免相互引用，导致内存泄漏
+    teacher_rc.student.set(Rc::downgrade(&amp;student_rc));
+    student_rc.teacher.set(Some(Rc::clone(&amp;teacher_rc)));
+
+    println!("强引用数量: student={}, teacher={}", 
+        Rc::strong_count(&amp;student_rc), Rc::strong_count(&amp;teacher_rc));
+    println!("弱引用数量: student={}", Rc::weak_count(&amp;student_rc));    // 弱引用计数变为 1
+
+    // 通过 upgrade() 方法可以将 Weak 指针转换为 Rc 指针
+    let student_weak = teacher_rc.student.take();
+    match student_weak.upgrade() {
+        None =&gt; println!("已被释放"),
+        Some(student) =&gt; println!("{}", student.name),
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+强引用数量: student=1, teacher=2
+弱引用数量: student=1
+Student B
+Student drop: Student B
+Teacher drop: Teacher A
+</code></pre>
+<p>　　为了支持多线程场景（见线程安全章节），Rust 提供了 <code>Rc</code> 的线程安全版本 <code>Arc</code>（Atomic Reference Counted），用于在多个线程之间安全共享堆上的数据，两者使用方式相同。 <code>Arc</code> 通过原子操作维护引用计数，确保在并发环境中引用计数的正确性和数据一致性。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Arc;
+
+fn main() {
+    let arc = Arc::new(10);
+    println!("arc={}", arc);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+arc=10
+</code></pre>
+<h4 id="1263-堆内存分配器"><a class="header" href="#1263-堆内存分配器">12.6.3 堆内存分配器</a></h4>
+<p>　　堆内存分配器负责管理堆区域的内存分配，<code>Box</code>、<code>Rc</code> 和 <code>Arc</code> 指针在堆上分配内存时，会调用堆内存分配器分配内存，也可以直接使用堆内存分配接口 <code>std::alloc::alloc</code> 和 <code>std::alloc::dealloc</code> 来分配和释放内存。</p>
+<pre class="playground"><code class="language-rust">use std::alloc::{alloc, dealloc, Layout};
+
+fn main() {
+
+    unsafe {
+        // 在堆上分配内存
+        let layout = Layout::new::&lt;u16&gt;();
+        let ptr = alloc(layout);
+
+        // 判断是否分配成功
+        if ptr.is_null() {
+            panic!("分配内存失败！");
+        }
+
+        // 修改数据
+        *(ptr as *mut u16) = 100;
+        println!("ptr={:?}", *ptr);
+
+        // 释放堆内存
+        dealloc(ptr, layout);
+    }   
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+ptr=100
+</code></pre>
+<p>　　堆内存分配接口 <code>alloc</code> 和 <code>dealloc</code> 的默认实现类型为 <code>std::alloc::System</code>，其底层通过操作系统提供的 C 运行时库或系统堆管理 API 完成内存的分配与释放。开发者也可以自行实现 <code>GlobalAlloc</code> trait 来定义自定义堆分配器，并使用 <code>#[global_allocator]</code> 属性将其设置为全局分配器。在下述示例中，使用一个静态数组作为堆内存区域，并通过自定义分配器在该区域分配内存。</p>
+<pre class="playground"><code class="language-rust">use std::alloc::{GlobalAlloc, Layout};
+use std::ptr::addr_of_mut;
+
+const HEAP_SIZE: usize = 100 * 1024 * 1024;
+static mut HEAP_MEMORY: [u8; HEAP_SIZE] = [0x00; HEAP_SIZE];
+static mut HEAP_INDEX: usize = 0;
+
+struct CustomAllocator;
+
+// 实现 GlobalAlloc trait 自定义堆内存分配策略
+unsafe impl GlobalAlloc for CustomAllocator {
+
+    // 分配堆内存时，会调用该函数
+    unsafe fn alloc(&amp;self, layout: Layout) -&gt; *mut u8 {
+
+        let size = layout.size();
+        let align = layout.align();
+
+        // 计算开始和结束位置，并处理内存对齐
+        let start = unsafe { HEAP_INDEX };
+        let aligned_start = (start + align - 1) &amp; !(align - 1);
+        let end = aligned_start + size;
+
+        // 检查是否超出堆内存范围
+        if end &gt; HEAP_SIZE {
+            panic!("Out of memory");
+        }
+
+        // 更新堆指针
+        unsafe { HEAP_INDEX = end };
+        let heap_ptr = addr_of_mut!(HEAP_MEMORY);
+        return unsafe { heap_ptr.cast::&lt;u8&gt;().add(aligned_start) };
+    }
+
+    // 释放堆内存时，会调用该函数
+    unsafe fn dealloc(&amp;self, _ptr: *mut u8, _layout: Layout) {
+        // 简单示例不支持释放内存
+    }
+}
+
+// 设置为全局堆内存分配器
+#[global_allocator]
+static GLOBAL: CustomAllocator = CustomAllocator;
+
+fn main() {
+    let heap_ptr = &amp;raw const HEAP_MEMORY;
+    println!("堆内存区域: {:p} ~ 0x{:x}", heap_ptr, heap_ptr as usize + HEAP_SIZE);
+
+    let number = Box::new(100_u8);
+    println!("Box 分配的内存地址: {:p}, value: {}", number, number);
+}</code></pre>
+<pre><code class="language-shell"># Box 分配的堆内存地址，在自定义的堆内存区域
+shell&gt; cargo run
+堆内存区域: 0x560317771f69 ~ 0x56031db71f69
+Box 分配的内存地址: 0x560317772591, value: 100 
+</code></pre>
+<p>　　在 Rust 社区中，有多种成熟的堆内存分配器可供选择，如 <code>jemalloc</code>、<code>mimalloc</code> 和 <code>tcmalloc</code> 等。它们在性能和应用场景上各有侧重，因此在选择时需要根据程序的特点权衡，如分配速度、并发支持、内存碎片以及是否适用于嵌入式或实时系统。下述示例，介绍如何使用 <code>mimalloc</code> 作为全局分配器。</p>
+<pre class="playground"><code class="language-rust">use mimalloc::MiMalloc;
+
+// 设置 mimalloc 为全局堆内存分配器
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
+fn main() {
+    // 在堆上分配内存时，会能完 MiMallo 分配和管理
+    let number = Box::new(100);
+    println!("{:?}", number);
+}</code></pre>
+<pre><code class="language-shell"># 添加 mimalloc内存分配器依赖
+shell&gt; cargo add mimalloc@0.1.52
+shell&gt; cargo run
+number=100
+</code></pre>
+<h3 id="127-生命周期机制"><a class="header" href="#127-生命周期机制">12.7 生命周期机制</a></h3>
+<p>　　不同内存区域采用不同的管理策略，其数据的分配与释放时机也各不相同，即使位于同一内存区域，不同作用域中的数据，其有效期也可能不同，因此，每个变量都有自己的生命周期（lifetime）。为了确保引用始终指向有效的数据，每个引用都会受到相应的生命周期约束，用于保证引用的有效期不会超过其所指向数据的有效期。编译器在编译时，会根据引用的使用情况分析并检查这些生命周期约束，避免引用指向已经失效的数据，在编译期防止悬垂引用（dangling reference）、野指针（wild pointer）等内存访问问题。与依赖运行时检查的内存安全机制不同，生命周期检查主要在编译期完成，不会引入额外的运行时检查开销，从而在保证内存安全的同时，仍能实现接近 C/C++ 的运行时性能。</p>
+<h4 id="1271-生命周期参数"><a class="header" href="#1271-生命周期参数">12.7.1 生命周期参数</a></h4>
+<p>　　生命周期参数（lifetime parameter）用于描述多个引用之间的生命周期关系，帮助编译器检查这些引用是否始终有效。在绝大多数情况下，编译器能够根据引用的使用情况自动推断其生命周期，不需要开发者显式标注生命周期参数。当引用之间存在无法通过上下文自动确定的生命周期关系时，才需要显式标注生命周期参数。生命周期参数的声明格式为 &lt;’a&gt;，在引用类型中使用时标注为 &amp;’a T。其中，’a 是生命周期参数的名称，可以自定义，通常使用单个小写字母表示。</p>
+<p>　　当结构体包含引用类型的字段时，编译器无法确定引用是否会在结构体实例之前被释放，导致悬垂引用。因此，必须显式标注引用生命周期参数，告诉编译器引用的生命周期不会短于结构体实例的生命周期，确保结构体实例存活期间，其引用字段始终指向有效的数据。同样地，如果枚举的某些变体包含引用类型的字段，也需要通过生命周期参数描述引用与枚举实例之间的生命周期关系，确保引用始终有效。</p>
+<pre class="playground"><code class="language-rust">// 为结构体声明一个生命周期参数，'a 代表结构体实例的生命周期
+#[allow(dead_code)]
+struct User&lt;'a&gt; {
+    id: i32,
+    name: &amp;'a str,  // 标注使用 ‘a 生命周期，即要求数据生命周期不能小于结体体
+}
+
+fn main() {
+    // name 与结构体在同一个作用域内，生命周期相同，满足生命周期标注要求
+    let name = String::from("张三");
+    let mut user = User {
+        id: 1,
+        name: &amp;name,
+    };
+
+    {
+        // 该变量仅在局部代码块内有效，生命周期小于 user 结构体实例，
+        // 不满足生命周期标注要求，所以不能直接赋值给 user.name
+        let name = String::from("李四");
+        user.name = &amp;name;         // 编译报错
+    }
+
+    println!("User: id={}, name={}", user.id, user.name);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+error[E0597]: `name` does not live long enough
+  --&gt; src\main.rs:20:21
+   |
+19 |         let name = String::from("李四");
+   |             ---- binding `name` declared here
+20 |         user.name = &amp;name;         // 编译报错，name 生命周期不够长
+   |                     ^^^^^ borrowed value does not live long enough
+21 |     }
+   |     - `name` dropped here while still borrowed
+22 |
+23 |     println!("User: id={}, name={}", user.id, user.name);
+   |                                      ------- borrow later used here
+</code></pre>
+<p>　　Rust 内置了一个 <code>'static</code> 生命周期参数，用于表示在整个程序运行期间始终有效的数据。位于只读数据区、可写数据区和 BSS 段中的静态数据，以及通过 <code>Box::leak()</code> 主动泄漏而获得的数据，都属于 <code>'static</code> 生命周期。</p>
+<pre class="playground"><code class="language-rust">#[allow(dead_code)]
+#[derive(Debug)]
+struct User&lt;'a&gt; {
+    id: i32,
+    name: &amp;'a str,       // 要求数据生命周期不能小于结体体
+    desc: &amp;'static str,  // 要求数据的生命周期在整个程序运行期间始终有效
+}
+
+fn main() {
+
+    // 静态字符串，存放在只读数据区，在整个程序运行期间都有效
+    let mut user = User {
+        id: 1,
+        name: &amp;String::from("张三"),
+        desc: "这是一个用户",    // 静态字符串
+    };
+
+    {
+        // 静态字符串在整个程序运行期间都有效，生命周期大于 user 结构体实例，
+        // 不会导致悬垂引用，可以赋值
+        let name: &amp;'static str = "李四";
+        user.name = &amp;name;     // 不会编译报错
+    }
+
+    println!("{user:?}");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+User { id: 1, name: "李四", desc: "这是一个用户" }
+</code></pre>
+<p>　　当函数的返回值是引用时，编译器需要确定该引用的生命周期，以确保函数返回后，该引用所指向的数据仍然有效。</p>
+<ul>
+<li>当函数只有一个引用类型的参数时，编译器会将该参数的生命周期赋予返回值的引用，返回值可以省略生命周期标注。</li>
+<li>当函数有多个引用类型的参数时，编译器无法确定返回值引用与哪个参数关联，返回值必须显式标注生命周期。</li>
+<li>当函数的多个引用参数中有一个 <code>&amp;self</code> 或 <code>&amp;mut self</code> 时，编译器会将 <code>self</code> 参数的生命周期赋予返回值的引用，返回值可以省略生命周期标注。</li>
+</ul>
+<pre class="playground"><code class="language-rust">// 当函数的返回值是引用时，编译器需要知道该引用的生命周期，确保返回的引用仍指向有效的数据
+// 使用 'static 表示返回值引用的数据在整个程序运行期间都有效
+fn foo() -&gt; &amp;'static i32 {
+    let number = Box::new(10);
+    let leak: &amp;'static i32 = Box::leak(number);
+    return leak;
+}
+
+//当函数只有一个引用类型的参数时，编译器会将该参数的生命周期赋予返回值的引用，返回值可以省略生命周期标注
+fn bar(number: &amp;i32) -&gt; &amp;i32 {
+    return number;
+}
+
+// 当函数有多个引用类型的参数时，编译器无法确定返回值引用与哪个参数关联，返回值必须显式标注生命周期
+fn max&lt;'a&gt;(v1: &amp;'a i32, v2: &amp;'a i32) -&gt; &amp;'a i32 {
+    return match v1 &gt; v2 {
+        true =&gt; v1,
+        false =&gt; v2,
+    };
+}
+
+#[allow(dead_code)]
+struct User {
+    id: u32,
+    name: String,
+}
+
+impl User {
+    // 当函数的多个引用参数中有一个 `&amp;self` 或 `&amp;mut self` 时，编译器会将 `self`
+    // 参数的生命周期赋予返回值的引用，返回值可以省略生命周期标注。
+    fn introduce(&amp;self, greeting: &amp;str) -&gt; &amp;str {
+        println!("{}，我是 {}", greeting, self.name);
+        &amp;self.name   // 返回自己的名字
+    }
+}
+
+fn main() {
+    // foo 返回一个 'static 生命周期的引用
+    let static_ref: &amp;'static i32 = foo();
+    println!("foo() -&gt; {}", static_ref);
+
+    // bar 的返回值引用和参数生命周期相同
+    let num = 20;
+    let bar_ref = bar(&amp;num);
+    println!("bar(&amp;num) -&gt; {}", bar_ref);
+
+    // max 返回参数中较大的值的引用
+    let v1 = 31;
+    let v2 = 32;
+    let max_ref = max(&amp;v1, &amp;v2);
+    println!("max(&amp;v1, &amp;v1) -&gt; {}", max_ref);
+
+    // User 的 introduce 方法返回 self 的引用
+    let user = User { id: 1, name: String::from("Rust") };
+    user.introduce("你好");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>shell&gt; cargo run
+foo() -&gt; 10
+bar(&amp;num) -&gt; 20
+max(&amp;v1, &amp;v1) -&gt; 32
+你好，我是 Rust
+<span class="boring">}</span></code></pre>
+<h4 id="1272-生命周期约束"><a class="header" href="#1272-生命周期约束">12.7.2 生命周期约束</a></h4>
+<p>　　当函数存在多个引用参数且本身生命周期不同时，如果统一使用同一个生命周期参数进行标注，编译器会要求这些引用均满足该生命周期的约束，导致一些实际上安全的代码无法通过编译（见下述示例）。</p>
+<pre class="playground"><code class="language-rust">fn max&lt;'a&gt;(v1: &amp;'a i32, v2: &amp;'a i32) -&gt; &amp;'a i32 {
+    return match v1 &gt; v2 {
+        true =&gt; v1,
+        false =&gt; v2,
+    }
+}
+
+fn main() {
+
+    // 在同一个作用域，生命周期相同
+    let v1 =10;
+    let v2 = 20;
+
+    // 生命周期相同，可以正常编译
+    let max = max(&amp;v1, &amp;v2);
+
+    {
+        // v3 生命周期短于 v1，不满足 max 函数生命周期参数一样的要求，编译报错（误报），
+        // 实际上返回引用仅在局部使用，不会产生悬垂引用，是内存安全的
+        let v3 = 30;
+        let max = max(&amp;v1, &amp;v3);
+        println!("max={max}");
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>shell&gt; cargo run
+   Compiling app v0.1.0 (/file/rust/project/app)
+error[E0618]: expected function, found `&amp;i32`
+  --&gt; src/main.rs:21:19
+   |
+ 1 | fn max&lt;'a&gt;(v1: &amp;'a i32, v2: &amp;'a i32) -&gt; &amp;'a i32 {
+   | ----------------------------------------------- this function of the same name is available here, but it's shadowed by the local binding
+...
+15 |     let max = max(&amp;v1, &amp;v2);
+   |         --- `max` has type `&amp;i32`
+...
+21 |         let max = max(&amp;v1, &amp;v3);
+   |                   ^^^----------
+   |                   |
+   |                   call expression requires function
+<span class="boring">}</span></code></pre>
+<p>　　当存在多个引用且它们的生命周期不同时，如果无法使用单一生命周期参数统一描述，可以为每个引用分别声明独立的生命周期参数，从而明确各自的生命周期关系，使编译器能够准确判断每个引用的有效范围，避免因生命周期约束过强而导致编译错误。</p>
+<pre class="playground"><code class="language-rust">fn foo&lt;'a, 'b&gt;(v1: &amp;'a i32, _v2: &amp;'b i32) -&gt; &amp;'a i32 {
+    return v1;
+}
+
+fn main() {
+
+    // 在同一个作用域，生命周期相同
+    let v1 =100;
+    let v2 = 200;
+
+    // 生命周期相同，可以正常编译
+    let value = foo(&amp;v1, &amp;v2);
+    println!("value: {value}");
+
+    {
+        // 生命周期不同，也可以正常编译（v3 生命周期小于 v1）
+        let v3 = 50;
+        let value = foo(&amp;v1, &amp;v3);
+        println!("value: {value}");
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+value: 100
+value: 100
+</code></pre>
+<p>　　每个引用只有一个生命周期参数，如果需支持多个具有不同生命周期的引用，则需要添加生命周期约束，明确各参数之间的相对关系（例如指定一个生命周期不短于另一个），以帮助编译器正确推断引用的有效期。生命周期约束既可以直接写在生命周期参数列表中，也可以通过 <code>where</code> 子句声明。</p>
+<pre class="playground"><code class="language-rust">// 函数返回的引用只能与一个生命周期参数关联，无法返回标注了其他生命周期的引用
+fn foo&lt;'a, 'b&gt;(v1: &amp;'a i32, _v2: &amp;'b i32) -&gt; &amp;'a i32 {
+    return v1;
+    // return v2;   // 会编译报错，生命周期参数不匹配
+}
+
+// 方式1：在生命周期参数列表中添加生命周期约束，要求 b 生命周期大于等于 a
+fn max&lt;'a, 'b: 'a&gt;(v1: &amp;'a i32, v2: &amp;'b i32) -&gt; &amp;'a i32 {
+    // 由于约束要求 b 生命周期大于等于 a，无论返回哪一个引用都满足返回值引用的生命周期参数要求
+    return match v1 &gt; v2 {
+        true =&gt; v1,
+        false =&gt; v2,
+    };
+}
+
+// 方式2：使用 where 子句添加生命周期约束，要求 b 生命周期大于等于 a
+fn min&lt;'a, 'b&gt;(v1: &amp;'a i32, v2: &amp;'b i32) -&gt; &amp;'a i32
+where 'b: 'a {
+    return match v1 &lt; v2 {
+        true =&gt; v1,
+        false =&gt; v2,
+    };
+}
+
+fn main() {
+
+    let v1 = 100;
+    let v2 = 200;
+
+    // 返回值引用只能关联 'a，因此无法直接返回 'b 的引用
+    let foo = foo(&amp;v1, &amp;v2);
+    println!("foo: {}", foo);
+
+    // 生命周期相同，可以正常编译
+    let max = max(&amp;v1, &amp;v2);
+    println!("max: {}", max);
+
+    {
+        // 生命周期不同，也可以正常编译（v3 生命周期小于 v1）
+        let v3 = 300;
+        let min = min(&amp;v1, &amp;v3);
+        println!("min: {}", min);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+foo: 100
+max: 200
+min: 100
+</code></pre>
+<h3 id="128--原始指针类型"><a class="header" href="#128--原始指针类型">12.8  原始指针类型</a></h3>
+<p>　　原始指针（也称裸指针）与引用类似，本质上也是一个内存地址，都可以指向任意内存，可以直接访问或修改所指向的数据，不保证数据的有效性和安全性，也不受借用检查器和生命周期机制约束，开发者需自行保证内存安全和线程安全（见多线程章节），主要用于跨语言调用（FFI）或手动管理内存等场景。其大小与 <code>usize</code> 类型相同，取决于平台：在 32 位平台上为 4 字节，在 64 位平台上为 8 字节。</p>
+<p>　　原始指针分为不可变指针 <code>*const T</code> 和可变指针 <code>*mut T</code> 两种，其中 <code>*const T</code> 只能读取指向的数据，不能修改，而 <code>*mut T</code> 则可以读取和修改指向的数据。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let mut number = 100;
+
+    // 创建不可变原始指针（只读），原始指针和引用本质都是一个内存地址，可以直接将引用转为原始指针
+    let ptr: *const i32 = &amp;number as *const i32;
+
+    // 可变原始指针（可读可写），也可以显式声明为原始指针类型，编译器会自动推导
+    let ptr_mut: *mut i32 = &amp;mut number;
+
+    // 原始指针的大小取决于平台：在 32 位平台上为 4 字节，在 64 位平台上为 8 字节
+    println!("原始指针大小: *const i32={}", size_of::&lt;*const i32&gt;());
+
+    // 原始指针大小与指向的数据类型无关
+    println!("原始指针大小: *mut i32={}", size_of::&lt;*mut i32&gt;());
+    println!("原始指针大小: *mut i128={}", size_of::&lt;*const i128&gt;());
+
+    // 读取数据，原始指针不保证数据的有效性或安全性，解引用必须放在 unsafe 代码块中
+    unsafe {
+        println!("通过不可变指针读取: {}", *ptr);
+        println!("通过可变指针读取: {}", *ptr_mut);
+    }
+
+    // 通过可变指针修改数据（必须 unsafe）
+    unsafe {
+        *ptr_mut = 200;
+        println!("修改后: number={}", number);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+原始指针大小: *const i32=8
+原始指针大小: *mut i32=8
+原始指针大小: *mut i128=8
+通过不可变指针读取: 100
+通过可变指针读取: 100
+修改后: number=200
+</code></pre>
+<p>　　原始指针不保证所指向数据的有效性和安全性，可能指向已经失效的内存，访问此类内存可能导致未定义行为，甚至引发程序崩溃。例如，当所指向的内存被释放后，原始指针便成为悬垂指针。下述示例中，原始指针指向 <code>foo</code> 函数中的局部变量；当 <code>foo</code> 函数执行结束后，该局部变量的内存失效，原始指针随之成为悬垂指针。随后，这块内存可能被 <code>bar</code> 函数重新使用并写入其他数据，导致原始指针访问到被覆盖后的内容，出现数据异常。</p>
+<pre class="playground"><code class="language-rust">// 当函数执行完毕，局部变量被释放回收，返回的原始指针指向无效数据
+#[allow(dangling_pointers_from_locals)]
+fn foo() -&gt; *const i32 {
+    let number = 100;
+    return &amp;number as *const i32;
+}
+
+// bar 函数复用了 foo 函数释放的内存区域，导致原始指针指向的数据被覆盖，出现数据异常
+fn bar() {
+    let _number = 200;
+}
+
+fn main() {
+
+    let ptr = foo();
+
+    // 访问已释放的内存（错误操作），此时还没有被其他函数使用，值还是 100
+    let num = unsafe { *ptr };
+
+    // 已释放的内存被 bar 函数回收复用，值被覆盖为 200，程序出现未定义行为
+    bar();
+    println!("ptr={}, num={}", unsafe { *ptr}, num);
+}</code></pre>
+<pre><code class="language-shell"># 使用不同模式编译运行，执行结果还不一样
+shell&gt; cargo run
+ptr=200, num=100
+
+shell&gt; cargo run --release
+ptr=100, num=100
+</code></pre>
+<p>　　<code>Box</code>、<code>Rc</code> 和 <code>Arc</code> 都提供了 <code>into_raw()</code> 和 <code>from_raw()</code> 函数，分别用于在智能指针与原始指针之间进行转换。<code>into_raw()</code> 用于获取原始指针，而 <code>from_raw()</code> 用于将原始指针重新转换为对应的智能指针。</p>
+<pre class="playground"><code class="language-rust">fn foo() -&gt; *mut i32 {
+    // 将 Box 转为原始指针，并将所有权也转移给原始指针，
+    // Box 离开作用域后不会再释放内存，导致返回的原始指针变成悬垂指针
+    let number = Box::new(100);
+    return Box::into_raw(number);
+}
+
+fn main() {
+    let raw_number = foo();
+    println!("raw_number: {}", unsafe { *raw_number });
+
+    // 将原始指针转为 Box
+    let number = unsafe { Box::from_raw(raw_number) };
+    println!("number: {}", number);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+raw_number: 100
+number: 100
+</code></pre>
+<p>　　原始指针除了可以读取和修改所指向的数据外，还支持指针运算，根据偏移量改变指向的内存位置，从而访问连续内存中的不同位置，常用于访问数组、切片或手动管理的连续内存。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let mut arr = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+
+    // 将数组转为原始指针，原始指针指向第一个元素
+    let mut ptr: *mut i32 = arr.as_mut_ptr();
+
+    unsafe {
+
+        // 按字节偏移指针，以字节为单位
+        let v0 = *ptr.byte_add(0);
+        let v1 = *ptr.byte_add(4);  // i32 大小为 4 字节，必须是 4 的倍数
+        println!("byte_add(0): {}, {:p}", v0, &amp;v0);
+        println!("byte_add(4): {}, {:p}", v1, &amp;v1);
+
+        // 按元素数量偏移指针，步长为 T 类型大小（这里是 i32，4 字节）
+        let v0 = *ptr.add(0);
+        let v1 = *ptr.add(1);
+        println!("add(0): {}, {:p}", v0, &amp;v0);
+        println!("add(1): {}, {:p}", v1, &amp;v1);
+
+        // 与 add 相反，按元素数量反向移动指针
+        ptr = ptr.add(5);
+        let v0 = *ptr.sub(0);
+        let v1 = *ptr.sub(1);
+        println!("sub(0): {}, {:p}", v0, &amp;v0);
+        println!("sub(1): {}, {:p}", v1, &amp;v1);
+
+        // 与 add/sub 类似，但接受 isize 类型参数（可正可负），而 add/sub 只能处理正数
+        let v0 = *ptr.offset(1);
+        let v1 = *ptr.offset(-1);
+        println!("offset(1): {}, {:p}", v0, &amp;v0);
+        println!("offset(-1): {}, {:p}", v1, &amp;v1);
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+byte_add(0): 10, 0x7fffd23d8ac8
+byte_add(4): 11, 0x7fffd23d8acc
+add(0): 10, 0x7fffd23d8b60
+add(1): 11, 0x7fffd23d8b64
+sub(0): 15, 0x7fffd23d8bf8
+sub(1): 14, 0x7fffd23d8bfc
+offset(1): 16, 0x7fffd23d8c90
+offset(-1): 14, 0x7fffd23d8c94
+</code></pre>
+<h3 id="129-所有权移动与自引用结构体"><a class="header" href="#129-所有权移动与自引用结构体">12.9 所有权移动与自引用结构体</a></h3>
+<p>　　在 Rust 中，若变量的类型未实现 <code>Copy</code> trait，将其赋值给另一个变量、作为参数传入函数或从函数返回时，变量的所有权会转移给新的变量或调用方，原变量随即失效，不再可用，这一过程称为所有权移动（Move）。从内存角度看，所有权移动通常只需将变量在栈上的数据按位复制到新的存储位置，而堆上的数据本身不会被复制或移动。对于 <code>static</code> 变量，其数据需要在整个程序运行期间始终存在，因此不能像普通变量一样进行所有权移动，只能通过引用访问其数据。</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug)]
+struct Foo {
+    id: u32,
+    data: Box&lt;i32&gt;,
+}
+
+#[allow(dead_code)]
+#[derive(Debug)]
+struct Bar {
+    id: u32,
+    data: i32,
+}
+
+fn main() {
+
+    // 所有权移动只会复制栈上的数据，堆上的数据不会被复制或移动，
+    // 移动后，栈上存放的 `id` 地址会改变，而堆上 `data` 指向的地址保持不变。
+    let foo1 = Foo { id: 1, data: Box::new(100) };
+    println!("foo1: id={:p}, data={:p}", &amp;foo1.id, foo1.data);
+
+    let foo2 = foo1;
+    println!("foo2: id={:p}, data={:p}", &amp;foo2.id, foo2.data);
+
+    // static 变量所有权不能移动
+    static _BAR1: Bar = Bar{ id: 2, data: 200 };
+    // let bar2 = _BAR1;   // 编译报错
+}</code></pre>
+<pre><code class="language-shell"># 编译运行，可以看到栈上的数据 id 内存地址变了，堆上的数据 data 地址保持不变
+shell&gt; cargo run
+foo1: id=0x7ffee0053fb0, data=0x55a176006b90
+foo2: id=0x7ffee0054010, data=0x55a176006b90
+</code></pre>
+<p>　　对于包含指向自身字段的引用或指针的结构体（即自引用结构体），若结构体实例位于栈上，当所有权发生移动时，其内部的引用或指针所指向的数据并不会随之更新，而是仍然指向因所有权移动而失效的原变量，变为悬垂指针，访问可能导致未定义行为（如程序崩溃、数据损坏或内存错误）。为了保证安全，必须在移动后修正内部引用或指针，使其重新指向新的有效位置。</p>
+<pre class="playground"><code class="language-rust">use std::fmt::Display;
+use std::ptr;
+
+struct SelfRef {
+    value: u32,
+    ptr: *const u32,    // 指向自己内部的 value
+}
+
+impl Display for SelfRef {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(f, "value={}, &amp;value={:p}, ptr={:p}", self.value, &amp;self.value, self.ptr)
+    }
+}
+
+fn main() {
+    // 原始对象
+    let mut original = SelfRef { value: 100, ptr: ptr::null() };
+    original.ptr = &amp;original.value;
+    println!("原始值: {original}");
+
+    // 移动后的对象，指针指向的数据不会随之更新，指向失效的原变量，变为悬垂指针
+    let mut moved = original;
+    println!("移动:   {moved}");
+
+    // 修正自引用，指向移动后的有效数据
+    moved.ptr = &amp;moved.value;
+    println!("修复后: {moved}");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+原始值: value=100, &amp;value=0x7ffcc6104348, ptr=0x7ffcc6104348
+移动:   value=100, &amp;value=0x7ffcc6104378, ptr=0x7ffcc6104348   # 此时 ptr 不是指向数据
+修复后: value=100, &amp;value=0x7ffcc6104378, ptr=0x7ffcc6104378
+</code></pre>
+<p>　　除手动修正内部引用或指针外，还可以将自引用结构体存储在堆上，并通过 <code>Box</code> 等指针持有，使结构体本身的内存地址保持稳定。这样，所有权移动时，移动的只是指向堆内存的指针，堆上的结构体本身不会随之移动，从而避免因结构体移动导致内部引用或指针失效。</p>
+<pre class="playground"><code class="language-rust">use std::fmt::Display;
+use std::ptr;
+
+struct SelfRef {
+    value: u32,
+    ptr: *const u32,    // 指向自己内部的 value
+}
+
+impl Display for SelfRef {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(f, "value={}, &amp;value={:p}, ptr={:p}", self.value, &amp;self.value, self.ptr)
+    }
+}
+
+fn main() {
+    {
+        // 数据在栈上
+        let mut original = SelfRef { value: 100, ptr: ptr::null() };
+        original.ptr = &amp;original.value;
+        println!("原始值:   {original}");
+
+        // 引用
+        let refence = &amp;original;
+        println!("引用:     {refence}");
+
+        // 移动引用
+        let moved_ref = refence;
+        println!("移动引用: {moved_ref}");
+    }
+
+    {
+        // 数据在堆上
+        let mut original = Box::new(SelfRef { value: 100, ptr: ptr::null() });
+        original.ptr = &amp;original.value;
+        println!("原始值: {original}");
+
+        // 直接移动，不会导致自引用失效
+        let moved = original;
+        println!("移动值: {moved}");
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+原始值:   value=100, &amp;value=0x7ffcb3803468, ptr=0x7ffcb3803468
+引用:     value=100, &amp;value=0x7ffcb3803468, ptr=0x7ffcb3803468
+移动引用: value=100, &amp;value=0x7ffcb3803468, ptr=0x7ffcb3803468
+
+原始值: value=100, &amp;value=0x559a68f58b98, ptr=0x559a68f58b98
+移动值: value=100, &amp;value=0x559a68f58b98, ptr=0x559a68f58b98
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="11.集合.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="13.文件操作.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="11.集合.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="13.文件操作.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="assets/mermaid-35374ef1.min.js"></script>
+        <script src="assets/mermaid-init-f2077b1f.js"></script>
+        <script src="assets/theme-names-6877598e.js"></script>
+        <script src="assets/ads-cfdc9b51.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
