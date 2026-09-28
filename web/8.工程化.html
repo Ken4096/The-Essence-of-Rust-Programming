@@ -1,0 +1,692 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>8. 工程化 - 从本质学 Rust 编程</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="从本质出发，深入理解 Rust 编程的核心概念与实现机制">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./assets/github.css">
+        <link rel="stylesheet" href="./assets/ads.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "searchindex-4b7a79c7.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-a8c2f258.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">从本质学 Rust 编程</h1>
+
+                    <div class="right-buttons">
+                        <a href="https://github.com/Ken4096/The-Essence-of-Rust-Programming" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="8-工程化"><a class="header" href="#8-工程化">8. 工程化</a></h2>
+<h3 id="81-简介"><a class="header" href="#81-简介">8.1 简介</a></h3>
+<p>　　对于功能复杂或持续迭代的大型项目，代码量可能达到数万、数十万，甚至数百万、数千万行。如何高效组织与管理如此海量的代码，并保证系统具备良好的可维护性和可扩展性，是软件开发过程中必须解决的问题。人类大脑擅长通过<strong>分类和分层</strong>的方式处理复杂信息，将庞大的问题拆分为多个更容易理解和管理的部分。编程语言也采用了类似的思想，通过模块、命名空间、包、类等机制组织代码。目前，主流编程语言（如 Rust、C/C++、Java、Go、Python 等）都提供了相应的代码组织机制，以便开发者构建和维护大型软件系统。</p>
+<p>　　Rust 同样基于分类和分层思想设计项目结构，通过工作区（Workspace）、包（Package）、模块（Module）等机制，将代码划分为多个职责明确、层次清晰的组织单元（见下图），提高代码的可读性、可维护性和可扩展性。在实际开发过程中，开发者可以根据项目规模和复杂程度灵活选择所需的组织层级。小型项目可能只需要使用模块管理代码，而大型项目则可以进一步结合包和工作区，将多个功能模块拆分为独立的组件进行管理。</p>
+<pre class="mermaid">graph TD
+    L1[工作区] --&gt; L2-1[包 bin]
+    L1[工作区] --&gt; L2-2[包 lib]
+    L1[工作区] --&gt; L2-3[包 ...]
+    L2-1[包 bin] --&gt; L3-1[模块]
+    L2-2[包 bin] --&gt; L3-2[模块]
+    L2-2[包 bin] --&gt; L3-3[模块]
+    L2-2[包 lib] --&gt; L3-4[模块...]
+    L2-3[包 ...] --&gt; L3-5[模块]
+</pre>
+
+<h3 id="82-包crate"><a class="header" href="#82-包crate">8.2 包（Crate）</a></h3>
+<p>　　在 Rust 中，包（crate）是程序编译和分发的基本单元，分为<strong>可执行程序包</strong>和<strong>库包</strong>。可执行程序包用于生成可执行程序，库包（crate）则用于提供功能模块，供其他项目引用和复用。每个包（crate）都包含一个 <code>Cargo.toml</code> 配置文件，用于管理包的元数据（如名称、版本等）以及其依赖项。</p>
+<h4 id="821-可执行程序包"><a class="header" href="#821-可执行程序包">8.2.1 可执行程序包</a></h4>
+<p>　　可执行程序包必须包含 <code>src/main.rs</code> 文件，并在其中定义程序的入口点 <code>main</code> 函数。使用 <code>cargo new 名称</code> 命令可以快速创建一个可执行程序包，生成的项目会包含一个 <code>Cargo.toml</code> 配置文件和一个 <code>src/main.rs</code> 文件，其中包含默认的 <code>main</code> 函数实现。</p>
+<pre><code class="language-shell"># 创建可执行程序包，名称为 app
+shell&gt; cargo new app
+
+# 编译运行程序
+shell&gt; cd app
+shell&gt; cargo run
+Hello, world!
+
+# 查看项目结构
+shell&gt; tree app/
+app/
+├── Cargo.toml           # 生成的配置文件
+└── src
+    └── main.rs          # 生成 main.rs 文件
+
+# 查看生成的配置文件
+shell&gt; cat app/Cargo.toml
+[package]
+name = "app"             # 名称
+version = "0.1.0"        # 版本号
+edition = "2024"
+
+[dependencies]           # 依赖项
+
+# 查看默认生成的 main 函数
+shell&gt; cat app/src/main.rs
+fn main() {
+    println!("Hello, world!");
+}
+</code></pre>
+<h4 id="822-库包"><a class="header" href="#822-库包">8.2.2 库包</a></h4>
+<p>　　库包必须包含 <code>src/lib.rs</code> 文件，并在其中定义库的公共功能和接口。使用 <code>cargo new --lib 名称</code> 命令可以快速创建一个库包，生成的项目会包含一个 <code>Cargo.toml</code> 配置文件和一个 <code>src/lib.rs</code> 文件，默认会生成一个 <code>add</code> 示例函数。下面的示例演示了如何创建一个可执行程序包 <code>app</code> 和一个库包 <code>libmath</code>，并在 <code>app</code> 中引用 <code>libmath</code>。</p>
+<pre><code class="language-shell"># 创建一个可执行程序包 app 和一个库包 libmath
+shell&gt; cargo new app
+shell&gt; cargo new --lib app/libmath   # 名称前面可以加路径
+
+# 查看库包的项目结构
+shell&gt; tree app/libmath
+liblog/
+├── Cargo.toml
+└── src
+    └── lib.rs                   # lib.rs 默认会生成一个 add 函数
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">在 app 中引用 libmath
+</span>shell&gt; cat app/Cargo.toml
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+libmath = { path = "./libmath" }  # 添加依赖
+
+<span class="boring">在 app 中使用库包
+</span>shell&gt; cat app/src/main.rs
+fn main() {
+    let sum = libmath::add(1, 5);
+    println!("sum = {sum}");
+}</code></pre>
+<pre><code class="language-shell"># 编译运行
+shell&gt; cargo run
+sum = 6
+</code></pre>
+<h4 id="823-使用第三方包"><a class="header" href="#823-使用第三方包">8.2.3 使用第三方包</a></h4>
+<p>　　除了本地库包，还可以使用第三方包，Rust 社区提供了一个名为 <a href="https://crates.io">crates.io</a> 的平台，用户可以在其中发布和共享包。当我们需要某个库时，可以到 <a href="https://crates.io">crates.io</a> 上搜索相关包，然后使用 <code>cargo add xxx</code> 命令添加，或者手动在 <code>Cargo.toml</code> 文件的 <code>[dependencies]</code> 部分添加，指定第三方包的名称和版本，Rust 会自动从 crates.io 上下载并构建这些依赖包。下述示例演示了如何添加并使用随机数生成库 <code>rand</code>。</p>
+<pre><code class="language-shell">shell&gt; cargo new app
+shell&gt; cd app
+
+# 添加第三方包
+shell&gt; cargo add fastrand          # 默认最新版本
+shell&gt; cargo add fastrand@2.5.0    # 指定版本，推荐使用，可以避免依赖库升级导致程序异常
+
+# 查看添加的依赖包
+shell&gt; cat Cargo.toml
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fastrand = "2.5.0"
+
+# 编译时会自动下载并构建依赖包
+shell&gt; cargo build
+......
+</code></pre>
+<p>        依赖添加完成后，即可使用其提供的功能。Rust 社区中有大量成熟的第三方库，涵盖网络通信、数据处理、数据库、异步编程、Web 开发等常见应用场景，可以直接复用这些现成的功能，快速扩展项目能力。</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    // 生成 [0, 100) 范围内的随机整数
+    let range_int = fastrand::u32(0..100);
+    println!("0~99 的随机整数: {}", range_int);
+
+    // 生成 [0, u8::MAX] 范围内的随机整数
+    let range_u8 = fastrand::u8(..=u8::MAX);
+    println!("随机 u8: {}", range_u8);
+}intln!("随机 u8: {}", range_u8);
+}</code></pre>
+<pre><code class="language-shell"># 编译运行
+shell&gt; cargo run
+0~99 的随机整数: 89
+随机 u8: 51
+</code></pre>
+<p>　　为了避免每次使用时都书写完整的模块路径，Rust 提供了 <code>use</code> 关键字，可以将指定的模块、类型或函数引入当前作用域；如果需要修改引入项的名称或避免名称冲突，还可以使用 <code>as</code> 关键字为其设置别名。</p>
+<pre class="playground"><code class="language-rust">use fastrand::u32;
+use fastrand::u8 as random_u8;
+
+fn main() {
+    // 生成 [0, 100) 范围内的随机整数
+    let range_int = u32(0..100);
+    println!("0~99 的随机整数: {}", range_int);
+
+    // 使用 as 为 u8 函数设置别名
+    let range_u8 = random_u8(..);
+    println!("随机 u8: {}", range_u8);
+}</code></pre>
+<pre><code class="language-shell"># 编译运行
+shell&gt; cargo run
+0~99 的随机整数: 97
+随机 u8: 116
+</code></pre>
+<h3 id="83-工作区workspace"><a class="header" href="#83-工作区workspace">8.3 工作区（Workspace）</a></h3>
+<p>　　工作区（Workspace）处于项目组织的最高层级，用于将多个 Crate 聚合到一个目录下，通过顶层 <code>Cargo.toml</code> 文件进行集中管理。各成员 Crate 在保持独立性的同时，可以共享配置（如版本、编译目标等），并统一依赖版本与编译输出目录。下述示例演示了如何创建工作区，以及如何通过顶层 <code>Cargo.toml</code> 管理 <code>app</code>、<code>liblog</code> 与 <code>libutil</code> 等多个成员包，实现代码的模块化解耦与资源共享。</p>
+<pre><code class="language-shell"># 创建项目目录
+shell&gt; mkdir demo &amp;&amp; cd demo
+
+# 创建三个 crate
+shell&gt; cargo new app
+shell&gt; cargo new --lib liblog
+shell&gt; cargo new --lib libutil
+
+# 在根目录创建一个 Cargo.toml 文件作为工作区的配置文件，并将三个 crate 都添加到工作区中
+shell&gt; cat Cargo.toml
+[workspace]
+resolver = "3"
+members = [
+    "app",
+    "liblog",
+    "libutil",
+]
+
+# 编译运行
+shell&gt; cargo run -p app
+Hello, world!
+
+# 最终工作区的根目录结构如下
+demo/
+├── Cargo.toml
+├── app
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+├── liblog
+│   ├── Cargo.toml
+│   └── src
+│       └── lib.rs
+└── libutil
+    ├── Cargo.toml
+    └── src
+        └── lib.rs
+</code></pre>
+<p>　　在工作区中，成员 Crate 之间可以相互依赖，但需避免循环依赖——即 A 依赖 B，同时 B 又依赖 A。下面为 <code>app</code> 添加对 <code>libutil</code> 的依赖，并在代码中使用 <code>libutil</code> 提供的功能。</p>
+<pre><code class="language-toml">shell&gt; cat app/Cargo.toml
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+libutil = { path = "../libutil" }
+</code></pre>
+<pre class="playground"><code class="language-rust">// app/src/main.rs
+fn main() {
+    // 使用 `libutil` 提供的功能
+    let sum = libutil::add(1, 2);
+    println!("Sum: {}", sum);
+}</code></pre>
+<h3 id="84-模块mod"><a class="header" href="#84-模块mod">8.4 模块（mod）</a></h3>
+<p>　　模块用于在 Crate 内部进一步组织和拆分代码，通过模块，可以将功能相关的代码划分到不同的命名空间中，降低代码之间的耦合，避免命名冲突，并提高项目的可读性、可维护性和可扩展性。Rust 支持在同一源文件、不同源文件以及目录中定义模块，同时支持模块嵌套，从而构建更加层次化、清晰的代码结构。</p>
+<h4 id="841-同一文件中定义"><a class="header" href="#841-同一文件中定义">8.4.1 同一文件中定义</a></h4>
+<p>　　在同一个文件中声明模块，可以对相关功能代码进行集中组织，将逻辑相关的内容划分到独立的命名空间中，提高代码的可读性和结构清晰性，适用于较小的模块。例如，下述示例定义了一个交通工具模块，将不同交通工具的行驶时间计算函数统一组织在同一个模块中。</p>
+<pre class="playground"><code class="language-rust">// 定义一个 vehicles 模块，包含与交通工具相关的代码
+mod vehicles {
+
+    // 计算汽车的行驶时间
+    pub fn travel_time_by_car(distance: f64) -&gt; f64 {
+        let speed = 100.0; // 汽车速度（km/h）
+        return distance / speed;
+    }
+
+    // 计算飞机的飞行时间
+    pub fn travel_time_by_plane(distance: f64) -&gt; f64 {
+        let speed = 500.0; // 飞机速度（km/h）
+        return distance / speed;
+    }
+}
+
+fn main() {
+    // 计算不同交通工具的行驶时间
+    let car_time = vehicles::travel_time_by_car(1000.0);
+    let plane_time = vehicles::travel_time_by_plane(1000.0);
+
+    // 输出各交通工具的行驶时间
+    println!("汽车行驶时间: {:.2} 小时", car_time);
+    println!("飞机飞行时间: {:.2} 小时", plane_time);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+汽车行驶时间: 10.00 小时
+飞机飞行时间: 2.00 小时
+</code></pre>
+<p>　　此外，Rust 支持模块嵌套，即在一个模块内部定义子模块。通过嵌套结构，可以构建层次化的代码组织方式，使功能划分更清晰，便于代码管理与扩展。例如，下述示例在 <code>vehicles</code> 模块内定义了 <code>transport</code> 和 <code>fuel</code> 两个子模块，分别负责计算行驶时间和油耗，使各模块职责明确，同时保持代码的整洁和可维护性。</p>
+<pre class="playground"><code class="language-rust">mod vehicles {
+    // 计算不同交通工具的行驶时间的模块
+    pub mod transport {
+
+        // 计算汽车的行驶时间
+        pub fn travel_time_by_car(distance: f64) -&gt; f64 {
+            let speed = 100.0; // 汽车速度（km/h）
+            return distance / speed;
+        }
+
+        // 计算飞机的飞行时间
+        pub fn travel_time_by_plane(distance: f64) -&gt; f64 {
+            let speed = 500.0; // 飞机速度（km/h）
+            return distance / speed;
+        }
+    }
+
+    // 计算不同交通工具油耗的模块
+    pub mod fuel {
+
+        // 计算汽车的油耗（单位：L/100km）
+        pub fn consumption_by_car(distance: f64) -&gt; f64 {
+            let consumption_rate = 8.0; // 每百公里消耗8升
+            return (distance / 100.0) * consumption_rate;
+        }
+
+        // 计算飞机的油耗（单位：L/1000km）
+        pub fn consumption_by_plane(distance: f64) -&gt; f64 {
+            let consumption_rate = 500.0; // 每千公里消耗500升
+            return (distance / 1000.0) * consumption_rate;
+        }
+    }
+}
+
+fn main() {
+    // 计算不同交通工具的行驶时间
+    let car_time = vehicles::transport::travel_time_by_car(1000.0);
+    let plane_time = vehicles::transport::travel_time_by_plane(1000.0);
+
+    // 计算不同交通工具的油耗
+    let car_fuel = vehicles::fuel::consumption_by_car(1000.0);
+    let plane_fuel = vehicles::fuel::consumption_by_plane(1000.0);
+
+    println!("汽车行驶时间: {:.2} 小时, {:.2} 升", car_time, car_fuel);
+    println!("飞机飞行时间: {:.2} 小时, {:.2} 升", plane_time, plane_fuel);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+汽车行驶时间: 10.00 小时, 80.00 升
+飞机飞行时间: 2.00 小时, 500.00 升
+</code></pre>
+<h4 id="842-不同文件中定义"><a class="header" href="#842-不同文件中定义">8.4.2 不同文件中定义</a></h4>
+<p>　　在不同文件中声明模块，可以将模块代码拆分到独立文件中，避免单个文件过于庞大，使项目结构更加清晰，适用于功能较复杂或规模较大的模块。例如，可以将不同交通工具相关的实现分别放在独立文件中，通过模块系统进行统一管理。该方式需要先在 crate 根文件（<code>main.rs</code> 或 <code>lib.rs</code>）中先声明模块，才能在其他模块中通过模块路径引用并使用该模块提供的功能。下述示例中，创建了 <code>log.rs</code> 和 <code>vehicles.rs</code> 两个模块文件，并在 crate 根文件中对其进行声明。</p>
+<pre><code class="language-shell">shell&gt; tree src/
+src/
+├── log.rs
+├── main.rs
+└── vehicles.rs
+</code></pre>
+<pre class="playground"><code class="language-rust">// main.rs
+// 在 crate 根文件 main.rs 中声明模块，模块名为文件名
+mod log;
+mod vehicles;
+
+fn main() {
+    // 通过 crate::模块名::函数名 的方式使用
+    crate::log::info("main called");
+
+    // main.rs 或 lib.rs 源文件中 crate 可以省略
+    log::info("main called");
+    vehicles::travel_time_by_car(1000.0);
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// log.rs
+pub fn info(text: &amp;str) {
+   println!("[info]: {text}");
+}
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// vehicles.rs
+pub fn travel_time_by_car(distance: f64) -&gt; f64 {
+    // 通过模块路径使用其他模块提供的功能
+    crate::log::info("travel_time_by_car called");
+    let speed = 100.0;
+    return distance / speed;
+}
+<span class="boring">}</span></code></pre>
+<h4 id="843-在其他目录中定义"><a class="header" href="#843-在其他目录中定义">8.4.3 在其他目录中定义</a></h4>
+<p>　　在不同目录中声明模块，可以进一步将多个相关模块组织到同一个目录中，形成更加清晰的层次结构，适用于包含多个子模块的大型功能模块。该方式需要创建一个与目录同名的 <code>.rs</code> 文件，并在该文件声明和管理该目录下的子模块。下述示例中，创建了 <code>utils</code> 模块目录，并通过 <code>utils.rs</code> 对 <code>log</code> 等子模块进行统一管理，使模块结构更加清晰。</p>
+<pre><code class="language-shell">shell&gt; tree src/
+src/
+├── main.rs
+├── util
+│   └── log.rs
+├── util.rs        # 创建与目录同名的 .rs 文件，并在该文件管理目录下的模块
+</code></pre>
+<pre class="playground"><code class="language-rust">// main.rs
+mod util;        // util.rs 本身也需要声明 
+
+fn main() {
+
+    // 使用 util 模块中的 log 模块
+    util::log::info("Hello World!");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// util.rs
+// 统一管理 util 目录下的模块
+pub mod log;
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// util/log.rs
+pub fn info(text: &amp;str) {
+   println!("[info]: {text}");
+}
+<span class="boring">}</span></code></pre>
+<p>　　此外，Rust 早期版本通常通过在目录中创建 <code>mod.rs</code> 文件来声明和管理该目录下的子模块。虽然这种方式可以将相关模块组织在同一目录中，但当项目包含大量模块目录时，会产生许多同名的 <code>mod.rs</code> 文件，容易增加代码阅读和维护成本。从 Rust 2018 版本开始，Rust 更推荐使用与目录同名的 <code>.rs</code> 文件作为模块入口，以简化文件结构并提高代码组织的一致性。下述示例，演示如何使用 <code>mod.rs</code> 文件作为目录模块的声明入口。</p>
+<pre><code class="language-shell">shell&gt; tree src/
+src/
+├── main.rs
+└── util
+    ├── log.rs
+    └── mod.rs
+</code></pre>
+<pre class="playground"><code class="language-rust">// main.rs
+mod util;
+
+fn main() {
+    util::log::info("hello world");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// util/mod.rs
+// 在该文件声明和管理该目录下的子模块
+pub mod log;
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// util/log.rs
+pub fn info(text: &amp;str) {
+   println!("[info]: {text}");
+}
+<span class="boring">}</span></code></pre>
+<h3 id="85-访问权限控制"><a class="header" href="#85-访问权限控制">8.5 访问权限控制</a></h3>
+<p>　　访问权限控制用于管理模块、函数、结构体、字段和枚举等元素的可见性，通过隐藏内部实现细节来明确代码边界。合理使用访问权限，可以降低模块之间的耦合度，避免外部代码直接依赖或修改内部实现逻辑，从而实现封装，提高系统的安全性、可维护性和稳定性。Rust 提供了以下访问权限修饰符：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>访问权限</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>private</td><td>默认权限，仅在定义模块内部可见。</td></tr>
+<tr><td>pub</td><td>完全公开，可在任何地方访问。</td></tr>
+<tr><td>pub(self)</td><td>与 <code>private</code> 相同，只是可读性更强，限定为仅在当前模块内可见。</td></tr>
+<tr><td>pub(crate)</td><td>仅在当前 crate 内可见。</td></tr>
+<tr><td>pub(super)</td><td>仅在当前模块的父模块及其所有子模块内可见。</td></tr>
+<tr><td>pub(in path)</td><td>限定在指定模块路径内可见。</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">// 定义一个模块 logger，并使用不同的访问权限
+mod logger {
+    // private（默认）：只能在该模块内部访问
+    #[allow(dead_code)]
+    fn private_function() {
+        println!("This is a private function.");
+    }
+
+    // pub：可以在任何地方访问
+    pub fn pub_function() {
+        println!("This is a pub function.");
+    }
+
+    // pub(self)：与 private 相同，只是为了可读性更强，限定为仅在当前模块内可见
+    #[allow(dead_code)]
+    pub(self) fn pub_self_function() {
+        println!("This is a pub(self) function.");
+    }
+
+    // pub(crate)：只在当前 crate 内可见
+    pub(crate) fn pub_crate_function() {
+        println!("This is a pub(crate) function.");
+    }
+
+    // pub(super)：仅在当前模块的父模块及其所有子模块内可见
+    pub(super) fn pub_super_function() {
+        println!("This is a pub(super) function.");
+    }
+
+    // pub(in path)：限制在指定路径内可见
+    #[allow(dead_code)]
+    pub(in crate::logger) fn pub_in_path_function() {
+        println!("This is a pub(in path) function.");
+    }
+
+}
+
+fn main() {
+    // 编译错误，private_function 函数只能在 logger 模块内部访问
+    // logger::private_function();
+    // 调用 pub 函数，允许在任何地方访问
+    logger::pub_function();
+
+    // 编译错误，pub(self) 函数只能在 logger 模块内部访问
+    // logger::pub_self_function();
+
+    // 调用 pub(crate) 函数，允许在当前 crate 内访问
+    logger::pub_crate_function();
+
+    // 调用 pub(super) 函数，允许在当前模块的父模块及其所有子模块内访问
+    logger::pub_super_function();
+
+    // 编译错误，pub(in crate::logger) 函数，只能在指定的 crate::logger 内部访问
+    // logger::pub_in_path_function();
+
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+This is a pub function.
+This is a pub(crate) function.
+This is a pub(super) function.
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="7.泛型与关联类型.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="9.常用特征.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="7.泛型与关联类型.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="9.常用特征.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="assets/mermaid-35374ef1.min.js"></script>
+        <script src="assets/mermaid-init-f2077b1f.js"></script>
+        <script src="assets/theme-names-6877598e.js"></script>
+        <script src="assets/ads-cfdc9b51.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,331 @@
+/* GitHub 风格主题 - 模仿 Typora 的 github 主题 */
+/* 仅浅色，符合 GitHub markdown 渲染习惯 */
+
+:root {
+    --github-fg: #1f2328;
+    --github-fg-muted: #656d76;
+    --github-bg: #ffffff;
+    --github-bg-muted: #f6f8fa;
+    --github-border: #d0d7de;
+    --github-link: #0969da;
+    --github-code-bg: #eff1f3;
+    --github-accent: #0969da;
+    --github-heading: #1f2328;
+}
+
+/* 全局字体与背景 */
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial,
+                 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
+                 "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--github-fg);
+    background-color: var(--github-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 内容区宽度 (mdBook #content / .content) */
+.content, #content {
+    max-width: 980px;
+    padding: 0 32px;
+    margin: 0 auto;
+}
+
+/* 标题 - GitHub 风格，字重 600，紧凑间距 */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--github-heading);
+    line-height: 1.25;
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
+h1 {
+    font-size: 2em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--github-border);
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--github-border);
+}
+
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; color: var(--github-fg-muted); }
+h6 { font-size: 0.85em; color: var(--github-fg-muted); }
+
+/* H3/H4/H5 前面留一个空行（约 2em，覆盖 mdBook 的默认值与上方 margin-top: 24px）*/
+h3, h4, h5 {
+    margin-block-start: 2em !important;
+    margin-top: 2em !important;
+}
+
+/* 但 H2 紧跟 H3 时（章节大标题后直接是子标题），不留空行 */
+h2 + h3 {
+    margin-block-start: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 段落：与 Typora 一致，无首行缩进（依赖全角空格手动缩进） */
+p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    word-wrap: break-word;
+}
+
+/* 链接 */
+a {
+    color: var(--github-link);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* 行内代码 */
+code, kbd, samp, tt {
+    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Monaco,
+                 "Courier New", monospace;
+    font-size: 85%;
+    padding: 0.2em 0.4em;
+    background-color: var(--github-bg-muted);
+    border-radius: 6px;
+    color: var(--github-fg);
+}
+/* 代码块内的 code 不需要 padding 和背景（外面 pre 已处理） */
+pre code {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: 14px;
+}
+
+/* 代码块 */
+pre {
+    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Monaco, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 16px;
+    overflow: auto;
+    background-color: var(--github-bg-muted);
+    border-radius: 6px;
+    border: 1px solid var(--github-border);
+    margin-bottom: 16px;
+}
+
+/* 引用块 */
+blockquote {
+    margin: 0 0 16px 0;
+    padding: 0 1em;
+    color: var(--github-fg-muted);
+    border-left: 0.25em solid var(--github-border);
+}
+blockquote p { margin: 0; }
+
+/* 表格 */
+table {
+    border-collapse: collapse;
+    margin: 0 0 16px 0;
+    overflow-x: auto;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+}
+table th, table td {
+    padding: 6px 13px;
+    border: 1px solid var(--github-border);
+}
+table th {
+    font-weight: 600;
+    background-color: var(--github-bg-muted);
+}
+table tr { background-color: var(--github-bg); }
+table tr:nth-child(2n) td { background-color: var(--github-bg-muted); }
+
+/* 列表 */
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-left: 2em;
+}
+li { margin-top: 0.25em; }
+li > p { margin-top: 16px; }
+
+/* 图片 */
+img { max-width: 100%; vertical-align: middle; }
+
+/* 水平分割线 */
+hr {
+    height: 0.25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: var(--github-border);
+    border: 0;
+}
+
+/* 侧边栏 - 浅色风格 */
+.sidebar, .sidebar-toggle {
+    background-color: var(--github-bg-muted);
+    border-right: 1px solid var(--github-border);
+    color: var(--github-fg);
+}
+.sidebar a {
+    color: var(--github-fg);
+}
+.sidebar a:hover {
+    color: var(--github-link);
+}
+
+/* 顶部导航 */
+.chapter .section:hover, .chapter li a.active {
+    color: var(--github-link);
+}
+
+/* 主题选择器：只保留"白天模式"(light) + "黑夜模式"(coal) 两个选项。
+   中文名与其余主题项的移除去由 assets/theme-names.js 处理，此处不重复实现。 */
+
+/* 顶部广告横幅：样式在 assets/ads.css，DOM 由 assets/ads.js 运行时注入到菜单栏之上。
+   顶栏（.menu-title）保持 mdBook 原生行为，只显示书名。 */
+
+/* 隐藏页面左右两侧的"上一章/下一章"导航箭头（桌面 + 移动端） */
+.nav-chapters,
+.mobile-nav-chapters,
+.nav-wrapper {
+    display: none !important;
+}
+
+/* ===== 修正 mdBook 0.5.x 侧边栏的"两层重复" =====
+   原因：toc-7f41fdb7.js 在 DOMContentLoaded 时扫描 main 中的 H2-H6，
+   动态生成 <div class="on-this-page"> 注入侧边栏当前章节下方。
+
+   每章文件的第一个 H2 与 SUMMARY 中的章节标题完全相同（如"2. 变量"），
+   导致侧边栏出现"两层一样的"：章节链接下方又重复列出一次同名的 H2。
+
+   解决：只隐藏最外层 ol 直接子项里的 .chapter-link-wrapper（即 H2 的链接文本），
+   保留 H3/H4/H5 子标题导航。
+
+   注入后的 DOM 形如：
+   <div class="on-this-page">
+     <ol>                              ← 最外层 ol
+       <li class="header-item">        ← H2 条目（与章节标题重复）
+         <span class="chapter-link-wrapper">…</span>   ← 仅此 span 需要隐藏
+         <ol>                          ← H3 容器
+           <li class="header-item">…</li>
+         </ol>
+       </li>
+     </ol>
+   </div> */
+.on-this-page > ol > li.header-item > .chapter-link-wrapper {
+    display: none !important;
+}
+/* H2 条目自身只剩嵌套的 H3 列表，去掉它的列表项编号/缩进，避免出现空白行 */
+.on-this-page > ol > li.header-item {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* 去掉 mdBook 给 .on-this-page 加的蓝色左边框线和多余左缩进 */
+.on-this-page {
+    border-inline-start: none !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* ===== 暗色主题（参考 Typora night.css）=====
+   mdBook 的 dark 主题类（coal/navy/ayu/rust）统一映射为 Typora Night 风格。
+   颜色取自 D:\Typora\resources\style\themes\night.css：
+     --bg-color:           #363B40
+     --side-bar-bg-color:  #2E3033
+     --text-color:         #b8bfc6
+     h1-h6 color:          #DEDEDE
+     border-color:         #474d54
+     link color:           #e0e0e0
+     code block bg:        #333
+   同时覆盖 mdBook 原生变量，让整个 UI（菜单栏、滚动条、搜索框、侧边栏）也变暗。 */
+.coal, .navy, .ayu, .rust {
+    /* --github-* 变量（本文件内部使用） */
+    --github-fg: #b8bfc6;
+    --github-fg-muted: #9DA2A6;
+    --github-bg: #363B40;
+    --github-bg-muted: #333;
+    --github-border: #474d54;
+    --github-link: #e0e0e0;
+    --github-code-bg: #333;
+    --github-accent: #6dc1e7;
+    --github-heading: #DEDEDE;
+
+    /* mdBook 原生变量（chrome/general CSS 在意这些） */
+    --bg: #363B40;
+    --fg: #b8bfc6;
+
+    --sidebar-bg: #2E3033;
+    --sidebar-fg: #b8bfc6;
+    --sidebar-non-existant: #5c6773;
+    --sidebar-active: #6dc1e7;
+    --sidebar-spacer: #474d54;
+
+    --scrollbar: #b8bfc6;
+
+    --icons: #70717d;
+    --icons-hover: #eee;
+
+    --links: #e0e0e0;
+
+    --inline-code-color: #b8bfc6;
+
+    --theme-popup-bg: #2E3033;
+    --theme-popup-border: #474d54;
+    --theme-hover: #0a0d16;
+
+    --quote-bg: #363B40;
+    --quote-border: #474d54;
+
+    --warning-border: #ff8e00;
+
+    --table-border-color: #474d54;
+    --table-header-bg: #333;
+    --table-alternate-bg: #2E3033;
+
+    --searchbar-border-color: #474d54;
+    --searchbar-bg: #2E3033;
+    --searchbar-fg: #fff;
+    --searchbar-shadow-color: #000;
+    --searchresults-header-fg: #b8bfc6;
+    --searchresults-border-color: #474d54;
+    --searchresults-li-bg: #2E3033;
+    --search-mark-bg: #4a89dc;
+
+    --color-scheme: dark;
+
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+
+    --sidebar-header-border-color: transparent;
+}
+
+/* 暗色模式下：把 Typora 设为白色的 h4/h6 调亮，与 Typora night 一致 */
+.coal h4, .navy h4, .ayu h4, .rust h4,
+.coal h6, .navy h6, .ayu h6, .rust h6 {
+    color: #ffffff;
+}
+
+/* 暗色模式下：行内代码背景设为半透明黑（Typora 风格），区别于代码块的实心 #333 */
+.coal code, .navy code, .ayu code, .rust code {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.coal pre code, .navy pre code, .ayu pre code, .rust pre code {
+    background: transparent;
+}
+
+/* 暗色模式下：文字选中色与 Typora 一致（#4a89dc） */
+.coal ::selection, .navy ::selection, .ayu ::selection, .rust ::selection {
+    background: #4a89dc;
+    color: #fff;
+}

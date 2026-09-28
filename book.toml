@@ -1,0 +1,40 @@
+[book]
+title = "从本质学 Rust 编程"
+authors = ["罗升致"]
+language = "zh"
+description = "从本质出发，深入理解 Rust 编程的核心概念与实现机制"
+src = "src"
+
+[build]
+build-dir = "web"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "coal"
+additional-css = ["./assets/github.css", "./assets/ads.css"]
+no-section-label = true
+git-repository-url = "https://github.com/Ken4096/The-Essence-of-Rust-Programming"
+additional-js = ["assets/mermaid.min.js", "assets/mermaid-init.js", "assets/theme-names.js", "assets/ads.js"]
+
+# 关闭打印功能：不生成 print.html，菜单栏也不显示打印按钮
+[output.html.print]
+enable = false
+
+[output.html.search]
+enable = true
+limit-results = 30
+teaser-word-count = 30
+use-boolean-and = false
+boost-title = 2
+boost-paragraph = 1
+boost-hierarchy = 1
+copy-js = true
+
+[preprocessor]
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+
+[preprocessor.katex]
+command = "mdbook-katex"

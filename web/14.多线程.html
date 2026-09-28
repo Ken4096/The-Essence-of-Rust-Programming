@@ -1,0 +1,2126 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>14. 多线程 - 从本质学 Rust 编程</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="从本质出发，深入理解 Rust 编程的核心概念与实现机制">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./assets/github.css">
+        <link rel="stylesheet" href="./assets/ads.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "coal";
+            window.path_to_searchindex_js = "searchindex-4b7a79c7.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-a8c2f258.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">从本质学 Rust 编程</h1>
+
+                    <div class="right-buttons">
+                        <a href="https://github.com/Ken4096/The-Essence-of-Rust-Programming" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<h2 id="14-多线程"><a class="header" href="#14-多线程">14. 多线程</a></h2>
+<h3 id="141-简介"><a class="header" href="#141-简介">14.1 简介</a></h3>
+<p>　　随着计算机的发展，CPU 的执行速度越来越快，而程序在运行过程中经常需要等待 I/O 操作（如用户输入、磁盘读写、网络通信等）完成。在这些等待期间，CPU 往往处于闲置状态，导致计算资源浪费。为充分利用 CPU，操作系统引入了多任务处理机制，允许在单个 CPU 上同时运行多个程序，即<strong>并发执行</strong>。当一个进程因等待 I/O 而阻塞时，操作系统会调度另一个处于就绪状态的进程执行，使 CPU 始终保持忙碌，从而显著提升系统的整体吞吐量和资源利用率。</p>
+<p>　　随着 CPU 主频的不断提升逐渐接近功耗和散热瓶颈，单纯依靠提高单核性能已难以继续大幅提升计算能力。为进一步提高系统性能，硬件厂商开始采用多核处理器（Multi-Core Processor）和多处理器系统（Multi-Processor System）设计，将多个计算核心集成到同一台计算机中。这样，不同任务不仅可以通过时间片轮换交替执行，还能够在多个核心上真正同时运行，即实现<strong>并行执行（Parallelism）</strong>，从而显著提升计算效率和系统吞吐量。</p>
+<p>　　每个正在运行的程序称为一个进程（Process），它是操作系统分配资源的基本单位，涉及的资源包括 CPU 执行时间、内存空间、I/O 设备等核心硬件资源。操作系统通过对进程的管理，实现对计算资源的合理分配与高效利用，同时为用户提供多任务并发/并行执行的能力。</p>
+<p>　　进程作为资源分配单位，其创建、销毁和切换都需要较高的系统开销。当程序需要同时执行多个任务时，如果为每个任务都创建一个独立进程，不仅资源消耗较大，而且进程间通信也较为复杂。为此，操作系统进一步引入了<strong>线程（Thread）<strong>的概念。线程是 CPU 调度和执行的基本单位，同一进程内的多个线程共享进程的内存空间（包括堆、只读数据区、可写数据区和 BSS 段以及其他区域），但</strong>各自拥有独立的栈空间和执行上下文</strong>，从而能够以更低的开销实现并发执行。</p>
+<h3 id="142-线程操作"><a class="header" href="#142-线程操作">14.2 线程操作</a></h3>
+<p>　　Rust 可执行程序在运行时，默认至少包含一个线程，即<strong>主线程（main thread）</strong>，用于执行 <code>main</code> 函数中的代码。当程序需要同时处理多个任务时，可以通过 <code>std::thread</code> 模块创建、销毁和管理线程，以更充分地利用多核 CPU 资源，提升程序的并发执行能力与整体性能。</p>
+<h4 id="1421-创建线程"><a class="header" href="#1421-创建线程">14.2.1 创建线程</a></h4>
+<p>　　通过 <code>std::thread</code>  模块的 <code>spawn()</code> 函数可以创建一个线程，该函数接受一个闭包作为参数，并在新线程中执行该闭包内的代码，通过 <code>spawn()</code> 创建的线程称为子线程或工作线程。子线程与主线程共享所在进程的内存空间，但拥有独立的栈和执行上下文，从而能够同时执行不同任务，实现并发或并行运行。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::time::Duration;
+
+fn main() {
+    // 创建一个子线程
+    let _join_handle = thread::spawn(|| {
+        println!("子线程：你好");
+    });
+
+    // 睡眠等待子线程执行
+    thread::sleep(Duration::from_secs(5));
+
+    println!("主线程：你好");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程：你好
+主线程：你好
+</code></pre>
+<p>　　另外，还可以使用 <code>thread::Builder</code> 类型以更灵活地创建和配置线程，例如设置线程名称、线程栈大小等，以满足更复杂的线程控制需求。线程创建成功后，同样会返回一个 <code>JoinHandle</code> 类型对象，通过该对象，可以获取线程相关信息、判断线程是否已执行完毕，以及等待子线程执行完毕并获取返回值等。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+
+fn main() {
+    // 创建线程
+    let handle = thread::Builder::new()
+        .name("子线程".to_string())     // 设置线程名称
+        .stack_size(1024 * 1024 * 10)  // 设置栈大小为 10MB
+        .spawn(|| {
+            let sum: u64 = (1..=100000).sum();
+            return sum;
+        }).unwrap();
+
+    // 获取线程信息
+    let thread = handle.thread();
+    println!("线程ID：{:?}, 线程名称：{:?}", thread.id(), thread.name());
+
+    // 子线程是否执行完毕
+    println!("子线程是否执行完毕: {}", handle.is_finished());
+
+    // 等待子线程执行完毕，并获取返回值
+    match handle.join() {
+        Ok(v) =&gt; println!("子线程执行完毕: {}", v),
+        Err(e) =&gt; println!("子线程执行出错： {:?}", e),
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+线程ID：ThreadId(2), 线程名称：Some("子线程")
+子线程是否执行完毕: false
+子线程执行完毕: 5000050000
+</code></pre>
+<h4 id="1422-线程挂起与唤醒"><a class="header" href="#1422-线程挂起与唤醒">14.2.2 线程挂起与唤醒</a></h4>
+<p>　　在线程执行过程中，可能需要等待某些资源或条件，此时可以暂时挂起线程，直到特定条件成立后再唤醒线程并恢复执行。Rust 标准库提供了 <code>thread.park()</code> 和 <code>thread.unpark()</code> 函数，分别用于挂起当前线程和唤醒指定线程。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let handle = thread::spawn(|| {
+        println!("子线程挂起...");
+        thread::park();           // 挂起线程，等待 unpark
+        println!("子线程恢复执行");
+    });
+
+    // 主线程休眠 5 秒
+    thread::sleep(Duration::from_secs(5));
+    println!("主线程发出唤醒信号");
+    handle.thread().unpark();     // 唤醒子线程
+
+    handle.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程挂起...
+主线程发出唤醒信号
+子线程恢复执行
+</code></pre>
+<p>　　如果在线程调用 <code>park()</code> 之前，其他线程就先调用了该线程的 <code>unpark()</code> 方法，那么 <code>unpark()</code> 设置的唤醒标记会被保留下来。当该线程随后执行 <code>park()</code> 时，会立即消耗这个标记并直接返回，而不会进入阻塞状态。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::time::Duration;
+
+fn main() {
+
+    let handle = thread::spawn(|| {
+        println!("子线程启动");
+
+        // 休眠等待主线程执行 unpark
+        thread::sleep(Duration::from_secs(5));
+
+        println!("子线程准备挂起...");
+        thread::park();             // 立即消耗之前的 unpark
+        println!("子线程执行完成");
+    });
+
+    // 子线程尚未调用 park(), 主线程先调用 unpark()
+    handle.thread().unpark();
+    println!("主线程已调用 unpark");
+
+    handle.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+主线程已调用 unpark
+子线程启动
+子线程准备挂起...
+子线程执行完成
+</code></pre>
+<p>　　需要注意的是，<code>park()</code> 底层依赖操作系统的线程挂起与唤醒机制实现。为了提高效率，操作系统通常允许线程在没有收到明确唤醒信号的情况下从阻塞状态返回，这被称为虚假唤醒（Spurious Wakeup）。也就是说，线程即使没有收到对应的 <code>unpark()</code> 调用，也有可能从 <code>park()</code> 中返回。因此，不能将 <code>park()</code> 的返回直接视为条件已经满足，而应当在循环中反复检查共享状态或条件变量。</p>
+<pre class="playground"><code class="language-rust">use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+
+    // 共享标志：用于判断条件是否满足
+    // 注：AtomicBool 可以先当作普通的 bool 变量使用，详情见 14.5.1 章节
+    let ready = Arc::new(AtomicBool::new(false));
+    let ready_clone = Arc::clone(&amp;ready);
+
+    let handle = thread::spawn(move || {
+        // 循环检查条件，直到条件满足为止
+        while !ready_clone.load(Ordering::Acquire) {
+            println!("子线程：条件未满足，挂起等待");
+            thread::park(); // 可能发生虚假唤醒，所以醒来后重新检查条件
+        }
+        println!("子线程：条件已满足，继续执行");
+    });
+
+    // 模拟主线程进行一些准备工作
+    println!("主线程：正在准备工作...");
+    thread::sleep(Duration::from_secs(2));
+
+    // 条件满足，设置标志并唤醒子线程
+    ready.store(true, Ordering::Release);
+    println!("主线程：条件已满足，唤醒子线程");
+    handle.thread().unpark();
+
+    handle.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+主线程：正在准备工作...
+子线程：条件未满足，挂起等待
+主线程：条件已满足，唤醒子线程
+子线程：条件已满足，继续执行
+</code></pre>
+<h4 id="1423-线程安全问题"><a class="header" href="#1423-线程安全问题">14.2.3 线程安全问题</a></h4>
+<p>　　虽然多线程可以提高程序的执行效率与资源利用率，但当存在共享资源时，由于并发或并行执行的特性，不同线程的生命周期可能不一致，可能会导致资源提前释放或尚未初始化完成就被访问的问题；另外，当其中一个或多个线程对该共享数据执行写操作时，可能会产生数据竞争问题，进而导致数据覆盖、数据撕裂以及读取到过期值等异常现象。此外，由于执行时序的不确定性，以及存储层级结构中寄存器、CPU 私有缓存（Cache）和 Store Buffer 等机制的存在，不同线程对同一数据的修改可能无法立即对其他线程可见，从而产生数据不一致问题。</p>
+<p>　　上述问题的本质在于多线程环境下对共享状态的并发访问缺乏有效同步，这类问题被统称为线程安全问题。为解决这些问题，通常需要借助同步与并发控制机制，例如线程作用域、内存屏障、编译器屏障、原子变量、互斥锁、读写锁和 Channel 等，从不同层面控制线程间的数据访问与执行顺序，保证共享数据的一致性以及并发操作的有序性。</p>
+<h3 id="143-生命周期不同步"><a class="header" href="#143-生命周期不同步">14.3 生命周期不同步</a></h3>
+<p>　　由于各个线程的生命周期相互独立，并且可能以并发或并行的方式执行，如果线程之间存在共享资源，就可能出现资源被某个线程提前释放，而另一个线程仍在访问，或资源尚未完成初始化便被其他线程读取的情况，导致访问到无效或异常的数据状态。下述示例中，主线程与子线程共享同一资源，但由于两个线程生命周期不同步，主线程可能在子线程尚未结束对该资源的使用时提前释放该资源，从而导致子线程访问已释放的内存，即产生悬垂引用。</p>
+<pre class="playground"><code class="language-rust">use std::time::Duration;
+use std::thread;
+
+fn main() {
+
+    let number = Box::new(100);
+    // 将 Box 转换为原始指针，绕开 Rust 安全检查机制
+    let ptr = Box::into_raw(number) as usize;
+
+    let thread = thread::spawn(move || {
+        // 模拟耗时操作
+        thread::sleep(Duration::from_millis(2000));
+
+        // 此时共享资源被主线程释放了
+        let number = unsafe { Box::from_raw(ptr as *mut i32) };
+        println!("子线程：{:?}", number);    // 内存被释放后，指针变为 null，值为 0
+    });
+
+    // 主线程释放内存
+    unsafe { drop(Box::from_raw(ptr as *mut i32)); }
+    thread.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程：99320048
+error: process didn't exit successfully: `target\debug\app.exe` (exit code: 0xc0000374, STATUS_HEAP_CORRUPTION)
+</code></pre>
+<p>　　为了避免因访问共享资源时线程生命周期不一致而引发错误，Rust 提供了两种主要解决方案：其一是避免共享资源，通过 <code>move</code> 关键字将变量所有权转移至新线程或复制一份给新线程；其二是通过线程作用域<code>thread::scope</code> 将子线程的生命周期限制在作用域内，实现非全局 <code>'static</code> 生命周期的变量也能够在作用域范围内安全地跨线程共享。</p>
+<h4 id="1431-move-关键字"><a class="header" href="#1431-move-关键字">14.3.1 move 关键字</a></h4>
+<p>　　<code>move</code> 关键字用于将变量所有权转移至新线程，或将数据复制一份给新线程，避免多个线程共享同一资源。对于实现 <code>Copy</code> trait 的类型，在传入子线程时会发生按位复制，原线程仍可继续使用该变量；否则，其所有权将被转移至子线程，原线程无法继续访问该变量。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+
+fn main() {
+
+    // i32 类型实现了 Copy trait
+    let mut number: i32 = 100;
+
+    // String 类型没有实现 Copy trait
+    let text: String = String::from("Hello");
+
+    // move 时：闭包会捕获外部变量，并根据变量类型决定行为：
+    // - Copy 类型（number）发生按位复制，原变量仍可继续使用
+    // - 非 Copy 类型（text）发生所有权转移，变量被移动到子线程中
+    let handle = thread::spawn(move || {
+        number = 200;   // 修改不会影响原线程
+        println!("子线程：number={number}");
+        println!("子线程：text={text}");
+    });
+
+    handle.join().unwrap();
+
+    // Copy 类型仍然可用，因为它在闭包中被复制了一份
+    println!("主线程：number={number}");
+
+    // 编译错误：text 所有权被转移给子线程，主线程无法继续访问该变量
+    // println!("主线程：text={text}");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程：number=200
+子线程：text=Hello
+主线程：number=100
+</code></pre>
+<h4 id="1432-send-trait"><a class="header" href="#1432-send-trait">14.3.2 Send trait</a></h4>
+<p>　　<code>Send</code> trait 是一个标记 trait，用于表示某个类型的值可以安全地在线程之间传递，未实现该 trait 类型的变量值无法通过 <code>move</code> 转移到其他线程中。标准库中的绝大多数类型默认已实现 <code>Send</code>，只有 <code>Rc</code> 指针和原始指针等少数类型未实现。对于自定义类型，只要其所有字段都实现了 <code>Send</code>，编译器会自动为其实现 <code>Send</code> trait，无需手动实现。</p>
+<pre class="playground"><code class="language-rust">use std::rc::Rc;
+use std::thread;
+
+// u32 和 String 类型都实现了 Send trait
+#[allow(dead_code)]
+#[derive(Debug)]
+struct User{
+    id: u32,
+    name: String,
+}
+
+fn main() {
+    // Rc 指针没有实现 Send trait，不能跨线程使传递使用
+    let _rc = Rc::new(100);
+    // thread::spawn(move || println!("子线程：{}", _rc));  // 编译报错
+
+    // 自定义类型只要所有字段都实现了 Send，编译器会自动为其实现 Send trait
+    let user = User{ id: 1, name: "张三".to_string() };
+    thread::spawn(move || println!("user={:?}", user))
+        .join().unwrap();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+user=User { id: 1, name: "张三" }
+</code></pre>
+<p>　　对于未实现 <code>Send</code> trait 的 <code>Rc</code> 指针，若在多线程环境中需要共享数据，可以使用 <code>Arc</code> 替代 <code>Rc</code>，以实现跨线程的安全引用计数。至于原始指针，由于其完全绕过 Rust 的所有权与借用检查机制，因此需要开发者自行保证同步安全、生命周期正确性以及数据有效性。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::sync::Arc;
+
+fn main() {
+    // 使用 Arc 原子引用计数指针换 Rc 引用计数指针，实现跨线程安全传递
+    let data = Arc::new(1);
+
+    let data_cloned = Arc::clone(&amp;data);
+    thread::spawn(move || println!("子线程：{}", data_cloned))
+        .join().unwrap();
+
+    println!("主线程：{}", data);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程：1
+主线程：1
+</code></pre>
+<h4 id="1433-sync-trait"><a class="header" href="#1433-sync-trait">14.3.3 Sync trait</a></h4>
+<p>　　<code>Sync</code> trait 是一个标记 trait，用于表示某个类型的不可变引用可以安全地被多个线程共享访问。Rust 标准库中的绝大多数类型默认已实现 <code>Sync</code>，只有 <code>Rc</code> 指针、<code>Cell</code>、<code>RefCell</code> 和原始指针等少数类型未实现 <code>Sync</code>。对于自定义类型，只要其所有字段都实现了 <code>Sync</code> trait，编译器会自动为其实现 <code>Sync</code> trait，无需手动实现。</p>
+<p>　　其中，<code>Rc</code> 指针使用非原子引用计数实现共享所有权，在多线程环境下无法保证引用计数操作的原子性（见见 12.5.1 章节），因此不具备线程安全性；<code>Cell</code> 和 <code>RefCell</code> 提供内部可变性，但其内部状态更新与借用检查均未采用同步机制，无法在并发访问下保证一致性与安全性；原始指针则完全绕过 Rust 的借用检查机制，不具备任何线程安全保证，因此同样不实现 <code>Sync</code>。</p>
+<pre class="playground"><code class="language-rust">use std::cell::{Cell, RefCell};
+use std::thread;
+
+// u32 和 &amp;str 都实现了 Sync trait，编译器会自动为其实现 Sync trait
+#[allow(dead_code)]
+#[derive(Debug)]
+struct User&lt;'a&gt;{
+    id: u32,
+    name: &amp;'a str,
+}
+
+fn main() {
+    let user = User { id: 1, name: "张三" };
+    let user_ptr:&amp;User = &amp;user;
+
+    let cell = Cell::new(100);
+    let _cell_ptr = &amp;cell;
+
+    let refcell = RefCell::new(200);
+    let _refcell_ptr = &amp;refcell;
+
+    thread::scope(|s| {
+        // 实现了 Sync trait 的类型，其不可变引用可以跨线程共享
+        s.spawn(|| println!("user={:?}", user_ptr));
+        s.spawn(|| println!("user={:?}", user_ptr));
+
+        // 编译报错，Cell 和 RefCell 没有实现 Sync trait，其不可变引用不能跨线程共享
+        // s.spawn(|| println!("cell={:?}", _cell_ptr));
+        // s.spawn(|| println!("refcell={:?}", refcell_ptr));
+    });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+user=User { id: 1, name: "张三" }
+user=User { id: 1, name: "张三" }
+</code></pre>
+<h4 id="1434-线程作用域"><a class="header" href="#1434-线程作用域">14.3.4 线程作用域</a></h4>
+<p>　　使用 <code>thread::scope()</code> 可以创建一个线程作用域，当作用域代码块执行结束时，会自动调用作用域内所有子线程的 <code>join()</code> 函数，等待它们执行完毕，确保所有子线程在作用域结束前完成执行。由于子线程的生命周期被严格限制在该作用域范围内，因此无需通过 <code>move</code> 转移所有权或进行数据复制，即可安全地直接借用当前作用域内的局部变量，从根本上保证被引用的数据始终有效。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+
+fn main() {
+
+    // 创建一个普通变量，非全局 'static 生命周期
+    let text = String::from("Hello");
+
+    // 创建一个线程作用域
+    thread::scope(|scope| {
+
+        // 在作用域内创建的子线程，直接借用当前作用域内的局部变量，无需 move
+        scope.spawn(|| println!("子线程: text={text}"));
+
+        println!("主线程: 作用域结束");
+    }); // 作用域结束时, 会自动调用作用域内所有子线程的 `join()` 函数，等待它们执行完毕
+
+    println!("父线程: 所有子线程执行完毕");
+    println!("父线程: text={text}");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+主线程: 作用域结束
+子线程: text=Hello
+父线程: 所有子线程执行完毕
+父线程: text=Hello
+</code></pre>
+<h3 id="144-数据不一致"><a class="header" href="#144-数据不一致">14.4 数据不一致</a></h3>
+<p>　　CPU 的主要作用是执行运算，其发展重点在于不断提升计算速度和处理效率；内存的主要作用是存储数据，其发展重点在于扩大存储容量、降低单位存储成本，并尽可能提高数据访问速度。随着两者发展方向的逐渐分化，CPU 与内存之间的性能差距不断扩大，使 CPU 在访问主内存时面临越来越高的访问延迟，不得不花费大量时间等待数据返回，从而限制了系统整体性能的进一步提升。</p>
+<p>　　幸运的是，程序在运行时并非随机地访问内存，而是呈现出显著的局部性规律。研究发现，程序在一段时间内往往集中访问某一小部分数据（时间局部性），或按顺序访问相邻的内存地址（空间局部性）。这种局部性特征为缓解 CPU 与内存之间的速度鸿沟提供了突破口——通过在二者之间引入成本更高，但速度更快的中间存储层（即缓存），将近期可能被访问的数据提前载入其中，便可大幅减少 CPU 直接访问主内存的次数，从而有效隐藏内存延迟、提升系统整体性能。</p>
+<ul>
+<li>
+<p><strong>时间局部性（Temporal Locality）</strong>：如果某个数据被访问，那么在不久的将来它很可能会再次被访问。例如，循环中的计数器变量通常会在每次迭代中重复访问。</p>
+</li>
+<li>
+<p><strong>空间局部性（Spatial Locality）</strong>：如果某个数据被访问，那么其附近的内存地址很可能在随后也会被访问。例如，数组的顺序遍历通常会依次访问相邻的元素。</p>
+</li>
+</ul>
+<p>　　为了在访问速度、存储容量和硬件成本之间取得平衡，现代计算机并不会仅依赖单一存储设备，而是采用存储层次结构（Memory Hierarchy）设计（见下图，来源：深入理解计算机系统）。该结构按照访问速度由快到慢、容量由小到大、单位成本由高到低的原则，将不同类型的存储设备组织成多个层次。当 CPU 访问数据时，会优先从速度最快的存储层开始查找；如果当前层未命中（Cache Miss），再逐级向下一层查找，直到获得所需数据。借助局部性原理，大部分访问请求都能够在较高层级的存储中得到满足，从而显著降低平均访问延迟，提高系统整体性能。</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="img/memory_level.png" alt=""><span class="img-wrapper"><img src="img/memory_level.png" alt=""></span></label></p>
+<p>　　在多核处理器中，寄存器、L1 高速缓存和 L2 高速缓存通常为各核心独享的私有存储，其中的数据仅对所属核心可见；由于程序中大量线程私有数据无需共享，采用私有存储可以避免处理多核心间的竞争和同步产生的额外延迟，保证缓存的高性能。L3 高速缓存更侧重于提升多个核心之间的数据共享效率，因此通常设计为各核心的共享缓存。此外，主存以及本地或远程的二级存储也通常多为多个核心所共享，其中的数据可被各个核心访问。（注：不同 CPU 型号的缓存层次结构和缓存共享机制可能有所不同，具体以实际硬件设计为准）。</p>
+<p>　　对于共享数据，各核心的私有缓存中都可能保留其副本。当某个核心修改共享数据后，出于性能考虑，更新可能暂时只存在于该核心的私有缓存中，导致其他核心的副本过期或失效，产生数据不一致。当其他核心继续使用这些过期副本时，可能导致逻辑判断错误、状态不一致、死循环甚至数据损坏等不可预测的问题，例如，一个线程已将任务状态更新为“完成“，而另一个线程仍从本地缓存中读取到“未完成“，从而重复执行同一任务，导致程序行为异常。这种由于不同核心的数据更新未能及时对其他核心可见而引发的问题，被称为<strong>数据可见性问题</strong>。</p>
+<h4 id="1441-寄存器与-volatile"><a class="header" href="#1441-寄存器与-volatile">14.4.1 寄存器与 volatile</a></h4>
+<p>　　为了提升性能，编译器在保证不改变单线程执行结果的前提下，生成机器码时可能不会每次都直接从内存读取或写回数据，而是将数据临时保存在寄存器中，以减少冗余的内存访问，降低访问主存带来的开销。由于寄存器是各核心私有的，保存其中的数据对其他核心不可见，因此在多线程环境下，这会导致一个线程对共享数据的修改可能无法及时被其他线程看到，产生数据可见性问题。</p>
+<p>　　在下述示例中，线程 A 持续轮询共享变量 <code>NUM</code>，期望在线程 B 将其修改为大于等于 <code>10000</code> 后跳出循环。然而，在 Release 模式下编译运行，由于编译器可能将 <code>NUM</code> 的值缓存到寄存器中，并认为其在循环期间不会发生变化，从而将循环中的内存读取优化掉，导致线程 A 始终读取到寄存器中的旧值，最终无法感知线程 B 的更新，陷入死循环。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+
+static mut NUM: u32 = 0;
+
+fn main() {
+
+    // 线程A：循环检测全局变量 NUM 是否大于等于 10000
+    let thread_a = thread::spawn(move || unsafe {
+
+        loop {
+            // NUM 在循环中未被修改，编译器可能将 NUM 缓存到寄存器，循环
+            // 中不再读取内存，导致线程 A 看到的始终是旧值，陷入死循环
+            let value = NUM;
+            if value &gt;= 10000 {
+                println!("线程A: NUM={value}");
+                return;
+            }
+        }
+    });
+
+    // 线程B：循环将 NUM 递增到 100_000_000
+    let thread_b = thread::spawn(move || unsafe {
+
+        for index in 0..=100_000_000 {
+            NUM = index;
+        }
+
+        let value = NUM;
+        println!("线程B: NUM={value}");
+    });
+
+    thread_a.join().unwrap();
+    thread_b.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell"># Rust 版本 1.95.0
+shell&gt; rustc --version
+rustc 1.95.0 (59807616e 2026-04-14)
+
+# 使用 debug 模式运行，程序执行结果看似“正常”
+shell&gt; cargo run -- --debug
+线程A: NUM=10000
+线程B: NUM=100000000
+
+# 使用 release 模式运行，编译器会执行更激进的优化策略
+shell&gt; cargo run --release
+线程B: NUM=100000000         # 线程 A 陷入死循环，没有任何输出
+</code></pre>
+<p>　　为了解决因编译器优化导致的数据可见性问题，Rust 提供了 <code>volatile</code> 访问机制。通过 <code>read_volatile()</code> 和 <code>write_volatile()</code> 函数，可以禁止编译器对特定内存地址的读写操作进行优化，确保每次访问都直接作用于对应的内存地址，而不会被优化为寄存器访问。下述示例，使用 volatile 读写变量，确保每次操作都直接访问内存，避免编译器为消除冗余内存访问所做的优化导致程序异常陷入死循环。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::ptr;
+
+static mut NUM: u32 = 0;
+
+fn main() {
+
+    // 线程A：循环检测全局变量 NUM 是否大于等于 10000
+    let thread_a = thread::spawn(move || unsafe {
+
+        loop {
+            // NUM 在循环中未被修改，编译器可能将 NUM 缓存到寄存器，循环
+            // 中不再读取内存，导致线程 A 看到的始终是旧值，陷入死循环
+            let value = ptr::read_volatile(&amp;raw const NUM);
+            if value &gt;= 10000 {
+                println!("线程A: NUM={value}");
+                return;
+            }
+        }
+    });
+
+    // 线程B：循环将 NUM 递增到 100_000_000
+    let thread_b = thread::spawn(move || unsafe {
+
+        for index in 0..=100_000_000 {
+            ptr::write_volatile(&amp;raw mut NUM, index);
+        }
+
+        let value = ptr::read_volatile(&amp;raw const NUM);
+        println!("线程B: NUM={value}");
+    });
+
+    thread_a.join().unwrap();
+    thread_b.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell"># 使用 release 模式运行，线程 A 可以输出执行结果，不会再陷入死循环
+shell&gt; cargo run --release
+线程A: NUM=10003
+线程B: NUM=100000000
+</code></pre>
+<p>　　除了多线程共享数据的场景外，<code>volatile</code> 的另一个典型应用是硬件设备寄存器访问。在嵌入式系统或操作系统内核开发中，像 GPIO、UART 串口控制器、DMA 控制器等硬件设备的控制寄存器通常通过内存映射 I/O （Memory-Mapped I/O，MMIO）将其控制寄存器映射到特定的内存地址，以便软件能够直接读取或写入这些寄存器来控制硬件行为。这些寄存器的值可能随硬件状态变化而变化，编译器不能对此类地址的访问优化为寄存器缓存，每次访问都必须直接读取或写入内存，否则程序可能无法正确读取硬件状态或向硬件发送控制命令。</p>
+<h4 id="1442-编译器重排与编译屏障"><a class="header" href="#1442-编译器重排与编译屏障">14.4.2 编译器重排与编译屏障</a></h4>
+<p>　　为了提升代码的执行效率和硬件资源利用率，编译器会在保证不改变单线程程序执行结果的前提下，可能会调整代码的执行顺序（即编译器重排，Compiler Reordering）——通过分析语句之间的依赖关系，将彼此独立、互不影响的内存读写与计算操作重新排列，减少 CPU 在执行过程中因数据依赖或执行顺序限制而产生的停顿与执行单元空闲时间，提升指令调度的灵活性。对于程序而言，编译器重排可能导致以下四种类型内存访问操作乱序：</p>
+<ul>
+<li>**Load→Load（读-读）：**后面的读操作在前面的读操作完成之前执行。</li>
+<li>**Load→Store（读-写）：**后面的写操作在前面的读操作完成之前执行。</li>
+<li>**Store→Store（写-写）：**后面的写操作在前面的写操作完成之前执行。</li>
+<li>**Store→Load（写-读）：**后面的读操作在前面的写操作完成之前执行。</li>
+</ul>
+<p>　　在多线程环境中，如果内存访问操作被编译器重排，可能导致各线程看到的数据状态不一致。如果关键读写操作被重排序，线程可能读取到尚未完成初始化的数据，或看到处于中间状态的值，产生数据可见性问题。</p>
+<p>　　为了保证多线程环境下内存操作的顺序性与可见性，Rust 编译器提供编译屏障（Compiler Barrier）机制，用于限制编译阶段对指令顺序的重排：屏障之前的内存访问操作不会被编译器重排到屏障之后，屏障之后的内存访问操作也不会被重排到屏障之前，从而在编译阶段强制维持一定的执行顺序约束。在 Rust 中，可以通过 <code>compiler_fence()</code> 等接口在程序中插入编译屏障，并根据需要指定内存序（Memory Ordering），对重排序行为进行更细粒度的控制。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>内存序</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Ordering::Acquire</code></td><td><strong>读屏障</strong>。确保屏障之前的读操作不会被重排到屏障之后，同时屏障之后的读写操作必须在屏障前的读完成后执行，即保证读-读（Load→Load）和读-写（Load→Store）的顺序。</td></tr>
+<tr><td><code>Ordering::Release</code></td><td><strong>写屏障</strong>。确保屏障之后的写操作不会被重排到屏障之前，并且在屏障后的写操作对其他线程可见时，屏障前的写操作也已经可见，即保证写-写（Store→Store）的顺序。</td></tr>
+<tr><td><code>Ordering::AcqRel</code></td><td><strong>读写屏障</strong>。等效于同时具有 Acquire 和 Release 语义，但不保证写-读（Store→Load）顺序。</td></tr>
+<tr><td><code>Ordering::SeqCst</code></td><td><strong>顺序一致屏障</strong>。保证全局顺序一致性，即 Load→Load、Load→Store、Store→Store 和 Store→Load 都严格按照程序顺序执行，所有线程观察到的内存操作顺序一致。</td></tr>
+</tbody>
+</table>
+</div>
+<p>　　虽然上一章节的示例是由于编译器优化将循环中的重复内存读取提升为寄存器缓存（Load Hoisting），导致后续循环不再从内存重新加载数据，使共享变量的更新对其他线程不可见。由于这种优化会影响内存访问顺序，因此可以引入编译屏障，在编译期对这类优化进行约束，阻止关键内存访问跨越屏障发生重排序，保证特定读写操作在逻辑上的先后关系不被破坏。</p>
+<pre class="playground"><code class="language-rust">use std::sync::atomic::{compiler_fence, Ordering};
+use std::thread;
+
+static mut NUM: u32 = 0;
+
+fn main() {
+
+    // 线程A：循环检测全局变量 NUM 是否大于等于 10000
+    let thread_a = thread::spawn(move || unsafe {
+
+        loop {
+            // 在读内存操作前面插入 Acquire 屏障，防止编译器为优化循环性能
+            // 而消除重复内存读取，将变量访问提升到循环外并缓存到寄存器中。
+            compiler_fence(Ordering::Acquire);
+            let value = NUM;
+            if value &gt;= 10000 {
+                println!("线程A: NUM={value}");
+                return;
+            }
+        }
+    });
+
+    // 线程B：循环将 NUM 递增到 100_000_000
+    let thread_b = thread::spawn(move || unsafe {
+
+        for index in 0..=100_000_000 {
+            // 在写内存操作前面插入 Release 屏障，防止编译器将变量写操作提升到循环外，
+            // 直接赋值为循环结果值 100_000_000
+            compiler_fence(Ordering::Release);
+            NUM = index;
+        }
+
+        let value = NUM;
+        println!("线程B: NUM={value}");
+    });
+
+    thread_a.join().unwrap();
+    thread_b.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell"># 使用 release 模式运行时，与使用 volatile 类似，线程 A 也不会再陷入死循环
+shell&gt;  cargo run --release
+线程A: NUM=10012
+线程B: NUM=100000000
+</code></pre>
+<h4 id="1443-处理器乱序执行与内存屏障"><a class="header" href="#1443-处理器乱序执行与内存屏障">14.4.3 处理器乱序执行与内存屏障</a></h4>
+<p>　　为了提升 CPU 指令吞吐率和整体运行效率，CPU 会在保证不改变单线程程序执行结果的前提下，动态调整指令的执行顺序——通过分析指令间的依赖关系，提前执行那些不依赖于前一条结果的指令，从而减少因等待前序结果或资源冲突而产生的空闲时间，最大限度地利用指令流水线，提升指令吞吐率。对于程序而言，乱序执行也可能导致以下四种类型内存访问操作乱序：Load→Load、Load→Store、Store→Store 以及 Store→Load。在多线程环境中，这种 CPU 层面的乱序与编译器重排类似，也可能导致各线程观察到的数据状态不一致，从而引发数据可见性问题以及难以复现的并发错误。</p>
+<p>　　另外，在多核处理器中，即使 CPU 严格按照程序顺序执行指令，内存访问顺序同样可能出现乱序。CPU 中的 L1 缓存和 L2 缓存通常是每个核心的私有缓存，仅允许该核心访问，当多个核心同时缓存同一份共享数据时，如果某个核心对该数据进行修改，为了保持各核心数据一致，处理器会根据缓存一致性协议（如 MESI 协议）向其他核心发送<strong>失效请求（Invalidate Request）</strong>，使它们缓存中的对应数据副本失效。只有收到所有核心的失效响应后，该核心才能将更新后的数据写入本地缓存，从而保证各核心数据一致。</p>
+<p>　　等待所有失效响应会带来较高的访问延迟，尤其是在核心数量较多时更为显著。为降低因等待产生的性能损失，现代处理器引入了<strong>写缓冲区（Store Buffer）<strong>机制。在执行写操作时，处理器不会立即将数据写入缓存，而是先将其暂存于 Store Buffer 中，从而无需阻塞等待其他核心的失效响应，继续执行后续指令。当所有失效响应到达后，Store Buffer 中的数据才被提交至本地缓存，完成最终的数据更新。然而，其他核心可能无法及时处理失效请求，且 Store Buffer 容量有限，一旦占满就会阻塞新的写操作，影响执行效率。为缓解这一问题，现代处理器引入了</strong>失效队列（Invalidate Queue）</strong>。核心收到失效请求后，可将其暂存于失效队列中并立即返回响应，后续再适时更新缓存状态。这种设计减少了 Store Buffer 因等待失效响应而造成的阻塞，避免积压溢出，从而提升整体并行处理效率。</p>
+<p>　　当某个核心将数据写入 Store Buffer 但尚未提交至本地缓存时，该写入结果尚未对其他核心可见；其他核心访问同一内存地址时，仍可能从各自缓存中读取到旧的数据副本。即使 Store Buffer 中的数据已经提交至本地缓存，如果其他核心尚未处理其 Invalidate Queue 中对应的失效请求，那么这些核心缓存中的旧缓存行仍可能保持有效，读取到的依然是旧数据。因此，不同核心所“看到“的内存操作顺序可能与程序顺序不一致，出现<strong>内存访问乱序</strong>。</p>
+<p>　　不同处理器架构对内存访问乱序的允许程度并不相同。例如，x86 架构对内存访问顺序施加了较强约束，仅允许发生 Store→Load 重排序，因此通常被称为强内存模型（Strong Memory Model）；而 ARM 和 RISC-V 架构对内存访问顺序的约束相对宽松，允许 Load→Load、Load→Store、Store→Store 和 Store→Load 等多种类型的重排序，因此通常被称为弱内存模型（Weak Memory Model）。</p>
+<p>　　下述是一个 Store-Load 乱序示例，两个线程分别向各自的标志变量写入数据，并读取对方的标志。由于写入操作滞留在各自的 Store Buffer 中而尚未对其他核心可见，后续的读取指令可能先于写入操作全局生效，从而产生乱序执行现象。结果是，双方在读取时都可能观察到旧值，导致 <code>data_a == 0 &amp;&amp; data_b == 0</code> 成立，程序的实际执行结果与逻辑预期不一致。</p>
+<pre><code class="language-shell">共享变量:
+    FLAG_A = 0
+    FLAG_B = 0
+    DATA_A = 0
+    DATA_B = 0
+
+线程 A:
+    FLAG_A = 1          // 写入标志可能仅在 Store Buffer 中，导致后续读取操作先生效，发生乱序
+    DATA_A = FLAG_B     // 读取线程 B 的标志（可能读取到旧值 0）
+
+线程 B:
+    FLAG_B = 1          // 写入标志可能仅在 Store Buffer 中，导致后续读取操作先生效，发生乱序
+    DATA_B = FLAG_A     // 读取线程 A 的标志（可能读取到旧值 0）
+
+执行结果（可能出现）:
+DATA_A == 0 &amp;&amp; DATA_B == 0  // 双方都未看到对方的写入，导致判断条件结果异常
+</code></pre>
+<pre class="playground"><code class="language-rust">use std::process::exit;
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+use std::thread;
+
+// 共享标志变量
+static FLAG_A: AtomicI32 = AtomicI32::new(0);
+static FLAG_B: AtomicI32 = AtomicI32::new(0);
+
+// 观测结果
+static DATA_A: AtomicI32 = AtomicI32::new(0);
+static DATA_B: AtomicI32 = AtomicI32::new(0);
+
+// 用于主线程与子线程同步
+static THREAD_A_DONE: AtomicBool = AtomicBool::new(false);
+static THREAD_B_DONE: AtomicBool = AtomicBool::new(false);
+
+fn main() {
+    // 线程 A：写 FLAG_A=1，然后读 FLAG_B
+    thread::spawn(|| {
+        loop {
+            // 等待主线程通知开始
+            while THREAD_A_DONE.load(Ordering::Acquire) {}
+
+            FLAG_A.store(1, Ordering::Relaxed);
+            let observed_b = FLAG_B.load(Ordering::Relaxed);
+            DATA_A.store(observed_b, Ordering::Relaxed);
+
+            THREAD_A_DONE.store(true, Ordering::Release);
+        }
+    });
+
+    // 线程 B：写 FLAG_B=1，然后读 FLAG_A
+    thread::spawn(|| {
+        loop {
+            // 等待主线程通知开始
+            while THREAD_B_DONE.load(Ordering::Acquire) {}
+
+            FLAG_B.store(1, Ordering::Relaxed);
+            let observed_a = FLAG_A.load(Ordering::Relaxed);
+            DATA_B.store(observed_a, Ordering::Relaxed);
+
+            THREAD_B_DONE.store(true, Ordering::Release);
+        }
+    });
+
+    // 主线程：反复运行测试
+    for i in 1..=10_000_000 {
+        // 重置共享状态
+        FLAG_A.store(0, Ordering::Relaxed);
+        FLAG_B.store(0, Ordering::Relaxed);
+        DATA_A.store(0, Ordering::Relaxed);
+        DATA_B.store(0, Ordering::Relaxed);
+
+        // 重置完成标志，通知子线程开始
+        THREAD_A_DONE.store(false, Ordering::Release);
+        THREAD_B_DONE.store(false, Ordering::Release);
+
+        // 等待两个子线程完成本轮写入
+        while !THREAD_A_DONE.load(Ordering::Acquire) {}
+        while !THREAD_B_DONE.load(Ordering::Acquire) {}
+
+        let data_a = DATA_A.load(Ordering::Relaxed);
+        let data_b = DATA_B.load(Ordering::Relaxed);
+
+        // 检查是否出现双向乱序：双方都读到 0
+        if data_a == 0 &amp;&amp; data_b == 0 {
+            println!("第 {} 次出现内存乱序：DATA_A = {}, DATA_B = {}", i, data_a, data_b);
+            exit(0);
+        }
+    }
+
+    println!("未观察到乱序行为");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+第 7 次出现内存乱序：DATA_A = 0, DATA_B = 0
+
+shell&gt; cargo run
+第 12 次出现内存乱序：DATA_A = 0, DATA_B = 0
+</code></pre>
+<p>　　为了保证多线程间内存操作的可见性和顺序性，现代 CPU 普遍提供了内存屏障（Memory Barrier）机制，用于防止内存访问被重新排序：屏障之前的内存操作不能被重排到屏障之后，屏障之后的内存操作也不能被重排到屏障之前。在 Rust 中，可以通过 <code>fence()</code> 函数在程序中插入内存屏障，并根据需要指定内存序（Memory Ordering），对重排序行为进行更细粒度的控制。修改上述 Store-Load 乱序示例，在 Store→Load 之间插入内存序为 SeqCst 的内存屏障，阻止处理器和编译器重排操作，确保写操作在逻辑上先于读操作被其他线程观察到，避免程序出现与预期不一致的执行结果。</p>
+<pre class="playground"><code class="language-rust">use std::process::exit;
+use std::sync::atomic;
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+use std::thread;
+
+// 共享标志变量
+static FLAG_A: AtomicI32 = AtomicI32::new(0);
+static FLAG_B: AtomicI32 = AtomicI32::new(0);
+
+// 观测结果
+static DATA_A: AtomicI32 = AtomicI32::new(0);
+static DATA_B: AtomicI32 = AtomicI32::new(0);
+
+// 用于主线程与子线程同步
+static THREAD_A_DONE: AtomicBool = AtomicBool::new(false);
+static THREAD_B_DONE: AtomicBool = AtomicBool::new(false);
+
+fn main() {
+    // 线程 A：写 FLAG_A=1，然后读 FLAG_B
+    thread::spawn(|| {
+        loop {
+            // 等待主线程通知开始
+            while THREAD_A_DONE.load(Ordering::Acquire) {}
+
+            // 在写读内存操作中间插入 SeqCst 内存屏障，阻止 Store-Load 重排序
+            FLAG_A.store(1, Ordering::Relaxed);
+            atomic::fence(Ordering::SeqCst);
+            let observed_b = FLAG_B.load(Ordering::Relaxed);
+
+            DATA_A.store(observed_b, Ordering::Relaxed);
+            THREAD_A_DONE.store(true, Ordering::Release);
+        }
+    });
+
+    // 线程 B：写 FLAG_B=1，然后读 FLAG_A
+    thread::spawn(|| {
+        loop {
+            // 等待主线程通知开始
+            while THREAD_B_DONE.load(Ordering::Acquire) {}
+
+            // 在写读内存操作中间插入 SeqCst 内存屏障，阻止 Store-Load 重排序
+            FLAG_B.store(1, Ordering::Relaxed);
+            atomic::fence(Ordering::SeqCst);
+            let observed_a = FLAG_A.load(Ordering::Relaxed);
+
+            DATA_B.store(observed_a, Ordering::Relaxed);
+            THREAD_B_DONE.store(true, Ordering::Release);
+        }
+    });
+
+    // 主线程：反复运行测试
+    for i in 1..=10_000_000 {
+        // 重置共享状态
+        FLAG_A.store(0, Ordering::Relaxed);
+        FLAG_B.store(0, Ordering::Relaxed);
+        DATA_A.store(0, Ordering::Relaxed);
+        DATA_B.store(0, Ordering::Relaxed);
+
+        // 重置完成标志，通知子线程开始
+        THREAD_A_DONE.store(false, Ordering::Release);
+        THREAD_B_DONE.store(false, Ordering::Release);
+
+        // 等待两个子线程完成本轮写入
+        while !THREAD_A_DONE.load(Ordering::Acquire) {}
+        while !THREAD_B_DONE.load(Ordering::Acquire) {}
+
+        let data_a = DATA_A.load(Ordering::Relaxed);
+        let data_b = DATA_B.load(Ordering::Relaxed);
+
+        // 检查是否出现双向乱序：双方都读到 0
+        if data_a == 0 &amp;&amp; data_b == 0 {
+            println!("第 {} 次出现内存乱序：DATA_A = {}, DATA_B = {}", i, data_a, data_b);
+            exit(0);
+        }
+    }
+
+    println!("未观察到乱序行为");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+未观察到乱序行为
+</code></pre>
+<h3 id="145-数据竞争"><a class="header" href="#145-数据竞争">14.5 数据竞争</a></h3>
+<p>　　当程序并发或并行运行时，多个线程可能在同一时间访问同一共享数据，若其中一个或多个线程对该共享数据执行写操作，可能产生数据竞争问题，导致各线程看到的数据不一致、其他线程读取到过期值、数据覆盖和数据撕裂等问题，甚至可能进一步引发程序逻辑异常，如陷入死循环、直接崩溃或出现未定义行为。为了避免上述问题，需要对并发读写操作施加同步机制或顺序约束，以保证共享数据访问的正确性与一致性。
+　　数据竞争的本质，是多个执行单元之间对同一数据的访问关系缺少必要的约束。Rust 的借用机制遵循 “共享不可变，可变独占” 的规则，保证了单线程环境下的数据访问安全，同时也为并发环境下安全地共享数据提供了基础。</p>
+<h4 id="1451-原子操作"><a class="header" href="#1451-原子操作">14.5.1 原子操作</a></h4>
+<p>　　为了避免并发访问共享数据导致的数据竞争问题，现代 CPU 通常会提供原子操作指令，从硬件层面保证对单个变量执行的一系列复合操作（如读-修改-写、比较并交换等），在执行过程中不会被其他线程打断，产生数据竞争问题。另外，原子操作还可以指定内存序（Memory Ordering）来约束编译器与处理器的指令重排行为，在保证原子性的基础上，进一步确保数据的可见性和有序性。</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>内存序</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Ordering::Relaxed</code></td><td><strong>只保证原子性，不保证顺序性或可见性约束。</strong> 编译器与 CPU 可以对该操作前后的读写进行任意重排，不建立跨线程的同步关系，仅保证该原子变量自身的读写不会发生数据竞争。</td></tr>
+<tr><td><code>Ordering::Acquire</code></td><td><strong>读屏障</strong>。确保屏障之前的读操作不会被重排到屏障之后，同时屏障之后的读写操作必须在屏障前的读完成后执行，即保证读-读（Load→Load）和读-写（Load→Store）的顺序。</td></tr>
+<tr><td><code>Ordering::Release</code></td><td><strong>写屏障</strong>。确保屏障之后的写操作不会被重排到屏障之前，并且在屏障后的写操作对其他线程可见时，屏障前的写操作也已经可见，即保证写-写（Store→Store）的顺序。</td></tr>
+<tr><td><code>Ordering::AcqRel</code></td><td><strong>读写屏障</strong>。等效于同时具有 Acquire 和 Release 语义，但不保证写-读（Store→Load）顺序。</td></tr>
+<tr><td><code>Ordering::SeqCst</code></td><td><strong>顺序一致屏障</strong>。保证全局顺序一致性，即 Load→Load、Load→Store、Store→Store 和 Store→Load 都严格按照程序顺序执行，所有线程观察到的内存操作顺序一致。</td></tr>
+</tbody>
+</table>
+</div>
+<p>　　在 Rust 语言中，原子操作指令被封装为一系列原子类型，如 <code>AtomicBool</code>、<code>AtomicI32</code>、<code>AtomicUsize</code> 等，为开发者提供安全、高效的类型化接口，使原子操作能够像普通变量一样方便地使用。</p>
+<h5 id="12511-读修改写rmw"><a class="header" href="#12511-读修改写rmw">12.5.1.1 读–修改–写（RMW）</a></h5>
+<p>　　通常情况下，CPU 变量的修改需要经过“读取 → 修改 → 写回（RMW）”的流程，先从内存或缓存读取变量值到寄存器，在寄存器中完成运算，再将结果写回内存，这一系列操作在硬件层面并非不可分割，可能在执行过程中被其他线程插入或打断，产生数据竞争。</p>
+<p>　　例如，两个线程各自对共享变量 <code>NUMBER</code> 执行 10000 次加 1，由于加法在寄存器中完成，两线程可能同时加载同一值并各自计算出相同结果后依次写回，后写入覆盖前者，导致两次加 1 实际只生效一次；这种竞争条件反复发生，最终结果将随机偏小，无法达到预期的 <code>20000</code>。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+
+static mut NUMBER: u32 = 0;
+
+fn main() {
+
+    let thread_a = thread::spawn(|| unsafe {
+        for _ in 0..10000 {
+            NUMBER += 1;
+        }
+    });
+
+    let thread_b = thread::spawn(|| unsafe {
+        for _ in 0..10000 {
+            NUMBER += 1;
+        }
+    });
+
+    thread_a.join().unwrap();
+    thread_b.join().unwrap();
+
+    unsafe {
+        let number = NUMBER;
+        println!("number: {number}");
+    }
+}</code></pre>
+<pre><code class="language-shell"># 在 Debug 模式下运行时，可以看到程序执行结果存在不确定性
+shell&gt; cargo run
+NUMBER: 17169
+shell&gt; cargo run
+NUMBER: 14796
+
+# 在 Release 模式下，编译器会将循环优化掉，直接赋值为最张结果，因此执行结果会看似“正确”
+shell&gt; cargo run --release
+NUMBER: 20000
+</code></pre>
+<p>　　原子变量提供了一系列原子操作函数，能够将读–修改–写（Read-Modify-Write，RMW）复合操作变为不可分割的整体（也叫原子操作），由硬件层面保证其执行过程不会被其他线程打断。针对同一原子变量的并发访问，CPU 通过原子指令及相关缓存一致性机制保证原子操作的不可分割性（如带 <code>LOCK</code> 前缀的指令、CAS 等），避免因并发更新导致数据丢失。常用原子操作函数有 <code>fetch_add()</code>、<code>fetch_sub()</code>、<code>fetch_and()</code>、<code>fetch_or()</code>、<code>compare_exchange()</code> 等。</p>
+<p>　　修改上述示例，使用原子变量替换普通全局静态变量，并使用 <code>fetch_add()</code> 以原子方式读取原值、执行加法并写回新值。由于操作只涉及单个共享变量，使用仅保证原子性的 <code>Ordering::Relaxed</code> 即可。编译运行，可以看到执行结果正常。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::sync::atomic::{AtomicI32, Ordering};
+
+static NUMBER: AtomicI32 = AtomicI32::new(0);
+
+fn main() {
+    let thread_a = thread::spawn(|| {
+        for _ in 0..10000 {
+            NUMBER.fetch_add(1, Ordering::Relaxed);
+        }
+    });
+
+    let thread_b = thread::spawn(|| {
+        for _ in 0..10000 {
+            NUMBER.fetch_add(1, Ordering::Relaxed);
+        }
+    });
+
+    thread_a.join().unwrap();
+    thread_b.join().unwrap();
+
+    println!("NUMBER: {}", NUMBER.load(Ordering::Relaxed));
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+NUMBER: 20000               # 执行结果正常
+</code></pre>
+<p>　　由于读–修改–写（RMW）操作存在数据竞争，并非线程安全的操作，因此基于非原子引用计数实现的 <code>Rc</code> 无法安全地用于多线程环境。而 <code>Arc</code> 则使用原子变量实现引用计数，能够安全地在多线程间共享所有权。</p>
+<h5 id="12512-原子读写读读--写写"><a class="header" href="#12512-原子读写读读--写写">12.5.1.2 原子读写（读读 / 写写）</a></h5>
+<p>　　CPU 单次读写数据的大小通常受其位宽限制；一旦访问的数据超出该宽度，便需要拆分为多次独立的内存访问来完成。例如，在 64 位处理器上访问 128 位数据时，通常会被拆分为两次独立的内存访问。当多线程并发访问同一数据时，拆分后的访问过程可能会被其他线程插入或打断，从而产生数据竞争，导致数据撕裂。</p>
+<p>　　下述示例中，两个线程并发读写同一 128 位全局变量。在 64 位处理器上，对该变量的读写操作可能被拆分为多次内存访问执行，因此在并发访问过程中，可能出现“前 64 位已更新、后 64 位仍为旧值”（或相反）的中间状态，导致数据撕裂现象。</p>
+<pre class="playground"><code class="language-rust">use std::process;
+use std::thread;
+
+// 普通全局 128 位整数
+static mut NUMBER: u128 = 0;
+
+fn main() {
+
+    // 启动写线程
+    let writer = thread::spawn(|| unsafe {
+        for i in 0..1000000 {
+            let is_even = i % 2 == 0;
+            NUMBER = match is_even {
+                // 所写变量宽度大于 CPU 宽度的变量，会被拆分为两次写入
+                true =&gt; 0x2222_2222_2222_2222_2222_2222_2222_2222_u128,
+                false =&gt; 0x3333_3333_3333_3333_3333_3333_3333_3333_u128,
+            }
+        }
+    });
+
+    // 启动读线程
+    let reader = thread::spawn(|| unsafe {
+        for i in 0..1000000 {
+            let value = NUMBER;
+            // 检查是否出现数据撕裂，所读变量宽度大于 CPU 宽度的变量，会被拆分为两次读取
+            if value == 0x2222_2222_2222_2222_3333_3333_3333_3333_u128 || 
+               value == 0x3333_3333_3333_3333_2222_2222_2222_2222_u128 {
+                println!("出现数据异常，count: {}, value: {:x}", i, value);
+                process::exit(0);
+            }
+        }
+    });
+
+    writer.join().unwrap();
+    reader.join().unwrap();
+}</code></pre>
+<pre><code class="language-shell"># 在 64 位 CPU 上运行，会出现数据撕裂
+shell&gt; cargo run
+出现数据异常，count: 40, value: 22222222222222223333333333333333
+shell&gt; cargo run
+出现数据异常，count: 11351, value: 33333333333333332222222222222222
+</code></pre>
+<p>　　通过原子变量的 <code>load</code> 和 <code>store</code> 操作，即使数据超过处理器位宽，读写过程仍可保证以原子方式完成，从而对其他线程表现为一次完整且不可分割的访问。由于 Rust 标准库目前尚未提供 <code>AtomicU128</code>，上述示例可以借助第三方库 <code>atomic</code> 来实现 128 位原子操作，并通过其 <code>load</code> 与 <code>store</code> 函数进行读写。编译运行后，数据撕裂问题将不再出现。</p>
+<pre class="playground"><code class="language-rust">use atomic::{Atomic, Ordering};
+use std::process;
+use std::thread;
+
+// 普通全局 128 位整数
+static NUMBER: Atomic&lt;u128&gt; = Atomic::new(0);
+
+fn main() {
+
+    // 启动写线程
+    let writer = thread::spawn(|| {
+        for i in 0..1000000 {
+            let is_even = i % 2 == 0;
+            match is_even {
+                true =&gt; NUMBER.store(0x2222_2222_2222_2222_2222_2222_2222_2222_u128, Ordering::Relaxed),
+                false =&gt; NUMBER.store(0x3333_3333_3333_3333_3333_3333_3333_3333_u128, Ordering::Relaxed),
+            }
+        }
+    });
+
+    // 启动读线程
+    let reader = thread::spawn(|| {
+        for i in 0..1000000 {
+            let value = NUMBER.load(Ordering::Relaxed);
+            if value == 0x2222_2222_2222_2222_3333_3333_3333_3333_u128 ||
+                value == 0x3333_3333_3333_3333_2222_2222_2222_2222_u128 {
+                println!("出现数据异常，count: {}, value: {:x}", i, value);
+                process::exit(0);
+            }
+        }
+    });
+
+    writer.join().unwrap();
+    reader.join().unwrap();
+    println!("无数据异常");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; rustc --version
+rustc 1.95.0 (59807616e 2026-04-14)
+
+shell&gt; cargo add atomic    # v0.6.1
+shell&gt; cargo run
+无数据异常
+
+shell&gt; cargo run --release
+无数据异常
+</code></pre>
+<h5 id="12513-比较并交换cas"><a class="header" href="#12513-比较并交换cas">12.5.1.3 比较并交换（CAS）</a></h5>
+<p>　　CPU 在执行“比较再赋值”这类逻辑时，通常需要经过“读取 → 判断 → 写回（Read–Check–Write, RCW）”三个步骤。该过程与 RMW 操作类似，同样不是原子性的，在并发环境下可能被其他线程插入或打断，产生数据竞争。</p>
+<p>　　下述卖票示例中，初始共有 50 张票，100 个线程同时抢票。每个线程执行“读取票数 → 判断是否大于 0 → 扣减”的 RCW 逻辑，但这三个步骤整体并非原子操作。因此，可能出现多个线程同时读取到“有票”的状态并同时执行扣减，最终导致票数被错误减少至负数，产生典型的“超卖”问题。</p>
+<pre class="playground"><code class="language-rust">use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::Arc;
+use std::thread;
+
+fn simulate_ticket_sales() {
+
+    // 初始票数 50 张
+    let ticket_count = Arc::new(AtomicI32::new(50));
+
+    thread::scope(|scope| {
+        for _thread_id in 0..100 {
+
+            let tickets_ref = Arc::clone(&amp;ticket_count);
+            scope.spawn(move || {
+                // "读-判断 -写" 三步整体不是原子操作，可能会导致线程安全问题
+                let available = tickets_ref.load(Ordering::Relaxed);
+                if available &gt; 0 {
+                    thread::yield_now(); // 模拟操作系统调度，让出 CPU 执行权给其他线程执行
+                    tickets_ref.fetch_sub(1, Ordering::Relaxed);
+                }
+            });
+        }
+    });
+
+    // 检查最终剩余票数
+    let remaining = ticket_count.load(Ordering::SeqCst);
+    if remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", remaining);
+    }
+}
+
+fn main() {
+    for _ in 0..100 {
+        simulate_ticket_sales();
+    }
+}</code></pre>
+<pre><code class="language-shell"># 多次编译运行，可以看到发生超卖
+shell&gt; cargo run
+发生超卖！剩余票数少于 0）：-2
+发生超卖！剩余票数少于 0）：-1
+
+shell&gt; cargo run
+发生超卖！剩余票数少于 0）：-1
+</code></pre>
+<p>　　通过原子变量的比较并交换（Compare-And-Swap，CAS）操作函数 <code>compare_exchange()</code>，可以在“当前值与预期值匹配”的情况下，以不可分割的原子操作完成变量更新；若当前值与预期值不一致，则说明数据可能已被其他线程修改，此时不执行写入，并返回失败结果（通常同时返回最新的当前值），由调用方决定是否重试或重新计算。</p>
+<p>　　修改上述售票示例，使用 CAS 进行扣减：每次扣减以当前票数作为预期值尝试更新，若票数未变则扣减成功；若被其他线程修改导致 CAS 失败，则获取最新票数重试。</p>
+<pre class="playground"><code class="language-rust">use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::Arc;
+use std::thread;
+
+fn simulate_ticket_sales() {
+    // 初始票数 50 张
+    let ticket_count = Arc::new(AtomicI32::new(50));
+
+    thread::scope(|scope| {
+        for _ in 0..100 {
+            let tickets = Arc::clone(&amp;ticket_count);
+
+            scope.spawn(move || {
+                loop {
+                    // 读取当前票数
+                    let current = tickets.load(Ordering::Relaxed);
+
+                    // 没票则退出
+                    if current &lt;= 0 {
+                        break;
+                    }
+
+                    let new = current - 1;
+
+                    // CAS：只有当前值未被修改时才扣减成功
+                    match tickets.compare_exchange(
+                        current,
+                        new,
+                        Ordering::Relaxed,
+                        Ordering::Relaxed,
+                    ) {
+                        Ok(_) =&gt; break,     // 抢票成功
+                        Err(_) =&gt; continue, // 失败重试
+                    }
+                }
+            });
+        }
+    });
+
+    // 最终结果检查
+    let remaining = ticket_count.load(Ordering::Relaxed);
+    if remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", remaining);
+    }
+}
+
+fn main() {
+    // 卖 1000 场门票
+    for _ in 0..1000 {
+        simulate_ticket_sales();
+    }
+
+    println!("售卖完毕");
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+售卖完毕
+</code></pre>
+<p>　　原子变量只能保证对单个共享变量的单次简单操作（如加减、读写、与或非等）的线程安全。当逻辑涉及多个共享变量，或需要跨多个步骤并保持整体一致性时，原子操作无法覆盖整个执行过程。在这种情况下，可以通过原子变量实现线程互斥，确保同一时刻仅有一个线程能够访问和修改共享资源，避免数据竞争。这种需要独占访问共享资源的代码区域，称为<strong>临界区（Critical Section）</strong>。</p>
+<p>　　下述售票示例，有两个共享变量：单场剩余数量和总共已售数量，通过原子变量 CAS 操作实现线程互斥，确保同一时刻仅有一个线程能够访问和修改这些共享资源，避免数据竞争。</p>
+<pre class="playground"><code class="language-rust">use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread;
+
+// 多个共享变量：单场剩余数量和总共已售数量
+static mut SINGLE_GAME_REMAINING: i32 = 50;
+static mut TOTAL_SOLD_COUNT: i32 = 0;
+
+// 标记状态：是否已有线程持有标记
+static LOCK: AtomicBool = AtomicBool::new(false);
+
+unsafe fn simulate_ticket_sales() {
+    unsafe { SINGLE_GAME_REMAINING = 50 };
+
+    thread::scope(|scope| {
+        for _thread_id in 0..100 {
+            scope.spawn(|| {
+                // 通过比较并交换（Compare-And-Swap，CAS）标记状态，如果已有线程
+                // 持有标记，则当前线程循环等待，确保同一时刻仅有一个线程操作共享资源
+                while LOCK.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed).is_err() {
+                    thread::yield_now();   // 让出 CPU 时间片
+                }
+
+                // 修改多个共享数据（临界区）
+                if unsafe { SINGLE_GAME_REMAINING } &gt; 0 {
+                    thread::yield_now();   // 模拟操作系统调度切换线程
+                    unsafe {
+                        SINGLE_GAME_REMAINING -= 1;
+                        TOTAL_SOLD_COUNT += 1
+                    };
+                }
+
+                // 解除标记
+                LOCK.store(false, Ordering::Release);
+            });
+        }
+    });
+
+    let remaining = unsafe { SINGLE_GAME_REMAINING };
+    if remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", remaining);
+    }
+}
+
+fn main() {
+    // 卖 1000 场门票
+    for _ in 0..1000 {
+        unsafe { simulate_ticket_sales(); }
+    }
+
+    println!("所有场次全部售卖完毕, 共售卖 {} 张", unsafe { TOTAL_SOLD_COUNT });
+}</code></pre>
+<pre><code class="language-shell"># 编译运行，不会再出现超卖
+shell&gt; cargo run
+所有场次全部售卖完毕, 共售卖 50000 张
+</code></pre>
+<h4 id="1452-锁"><a class="header" href="#1452-锁">14.5.2 锁</a></h4>
+<p>　　通过 CAS（Compare-And-Swap，比较并交换） 原子操作可以构建基本的互斥访问机制，实现线程安全，但直接基于 CAS 实现复杂的并发控制，不仅代码较为繁琐，还可能因高频竞争和重复重试产生较大的 CPU 开销。为了降低实现复杂度和提高并发控制的效率，通常会在 CAS 等原子操作的基础上进一步封装和抽象，形成自旋锁、互斥锁、读写锁、信号量等同步机制，以适应不同的并发场景和性能需求。</p>
+<h5 id="12521-自旋锁---spinlock"><a class="header" href="#12521-自旋锁---spinlock">12.5.2.1 自旋锁 - SpinLock</a></h5>
+<p>　　自旋锁基于 CAS 原子操作确保同一时刻仅有一个线程能够访问和修改共享资源，实现多线程互斥访问，避免数据竞争。其核心思想是：使用一个原子变量作为“锁标记”，表示当前是否有线程正在访问或修改共享数据，线程通过 CAS 尝试修改该标记状态，成功则获得锁进入临界区，失败则持续循环重试直至获取锁为止。自旋锁优缺点如下：</p>
+<ul>
+<li><strong>优点</strong>：实现简单，不涉及线程阻塞与唤醒机制，避免了操作系统调度带来的上下文切换开销，在临界区非常短的场景下具有较高的执行效率。</li>
+<li><strong>缺点</strong>：当锁竞争较激烈或临界区执行时间较长时，会导致线程持续空转消耗 CPU 资源，降低整体系统性能，并且不适用于高竞争或长时间持锁的场景。</li>
+</ul>
+<p>　　由于 Rust 标准库未提供自旋锁（SpinLock）的实现，我们可以基于 <code>AtomicBool</code> 实现一个简易版本，并封装为 <code>SpinLock</code> 类型，对外提供 <code>lock()</code> 与 <code>unlock()</code> 两个基本方法，用于进入和退出临界区。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// spin_lock.rs
+use std::sync::atomic::{AtomicBool, Ordering};
+
+pub struct SpinLock {
+    flag: AtomicBool,
+}
+
+impl SpinLock {
+    pub const fn new() -&gt; Self {
+        SpinLock {
+            flag: AtomicBool::new(false),
+        }
+    }
+
+    pub fn lock(&amp;self) {
+        // 如果 flag 原本是 false，则 CAS 成功并将其设为 true
+        // 如果失败，则说明锁被占用，需要自旋
+        while self.flag.compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed).is_err() {
+            // 可选项：自旋等待（忙等）, 让自旋等待更省资源：降低功耗与争用，在超线程下提升整体性能
+            std::hint::spin_loop();
+        }
+    }
+
+    pub fn unlock(&amp;self) {
+        self.flag.store(false, Ordering::Release);
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>　　下述售票示例中，有两个共享变量：单场剩余票数和总售出数量，通过 <code>SpinLock</code> 保证同一时刻仅有一个线程能够访问和修改共享资源，实现多线程互斥访问，避免因数据竞争并产生超卖问题。</p>
+<pre class="playground"><code class="language-rust">mod spin_lock;
+
+use std::thread;
+use crate::spin_lock::SpinLock;
+
+// 多个共享变量：单场剩余票数和总售出数量
+static mut SINGLE_GAME_REMAINING: i32 = 50;
+static mut TOTAL_SOLD_COUNT: i32 = 0;
+
+// 自旋锁
+static LOCK: SpinLock = SpinLock::new();
+
+unsafe fn simulate_ticket_sales() {
+    unsafe { SINGLE_GAME_REMAINING = 50};
+
+    thread::scope(|scope| {
+        for _thread_id in 0..100 {
+            scope.spawn(|| {
+
+                // 加锁，确保只有一个线程能进入临界区
+                LOCK.lock();
+
+                // 修改多个共享数据（临界区）
+                if unsafe { SINGLE_GAME_REMAINING } &gt; 0 {
+                    thread::yield_now();   // 模拟操作系统调度切换线程
+                    unsafe {
+                        SINGLE_GAME_REMAINING -= 1;
+                        TOTAL_SOLD_COUNT += 1;
+                    }
+                }
+
+                // 解锁，允许其他线程进入临界区
+                LOCK.unlock();
+            });
+        }
+    });
+
+    let remaining = unsafe { SINGLE_GAME_REMAINING };
+    if remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", remaining);
+    }
+}
+
+fn main() {
+    // 卖 1000 场门票
+    for _ in 0..1000 {
+        unsafe { simulate_ticket_sales(); }
+    }
+
+    println!("所有场次全部售卖完毕, 共售卖 {} 张", unsafe { TOTAL_SOLD_COUNT });
+}</code></pre>
+<pre><code class="language-shell"># 编译运行，可以看到不会再超卖
+shell&gt; cargo run
+所有场次全部售卖完毕, 共售卖 50000 张
+</code></pre>
+<p>　　在生产环境中，更推荐直接使用社区中成熟的自旋锁实现，这类实现经过充分测试，稳定性更高、功能也更加完善，例如 <code>spin</code>（https://crates.io/crates/spin）。</p>
+<h5 id="12522-互斥锁---mutex"><a class="header" href="#12522-互斥锁---mutex">12.5.2.2 互斥锁 - Mutex</a></h5>
+<p>　　当自旋锁在临界区执行时间较长时，等待锁释放的线程会持续循环检查，占用 CPU 资源，造成浪费。对于无法在短时间内获取锁的情况，更合理的做法是将当前线程阻塞挂起，让出 CPU 给其他线程执行，等锁释放后再唤醒并重新尝试获取锁。这种基于线程阻塞与唤醒机制实现的锁，称为<strong>互斥锁（Mutex）</strong>。</p>
+<ul>
+<li>
+<p><strong>优点</strong>：基于线程阻塞与唤醒机制实现，在锁竞争较激烈或临界区执行时间较长时，不会持续占用 CPU 资源，能够有效降低空转开销，提升系统整体资源利用率，适用于复杂或耗时操作场景。</p>
+</li>
+<li>
+<p><strong>缺点</strong>：涉及线程上下文切换与调度开销，加锁与解锁成本相对较高，不适合锁持有时间较短的情况。</p>
+</li>
+</ul>
+<p>　　Rust 标准库通过 <code>std::sync::Mutex</code> 类型提供互斥锁，其 <code>lock()</code> 函数用于获取锁，获取成功会返回一个 <code>MutexGuard</code> 实例，只要该实例未被释放，就表示当前线程持有该锁，在此期间，其他线程在尝试获取该锁时将被阻塞，直到锁被释放为止（如果没有变量持有返回的 <code>MutexGuard</code> 实例，锁会被立即释放）。<code>MutexGuard</code> 类型实现了 <code>Drop</code> trait，因此离开作用域时会自动释放锁。</p>
+<p>　　在加锁过程中，互斥锁通常采用自适应策略：先通过 CAS 等原子操作尝试快速获取锁，若失败则进行短暂自旋（在 Rust 1.9.4 的实现中为 100 次），只有在自旋仍未成功时才会挂起线程等待锁释放。因此，互斥锁更适用于锁竞争较低或中等、且锁持有时间明显大于 CAS + 自旋开销的场景，例如涉及 I/O 操作或执行时间达到几十至上百纳秒的临界区。</p>
+<p>　　修改上一章节示例，使用互斥锁（Mutex）确保同一时刻仅有一个线程能够访问和修改共享资源，实现多线程互斥访问，避免因数据竞争并产生超卖问题。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Mutex;
+use std::thread;
+
+// 多个共享变量：单场剩余票数和总售出数量
+static mut SINGLE_GAME_REMAINING: i32 = 50;
+static mut TOTAL_SOLD_COUNT: i32 = 0;
+
+// 互斥锁
+static LOCK: Mutex&lt;()&gt; = Mutex::new(());
+
+unsafe fn simulate_ticket_sales() {
+    unsafe { SINGLE_GAME_REMAINING = 50 };
+
+    thread::scope(|scope| {
+        for _thread_id in 0..100 {
+            scope.spawn(|| {
+
+                // 加锁，确保只有一个线程能进入临界区
+                let Ok(guard) = LOCK.lock() else {
+                    eprintln!("error");
+                    return;
+                };
+
+                // 修改多个共享数据（临界区）
+                if unsafe { SINGLE_GAME_REMAINING } &gt; 0 {
+                    thread::yield_now();   // 模拟操作系统调度切换线程
+                    unsafe {
+                        SINGLE_GAME_REMAINING -= 1;
+                        TOTAL_SOLD_COUNT += 1;
+                    }
+                }
+
+                // 手动释放锁，允许其他线程进入临界区，默认在离开 guard 作用域后会自动调用 drop()
+                drop(guard);
+            });
+        }
+    });
+
+    let remaining = unsafe { SINGLE_GAME_REMAINING };
+    if remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", remaining);
+    }
+}
+
+fn main() {
+    // 卖 1000 场票
+    for _ in 0..1000 {
+        unsafe { simulate_ticket_sales(); }
+    }
+
+    println!("所有场次全部售卖完毕, 共售卖 {} 张", unsafe { TOTAL_SOLD_COUNT });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+所有场次全部售卖完毕, 共售卖 50000 张
+</code></pre>
+<p>　　另外，互斥锁既可以单独使用（如 <code>Mutex&lt;()&gt;</code>），也可以直接封装数据本身，这也是 Rust 更推荐且更安全的使用方式。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Mutex;
+use std::thread;
+
+// 将共享数据直接放入 Mutex 中
+struct SharedData {
+    remaining: i32,
+    sold: i32,
+}
+
+// 全局共享状态
+static DATA: Mutex&lt;SharedData&gt; = Mutex::new(SharedData {
+    remaining: 50,
+    sold: 0,
+});
+
+fn simulate_ticket_sales() {
+
+    // 重置每场的票数为 50 张
+    let mut data = DATA.lock().expect("lock err");
+    data.remaining = 50;
+    drop(data);
+
+    thread::scope(|scope| {
+        for _ in 0..100 {
+            scope.spawn(|| {
+
+                let mut data = DATA.lock().unwrap_or_else(|err| {
+                    eprintln!("其他线程在持锁时发生 panic，数据可能不一致: {err}");
+                    std::process::exit(-1);
+                });
+
+                if data.remaining &gt; 0 {
+                    thread::yield_now();
+                    data.remaining -= 1;
+                    data.sold += 1;
+                }
+
+            });
+        }
+    });
+
+    let data = DATA.lock().unwrap();
+    if data.remaining &lt; 0 {
+        eprintln!("超卖了！剩余 {}", data.remaining);
+    }
+}
+
+fn main() {
+    // 卖 1000 场门票
+    for _ in 0..1000 {
+        simulate_ticket_sales();
+    }
+
+    println!("所有场次全部售卖完毕, 共售卖 {} 张", DATA.lock().unwrap().sold);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+所有场次全部售卖完毕, 共售卖 50000 张
+</code></pre>
+<h5 id="12523-读写锁---rwlock"><a class="header" href="#12523-读写锁---rwlock">12.5.2.3 读写锁 - RwLock</a></h5>
+<p>　　在许多并发场景中，共享数据的访问模式往往呈现“读多写少”的特点，而纯读操作不会引发数据竞争，只有写操作才可能导致冲突。互斥锁对于无害的读操作也施加了不必要的互斥限制，在读多写少场景下会限制并发能力，从而降低系统整体吞吐量。</p>
+<p>　　为了解决这一问题，读写锁（Read-Write Lock，<code>RwLock</code>）将访问模式区分为**读锁（共享）<strong>和</strong>写锁（独占）**两种机制：多个线程可以同时持有读锁并并发读取数据；但当写线程获取写锁时，必须独占访问资源，此时所有读锁与其他写锁都会被阻塞，保证写操作的独占执行，避免数据竞争。</p>
+<ul>
+<li>**优点：**在读多写少场景下显著提升并发度，多个读线程可并行执行，充分利用多核 CPU 资源。</li>
+<li>**缺点：**若读操作极为频繁且持锁时间较长，写线程可能迟迟无法获取写锁，导致写操作长期被阻塞，甚至存在“饿死”的风险。</li>
+</ul>
+<p>　　Rust 标准库通过 <code>std::sync::RwLock</code> 类型提供读写锁，其 <code>read()</code> 方法用于获取读锁，获取成功会返回一个 <code>RwLockReadGuard</code> 实例。只要该实例未被释放，就表示当前线程持有读锁；在此期间，其他线程可以继续获取读锁，但获取写锁的操作将被阻塞，直到所有读锁被释放为止。<code>write()</code> 方法用于获取写锁，获取成功会返回一个 <code>RwLockWriteGuard</code> 实例。只要该实例未被释放，就表示当前线程持有写锁，此时其他线程无论是获取读锁还是写锁都会被阻塞。<code>RwLockReadGuard</code> 和 <code>RwLockWriteGuard</code> 类型都实现了 <code>Drop</code> trait，因此在离开作用域时会自动释放锁。</p>
+<p>　　下述示例对比了 <code>Mutex</code> 互斥锁与 <code>RwLock</code> 读写锁在读多写少场景下的性能差异，分别创建 16 个读线程和 2  个写线程，对同一计数器进行并发访问，并统计整体执行时间。</p>
+<pre class="playground"><code class="language-rust">use std::sync::{Mutex, RwLock};
+use std::thread;
+use std::time::Instant;
+
+// 读线程数量
+const READERS: usize = 16;
+
+// 写线程数量
+const WRITERS: usize = 2;
+
+// 模拟耗时计算，使临界区变长，让 RwLock 的并发读优势覆盖其管理开销
+#[inline(never)]
+fn heavy_computation(mut val: u64) -&gt; u64 {
+    for _ in 0..2000 {
+        val = val.wrapping_add(1).wrapping_mul(31);
+    }
+    return val;
+}
+
+fn benchmark_mutex() {
+
+    let counter = Mutex::new(0u64);
+    let start = Instant::now();
+
+    thread::scope(|s| {
+        // 互斥锁 - 读写都互斥
+        for _ in 0..READERS {
+            s.spawn(|| {
+                for _ in 0..1000 {
+                    let val = heavy_computation(*counter.lock().unwrap());
+                    std::hint::black_box(val);   // 防止编译器把循环当成无意义代码优化掉
+                }
+            });
+        }
+
+        // 写线程
+        for _ in 0..WRITERS {
+            s.spawn(|| {
+                for _ in 0..1000 {
+                    *counter.lock().unwrap() += 1;
+                }
+            });
+        }
+    });
+
+    let duration = start.elapsed();
+    let result = *counter.lock().unwrap();
+    println!("Mutex   → Time: {:?}, Result: {}", duration, result);
+}
+
+fn benchmark_rwlock() {
+
+    let counter = RwLock::new(0u64);
+    let start = Instant::now();
+
+    thread::scope(|scope| {
+        // 读写锁 - 多个线程可以有并发读
+        for _ in 0..READERS {
+            scope.spawn(|| {
+                for _ in 0..1000 {
+                    let val = heavy_computation(*counter.read().unwrap());
+                    std::hint::black_box(val);   // 防止编译器把循环当成无意义代码优化掉
+                }
+            });
+        }
+
+        // 读写锁 - 写互斥
+        for _ in 0..WRITERS {
+            scope.spawn(|| {
+                for _ in 0..1000 {
+                    *counter.write().unwrap() += 1;
+                }
+            });
+        }
+    });
+
+    let duration = start.elapsed();
+    let result = *counter.read().unwrap();
+    println!("RwLock  → Time: {:?}, Result: {}", duration, result);
+}
+
+fn main() {
+    benchmark_mutex();
+    benchmark_rwlock();
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+Mutex   → Time: 378.445011ms, Result: 2000
+RwLock  → Time: 99.429621ms, Result: 2000
+
+shell&gt; cargo run --release
+Mutex   → Time: 9.682108ms, Result: 2000
+RwLock  → Time: 1.828696ms, Result: 2000
+</code></pre>
+<p>　　读写锁与互斥锁一样，加锁采用自适应加锁策略：先通过 CAS 等原子操作尝试快速获取锁，若失败则进行短暂自旋（在 Rust 1.9.4 的实现中为 100 次），只有在自旋仍未成功时才会挂起线程等待锁释放。</p>
+<h5 id="1254-条件变量---condvar"><a class="header" href="#1254-条件变量---condvar">12.5.4 条件变量 - Condvar</a></h5>
+<p>　　条件变量用于线程间的同步与协作，基于<strong>等待/通知</strong>模型实现：当线程发现条件未满足时，会阻塞等待条件成立，当其他线程使条件成立并发出通知后，该线程才会被唤醒继续执行。条件变量本身不承载数据，仅作为线程间的调度与通知机制，条件状态需要通过互斥锁保证线程安全，二者通常成对使用。</p>
+<p>　　Rust 通过 <code>std::sync::Condvar</code> 类型提供条件变量，其 <code>wait()</code> 函数用于等待目标条件成立：当条件不满足时，会先释放当前持有的互斥锁，使其他线程得以修改共享条件状态，然后阻塞等待条件成立，当其他线程使条件成立并通过 <code>notify_one()</code> 或 <code>notify_all()</code> 发出通知后，才会被唤醒，返回前会重新竞争获取互斥锁，以确保返回后能够安全地检查条件状态和访问共享数据。</p>
+<pre class="playground"><code class="language-rust">use std::sync::{Mutex, Condvar};
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+
+    // 标记子线程是否已初始化
+    let initialized = Mutex::new(false);
+
+    // 条件变量
+    let condvar = Condvar::new();
+
+    thread::scope(|s| {
+        s.spawn(|| {
+            // 模拟子线程初始化操作，耗时 3 秒
+            thread::sleep(Duration::from_secs(3));
+
+            let mut guard = initialized.lock().unwrap();
+            *guard = true;
+            println!("子线程初始化完毕");
+
+            // 必须释放锁，否则其他线程被唤醒后将无法获取互斥锁，无法从等待中返回
+            drop(guard); 
+
+            // 通知主线程，子线程已初始化完毕
+            condvar.notify_one();        // 通知某一个等待者
+            // condvar.notify_all();     // 通知所有等待者
+
+            loop {
+                println!("子线程继续执行...");
+                thread::sleep(Duration::from_secs(1));
+            }
+        });
+
+        // 判断子线程是否已初始化，没有则等待
+        let mut is_ready = initialized.lock().unwrap();
+        if *is_ready != true {
+            // 等待条件成立，不成功时：自动释放锁 -&gt; 阻塞等待 -&gt; 被 notify_one 唤醒 -&gt; 加锁 -&gt; 返回
+            is_ready = condvar.wait(is_ready).unwrap();
+        } 
+
+        println!("主线程继续执行，子线程已初始化完毕，is_ready={is_ready}");
+    });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+子线程初始化完毕
+子线程继续执行...
+主线程继续执行，子线程已初始化完毕，is_ready=true
+子线程继续执行...
+子线程继续执行...
+...
+</code></pre>
+<p>　　由于可能发生虚假唤醒（spurious wakeup），因此线程在被唤醒后必须重新检查条件，以确保目标条件确已成立。也可以直接使用 <code>wait_while()</code> 或 <code>wait_timeout_while()</code> 等封装方法，其中 <code>wait_while()</code> 用于在条件不满足时持续等待，而 <code>wait_timeout_while()</code> 额外引入超时机制，可避免因通知丢失或条件长期未满足而导致线程无限阻塞。</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 使用 while 循环判断条件是否成立，防止虚假唤醒
+let mut is_ready = initialized.lock().unwrap();
+while *is_ready != true {
+    // 可能发生虚假唤醒，但条件实际上仍未满足
+    is_ready = condvar.wait(is_ready).unwrap();
+}
+
+// 使用 condvar.wait_while() 函数（等价写法，更简洁）
+let mut is_ready = initialized.lock().unwrap();
+is_ready = condvar.wait_while(is_ready, |ready| !*ready).unwrap();
+<span class="boring">}</span></code></pre>
+<h5 id="1255-线程屏障---barrier"><a class="header" href="#1255-线程屏障---barrier">12.5.5 线程屏障 - Barrier</a></h5>
+<p>　　线程屏障用于同步多个线程的执行进度，各个线程在各自预设的屏障位置阻塞等待，直到最后一个线程到达预设屏障位置，线程屏障才会打开，唤醒所有等待的线程继续执行。Rust 通过 <code>std::sync::Barrier</code> 类型提供线程屏障，创建时需要指定参与的线程数量，各线程可以调用 <code>wait()</code> 函数在各自预设的屏障位置阻塞等待，直到最后一个线程在预设屏障调用 wait() ，线程屏障才会打开，唤醒所有等待的线程继续执行。</p>
+<p>　　下述示例，通过线程屏障实现所有线程完成初始化后统一阻塞等待，待全部线程就绪后再同时继续执行。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Barrier;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+
+    // 创建一个线程屏障，并指定打开屏障数量为 3
+    let barrier = Barrier::new(3);
+    thread::scope(|scope| {
+
+        let _log_thread = scope.spawn(|| {
+            thread::sleep(Duration::from_secs(1));
+            println!("日志线程初始化");
+
+            // 阻塞等待线程屏障打开
+            barrier.wait();
+            println!("线程屏障打开，日志线程继续执行");
+        });
+
+        let _db_thread = scope.spawn(|| {
+            thread::sleep(Duration::from_secs(3));
+            println!("数据库线程初始化");
+
+            // 阻塞等待线程屏障打开
+            barrier.wait();
+            println!("线程屏障打开，数据库线程继续执行");
+        });
+
+        println!("主线程初始化");
+
+        // 阻塞等待线程屏障打开
+        barrier.wait();
+        println!("线程屏障打开，主线程继续执行");
+    });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+主线程初始化
+日志线程初始化
+数据库线程初始化
+线程屏障打开，数据库线程继续执行
+线程屏障打开，主线程继续执行
+线程屏障打开，日志线程继续执行
+</code></pre>
+<h5 id="1256-死锁---deadlock"><a class="header" href="#1256-死锁---deadlock">12.5.6 死锁 - Deadlock</a></h5>
+<p>　　在多线程并发程序中，可能需要同时获取多个互斥锁来保护不同的共享资源。当一个线程已持有锁并尝试获取其他锁时，若目标锁已被占用，该线程将进入等待状态；如果占用锁的线程恰好也在等待当前线程所持有的锁，就会形成相互等待的循环依赖，导致所有相关线程均无法继续执行，这种情况称为死锁。</p>
+<p>　　在 Rust 语言中，单个线程重复加锁会导致死锁，即同一个线程在已持有某个锁的情况下再次尝试获取该锁，线程会因等待自身释放锁而被阻塞，从而导致自身永久等待，这种情况称为自死锁（self-deadlock）。Rust 语言中的互斥锁和读写锁的写锁均为不可重入锁，不允许同一线程在已持有锁的情况下重复获取该锁，社区中也存在一些可重入锁的实现，通过内部计数机制记录当前线程的加锁次数，从而允许同一线程对同一锁进行重复获取。</p>
+<pre class="playground"><code class="language-rust">use std::sync::{Mutex, RwLock};
+use std::thread;
+
+fn mutex_self_deadlock() {
+
+    let mutex = Mutex::new(100);
+
+    // 互斥锁：同一线程重复加锁导致自死锁
+    let _lock1 = mutex.lock().unwrap();
+    let _lock2 = mutex.lock().unwrap();
+
+    println!("Mutex: 自死锁导致永远无法结束");
+}
+
+fn rwlock_self_deadlock() {
+
+    let rwlock = RwLock::new(100);
+
+    // 读写锁：读不互斥，读锁可以获取多次
+    let _read1 = rwlock.read().unwrap();
+    let _read2 = rwlock.read().unwrap();
+    println!("RwLock: 读锁可以获取多次");
+
+    // 读写锁：同一线程重复获取写锁，导致自死锁
+    let _write1= rwlock.write().unwrap();
+    let _write2 = rwlock.write().unwrap();
+
+    println!("RwLock: 自死锁导致永远无法结束");
+}
+
+fn rwlock_read_write_deadlock() {
+
+    let rwlock = RwLock::new(100);
+
+    // 读写锁：同一线程获取读锁后再获取写锁，导致自死锁
+    let _read = rwlock.read().unwrap();
+    let _write = rwlock.write().unwrap();
+
+    println!("RwLock: 自死锁导致永远无法结束");
+}
+
+fn main() {
+    thread::scope(|s| {
+        s.spawn(|| mutex_self_deadlock());
+        s.spawn(|| rwlock_self_deadlock());
+        s.spawn(|| rwlock_read_write_deadlock());
+    });
+}</code></pre>
+<pre><code class="language-shell"># 三个程序都在等待自身释放锁，无法执行结束
+shell&gt; cargo run
+RwLock: 读锁可以获取多次
+</code></pre>
+<p>　　多个线程之间加锁顺序不一致，也很可能会导致死锁，即线程 A 先获取锁 L1 再尝试获取锁 L2，而线程 B 先获取锁 L2 再尝试获取锁 L1。若两个线程分别成功持有各自的第一把锁，并同时尝试请求对方已占用的第二把锁，就会形成相互等待的循环依赖，最终导致死锁。</p>
+<p>　　下述示例中，两个线程以相反顺序获取 <code>Mutex</code> 锁（线程 A 先锁自身账户再锁账户 B，线程 B 先锁自身账户再锁账户 A），从而形成循环等待，最终导致死锁。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Mutex;
+use std::thread;
+use std::time::Duration;
+
+#[derive(Debug)]
+struct Account {
+    id: char,
+    balance: Mutex&lt;i32&gt;,
+}
+
+impl Account {
+
+    fn new(id: char, balance: i32) -&gt; Self {
+        Account { id, balance: Mutex::new(balance) }
+    }
+
+    fn transfer(&amp;self, target: &amp;Account, amount: i32) {
+
+        // 先加锁当前帐户
+        let mut current_balance = self.balance.lock().unwrap();
+        println!("{}: 当前帐户加锁成功", self.id);
+
+        // 模拟耗时操作，增加触发死锁的概率
+        thread::sleep(Duration::from_millis(100));
+
+        // 再加锁目标帐户
+        println!("{}: 尝试锁定目标账户 {}", self.id, target.id);
+        let mut target_balance = target.balance.lock().unwrap();
+
+        // 开始转帐
+        *current_balance -= amount;
+        *target_balance += amount;
+        println!("{}: 转帐成功", self.id);
+    }
+}
+
+fn main() {
+
+    let account_a = Account::new('A', 100);
+    let account_b = Account::new('B', 200);
+
+    thread::scope(|s| {
+        s.spawn(|| account_a.transfer(&amp;account_b, 10));
+        s.spawn(|| account_b.transfer(&amp;account_a, 20));
+    });
+}</code></pre>
+<pre><code class="language-shell"># 编译运行，由于死锁，导致永远无法转帐成功
+shell&gt; cargo run
+A: 当前帐户加锁成功
+B: 当前帐户加锁成功
+B: 尝试锁定目标账户 A
+A: 尝试锁定目标账户 B
+</code></pre>
+<p>　　解决因加锁顺序不一致导致的死锁，最常用的方式是<strong>统一加锁顺序</strong>：即所有线程在获取多个锁时，都必须遵循一致的顺序，例如始终按照账户 id 的大小顺序进行加锁，避免循环等待的发生。</p>
+<pre class="playground"><code class="language-rust">use std::sync::Mutex;
+use std::thread;
+use std::time::Duration;
+
+#[derive(Debug)]
+struct Account {
+    id: char,
+    balance: Mutex&lt;i32&gt;,
+}
+
+impl Account {
+
+    fn new(id: char, balance: i32) -&gt; Self {
+        Account { id, balance: Mutex::new(balance) }
+    }
+
+    fn transfer(&amp;self, target: &amp;Account, amount: i32) {
+
+        // 按照账户 id 的大小顺序进行加锁，先加小的，再加大的
+        let (mut current_balance, mut target_balance) = if self.id &lt; target.id {
+            let current = self.balance.lock().unwrap();
+            thread::sleep(Duration::from_millis(100));
+            let target = target.balance.lock().unwrap();
+            (current, target)
+        } else {
+            let target = target.balance.lock().unwrap();
+            thread::sleep(Duration::from_millis(100));
+            let current = self.balance.lock().unwrap();
+            (current, target)
+        };
+
+        // 开始转帐
+        *current_balance -= amount;
+        *target_balance += amount;
+        println!("{}: 转帐成功", self.id);
+    }
+}
+
+fn main() {
+
+    let account_a = Account::new('A', 100);
+    let account_b = Account::new('B', 200);
+
+    thread::scope(|s| {
+        s.spawn(|| account_a.transfer(&amp;account_b, 10));
+        s.spawn(|| account_b.transfer(&amp;account_a, 20));
+    });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+A: 转帐成功
+B: 转帐成功
+</code></pre>
+<h3 id="146-避免资源共享"><a class="header" href="#146-避免资源共享">14.6 避免资源共享</a></h3>
+<p>　　线程安全问题的根源在于多个线程访问同一份共享资源，因此最根本的解决办法就是<strong>避免共享资源</strong>。在资源可以隔离的场景下，可以通过为每个线程创建独立的数据副本、在逻辑层面划分资源，或通过转移数据所有权等方式，彻底消除线程之间的共享依赖。这样一来，线程之间不再存在需要同步的共享状态，从根本上避免了数据竞争，同时减少了同步带来的性能开销，无需依赖额外的锁、原子操作等线程安全机制。</p>
+<h4 id="1461-手动消除共享"><a class="header" href="#1461-手动消除共享">14.6.1 手动消除共享</a></h4>
+<p>　　在任务之间相互独立且数据可以划分的场景下，可以为每个线程创建一份独立的数据副本，或在逻辑层面对资源进行隔离，使不同线程分别管理各自的数据，从而避免多个线程共享同一份资源。</p>
+<p>　　下述示例中，将数组 <code>array</code> 在逻辑上拆分为两个独立的切片，并分别交由两个线程计算局部和，避免多个线程直接访问同一份数据。同时，为每个线程分配独立的变量保存计算结果，最后在线程执行结束后再合并结果，从而避免共享可变状态，无需额外的同步机制。</p>
+<pre class="playground"><code class="language-rust">use std::array;
+use std::thread;
+
+fn main() {
+
+    // 创建一个数组，并初始化为 1～200
+    let mut array: [u32; 200] = array::from_fn(|index| index as u32 + 1);
+
+    // 将数组逻辑拆分为两个独立切片，分别交由不同线程处理，避免多个线程访问同一份资源
+    let (slice_a, slice_b) = array.split_at_mut(100);
+
+    // 为每个线程分配独立变量保存计算结果，避免通过共享变量传递结果
+    let sum: u32;
+    let mut sum_a: u32 = 0;
+    let mut sum_b: u32 = 0;
+
+    thread::scope(|scope| {
+        // 线程 A 计算前半部分数据的总和
+        scope.spawn(|| {
+            for &amp;v in slice_a.iter() {
+                sum_a += v;
+            }
+        });
+
+        // 线程 B 计算后半部分数据的总和
+        scope.spawn(|| {
+            for &amp;v in slice_b.iter() {
+                sum_b += v;
+            }
+        });
+    });
+
+    // 在线程执行结束后合并两个线程的计算结果
+    sum = sum_a + sum_b;
+    println!("sum = {}", sum);
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+sum = 20100
+</code></pre>
+<h4 id="1462-线程局部变量"><a class="header" href="#1462-线程局部变量">14.6.2 线程局部变量</a></h4>
+<p>　　在 Rust 语言中，可以通过 <code>thread_local!</code> 宏定义线程局部变量，每个线程首次访问时，都会自动为其创建一份独立的实例，各线程之间互不共享数据，从而从根源上避免因资源共享而引发的数据竞争。线程局部变量常用于存储与线程绑定的状态，例如日志对象、随机数生成器、数据库连接对象、缓存数据以及统计信息等。</p>
+<p>　　下述示例中，使用 <strong><code>thread_local!</code></strong> 为每个线程创建独立的日志对象和缓冲区，使每个线程只操作属于自己的日志数据，其日志记录只写入当前线程的专属缓冲区，各线程之间互不影响，从而避免资源共享导致的数据竞争。</p>
+<pre class="playground"><code class="language-rust">use std::cell::RefCell;
+use std::thread;
+
+struct Log {
+    buffer: Vec&lt;String&gt;,
+}
+
+impl Log {
+    fn new() -&gt; Self {
+        Log { buffer: Vec::new() }
+    }
+
+    fn push(&amp;mut self, msg: &amp;str) {
+        self.buffer.push(msg.to_string());
+    }
+
+    fn flush(&amp;mut self, thread_name: &amp;str) {
+        for entry in self.buffer.drain(..) {
+            println!("[{thread_name}] {entry}");
+        }
+    }
+}
+
+thread_local! {
+    // 定义线程局部日志对象，每个线程拥有独立实例，避免线程之间共享资源
+    static LOG: RefCell&lt;Log&gt; = RefCell::new(Log::new());
+}
+
+fn main() {
+    thread::scope(|scope| {
+        scope.spawn(|| {
+            LOG.with(|log| {
+                // 获取当前线程对应的日志对象，并写入日志缓冲区
+                let mut log = log.borrow_mut();
+                log.push("启动任务");
+                log.push("正在处理数据");
+                log.push("任务完成");
+
+                // 输出当前线程的日志记录
+                log.flush("thread_a");
+            });
+        });
+
+        scope.spawn(|| {
+            LOG.with(|log| {
+                // 获取当前线程对应的日志对象，并写入日志缓冲区
+                let mut log = log.borrow_mut();
+                log.push("启动任务");
+                log.push("正在处理数据");
+                log.push("任务完成");
+
+                // 输出当前线程的日志记录
+                log.flush("thread_b");
+            });
+        });
+    });
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+[thread_a] 启动任务
+[thread_a] 正在处理数据
+[thread_a] 任务完成
+[thread_b] 启动任务
+[thread_b] 正在处理数据
+[thread_b] 任务完成
+</code></pre>
+<p>　　线程局部变量的存放区域在不同操作系统中存在差异，以 Linux 系统为例，所有线程局部变量存放在线程本地存储区（TLS, Thread Local Storage）。编译时会根据所有线程局部变量的总大小确定该区域的大小，并将其记录在可执行文件的 <code>.tbss</code> 段中；程序运行时，当各个线程首次访问线程局部变量时，才会为其分配内存空间和初始化。下述代码中，创建了两个大小总为 2MB 的线程局部变量。</p>
+<pre class="playground"><code class="language-rust">thread_local! {
+    // 创建两个线程局部变量，总大小为 2MB
+    static BUFFER1: [u8; 1024 * 1024 * 1] = [0; 1024 * 1024 * 1];
+    static BUFFER2: [u8; 1024 * 1024 * 1] = [1; 1024 * 1024 * 1];
+}
+
+fn main() {
+    BUFFER1.with(|buf| println!("main: {:?}", buf.len()));
+    BUFFER2.with(|buf| println!("main: {:?}", buf.len()));
+
+    // 无限循环，保持程序运行，以便进行内存分析
+    loop {
+    }
+}</code></pre>
+<p>　　编译上述代码，使用 <code>objdump</code> 命令可以查看可执行文件各个段的详细信息，从执行结果中可以看到，编译生成的可执行文件中，线程本地存储区大小为 0x200038（约 2MB 多一点）。在 Linux 系统下，运行后可以使用 <code>pmap</code> 命令查看进程各个区域的内存大小。</p>
+<pre><code class="language-shell">shell&gt; cargo-objdump  -- --section-headers 
+app:    file format elf64-x86-64
+Sections:
+Idx Name               Size     VMA              Type
+  0                    00000000 0000000000000000 
+  1 .interp            0000001c 00000000000002e0 DATA
+ ......
+ 20 .tdata             00000020 0000000000053ce0 DATA
+ 21 .tbss              00200038 0000000000053d00 BSS
+ ......
+
+shell&gt; cargo run &amp;
+[1] 4169488
+shell&gt; pmap -p 4169488
+4169488:   target/debug/app
+000055a26411f000     80K r---- /file/rust/project/app/target/debug/app
+000055a264133000    252K r-x-- /file/rust/project/app/target/debug/app
+000055a264172000     16K r---- /file/rust/project/app/target/debug/app
+000055a264176000      4K rw--- /file/rust/project/app/target/debug/app
+......
+000055a2950d0000    132K rw---   [ anon ]
+00007fbf0b2ba000   2060K rw---   [ anon ]        # 线程本地存储区
+00007fbf0b6ab000     16K rw---   [ anon ]
+00007fbf0b6ce000     16K rw---   [ anon ]
+00007fbf0b6fd000      4K -----   [ anon ]
+00007fbf0b6fe000     16K rw---   [ anon ]
+00007fbf0b731000      4K rw---   [ anon ]
+00007ffcf161b000   7188K rw---   [ stack ]
+00007ffcf1d7b000     16K r----   [ anon ]
+00007ffcf1d7f000      8K r-x--   [ anon ]
+ffffffffff600000      4K --x--   [ anon ]
+ total            12208K
+</code></pre>
+<h4 id="1463-通道---channel"><a class="header" href="#1463-通道---channel">14.6.3 通道 - Channel</a></h4>
+<p>　　Channel 可以在线程之间安全地传递数据，实现线程间通信。其本质是一个多线程共享的容器（通常是链表或数组），发送线程将数据所有权转移给该通道，接收线程从中获取所有权，确保同一时间只有一个线程持有数据，避免多个线程直接访问共享资源。虽然通道本身是多线程共享的，但其内部通过原子操作、锁等同步机制保证并发访问安全。Channel 常用于线程间通信、任务分发、事件通知、生产者-消费者模式，以及减少共享数据带来的锁竞争等场景。</p>
+<p>　　Rust 标准库通过 <strong><code>std::sync::mpsc</code></strong> 模块提供多生产者、单消费者通道（Multiple Producer, Single Consumer，MPSC），该通道允许创建多个发送者（<code>Sender</code>），但只能有一个接收者（<code>Receiver</code>）。根据缓冲区是否限制容量，Channel 分为有界通道和无界通道两种类型。</p>
+<p>　　有界通道创建时需要指定缓冲区容量，内部使用数组存储消息，当缓冲区已满时，发送操作会被阻塞，直到接收端读取消息并释放空间。无界通道不限制缓冲区容量，内部使用链表存储消息，发送操作不会因缓冲区满而阻塞，消息会暂存在队列中等待接收，但当生产速度持续高于消费速度时，队列中的消息会不断累积，可能导致内存占用持续增长。</p>
+<pre class="playground"><code class="language-rust">use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    // 创建一个有界通道，容量为 1；无界通道通过 mpsc::channel() 创建
+    let (sender, receiver) = mpsc::sync_channel(1);
+
+    // 克隆发送端，可以有多个发送端
+    let sender_a = sender.clone();
+    let sender_b = sender;
+
+    // 线程 A
+    thread::spawn(move || {
+        sender_a.send("thread_a: Hello").unwrap_or_else(|e|
+            eprintln!("[thread_a] 发送失败: {e}")
+        );
+    });
+
+    // 线程 B
+    thread::spawn(move || {
+        // 如果通道已满，会阻塞等待，直到发送成功
+        sender_b.send("thread_b: Channel").unwrap_or_else(|e|
+            eprintln!("[thread_b] 发送失败: {e}")
+        );
+    });
+
+    // 主线程接收
+    loop {
+        match receiver.recv() {
+            Ok(msg) =&gt; println!("[main recv] {msg}"),
+            Err(_err) =&gt; {
+                println!("[main] 所有发送端都已经被关闭（drop）");
+                break
+            }
+        }
+    }
+}</code></pre>
+<pre><code class="language-shell">shell&gt; cargo run
+main recv] thread_a: Hello
+[main recv] thread_b: Channel
+[main] 所有发送端都已经被关闭（drop）
+</code></pre>
+<p>　　除了标准库提供的 MPSC 通道外，社区中的第三方库还提供了支持多生产者、多消费者（Multi-Producer, Multi-Consumer，MPMC）的通道实现，例如 <code>crossbeam_channel</code>，其内部基于无锁数据结构和原子操作实现，通过协调多个线程之间的数据访问，实现多个发送者和多个接收者同时进行消息传递。当存在多个消费者时，每条消息只会被其中一个消费者接收，而不会被所有消费者重复处理。</p>
+<p>　　下述示例代码通过 <code>crossbeam_channel</code> 创建两个发送者与两个接收者，演示 MPMC（多生产者多消费者）模型中线程间的消息传递机制。</p>
+<pre class="playground"><code class="language-rust">use std::thread;
+use std::time::Duration;
+
+fn main() {
+    // 创建一个有界通道，容量为 2
+    let (sender, receiver) = crossbeam_channel::bounded(2);
+
+    // 克隆发送端，可以有多个生产者
+    let sender_a = sender.clone();
+    let sender_b = sender;
+
+    // 线程 A：发送数据
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(1000));  // 等待两个接收都准备好
+        sender_a.send("thread_a: 1").unwrap();
+        sender_a.send("thread_a: 2").unwrap();
+    });
+
+    // 线程 B：发送数据
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(1000));  // 等待两个接收都准备好
+        sender_b.send("thread_b: 1").unwrap();
+        sender_b.send("thread_b: 2").unwrap();
+    });
+
+    // 克隆接收端，可以有多个消费者
+    let receiver_a = receiver.clone();
+    let receiver_b = receiver;
+
+    thread::spawn(move || {
+        for msg in receiver_a.iter() {
+            println!("[receiver_a] {msg}");
+        }
+    });
+
+    // 消费者 2（主线程）
+    for msg in receiver_b.iter() {
+        println!("[receiver_b] {msg}");
+    }
+}</code></pre>
+<pre><code class="language-shell"># 添加 crossbeam-channel 库依赖
+shell&gt; cargo add crossbeam-channel   # v0.5.16
+
+# 每条消息只会被其中一个消费者接收
+shell&gt; cargo run
+[receiver_b] thread_b: 1
+[receiver_b] thread_a: 2
+[receiver_b] thread_b: 2
+[receiver_a] thread_a: 1    # receiver_a 收到一条消息
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="13.文件操作.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="13.文件操作.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="assets/mermaid-35374ef1.min.js"></script>
+        <script src="assets/mermaid-init-f2077b1f.js"></script>
+        <script src="assets/theme-names-6877598e.js"></script>
+        <script src="assets/ads-cfdc9b51.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
