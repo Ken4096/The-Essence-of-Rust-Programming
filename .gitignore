@@ -1,0 +1,18 @@
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.claude/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+
+# 构建入口。全局 gitignore（~/.gitignore_global）里有一条 `Makefile`，
+# 会把构建入口一并忽略掉，导致它永远提交不上去、CI 上 make 找不到目标。
+# 仓库内的规则优先级高于全局，这里显式取消。
+!Makefile

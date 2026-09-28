@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /toc.html
+Disallow: /404.html
+
+Sitemap: https://the-essence-of-rust-programming.pages.dev/sitemap.xml
